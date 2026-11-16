@@ -20,6 +20,7 @@ const config: Config = {
           700: "#1a40d1",
           800: "#1c38a8",
           900: "#1a2f85",
+          950: "#0c184d",
         },
         background: "var(--background)",
         foreground: "var(--foreground)",

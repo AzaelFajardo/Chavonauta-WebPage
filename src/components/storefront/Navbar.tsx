@@ -44,45 +44,25 @@ export function Navbar({ business, categories }: NavbarProps) {
       <div className="bg-navy-900 text-white">
         <div className="max-w-[1500px] mx-auto px-3 sm:px-4 h-[60px] flex items-center justify-between gap-2 sm:gap-4">
           
-          {/* Logotipo Chavonauta con acento de marca */}
+          {/* Logotipo Personalizado (Sin sonrisa, si no hay logoUrl muestra el nombre limpio) */}
           <Link
             href="/"
             className="flex items-center px-2 py-1.5 rounded hover:ring-1 hover:ring-navy-300 transition-all shrink-0 group"
           >
-            <div className="flex flex-col">
-              <div className="flex items-baseline">
-                <span className="font-heading font-black text-xl sm:text-2xl tracking-tighter text-white">
-                  chavonauta
-                </span>
-                <span className="text-xs font-bold text-navy-300 ml-0.5">.mx</span>
-              </div>
-              {/* Línea curva tecnológica en navy-300 */}
-              <div className="relative -mt-1 h-1.5 w-full">
-                <svg
-                  className="w-full h-full text-navy-300 overflow-visible"
-                  viewBox="0 0 100 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M 5 2 Q 50 18 95 6"
-                    stroke="currentColor"
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M 91 1 L 97 6 L 91 10"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-            </div>
+            {business.logoUrl ? (
+              <img
+                src={business.logoUrl}
+                alt={business.name}
+                className="h-8 sm:h-9 w-auto object-contain"
+              />
+            ) : (
+              <span className="font-heading font-black text-xl sm:text-2xl tracking-tight text-white uppercase">
+                {business.name}
+              </span>
+            )}
           </Link>
 
-          {/* Ubicación / Atención en Tienda */}
+          {/* Sucursal Personalizable (se actualiza automáticamente según la configuración del cliente) */}
           <Link
             href="/#ubicacion"
             className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded hover:ring-1 hover:ring-navy-300 transition-all shrink-0 text-left"
@@ -90,7 +70,9 @@ export function Navbar({ business, categories }: NavbarProps) {
             <MapPin className="w-4 h-4 text-navy-200 shrink-0 mt-1" />
             <div className="flex flex-col leading-tight">
               <span className="text-[11px] text-navy-100">Atención en</span>
-              <span className="text-xs font-bold text-white">Sucursal Centro</span>
+              <span className="text-xs font-bold text-white max-w-[160px] truncate">
+                {business.branchName || "Sucursal"}
+              </span>
             </div>
           </Link>
 
@@ -129,7 +111,7 @@ export function Navbar({ business, categories }: NavbarProps) {
               className="flex-1 h-full px-3 text-sm text-slate-900 placeholder-slate-400 bg-white focus:outline-none"
             />
 
-            {/* Botón de búsqueda en navy-600 (#1b4ff0) */}
+            {/* Botón de búsqueda en navy-600 */}
             <button
               type="submit"
               className="h-full bg-navy-600 hover:bg-navy-700 text-white px-4 flex items-center justify-center transition-colors shrink-0"
@@ -261,7 +243,7 @@ export function Navbar({ business, categories }: NavbarProps) {
             {/* Encabezado del menú */}
             <div className="bg-navy-900 text-white p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="font-heading font-black text-lg">chavonauta</span>
+                <span className="font-heading font-black text-lg uppercase">{business.name}</span>
                 <span className="text-xs font-bold text-navy-200">departamentos</span>
               </div>
               <button

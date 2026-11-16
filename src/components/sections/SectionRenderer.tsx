@@ -6,6 +6,7 @@ import {
   Check,
   MapPin,
   Clock,
+  Mail,
   ChevronRight,
 } from "lucide-react";
 import { BusinessInfo, CatalogItem, Category, SectionBlock } from "@/types";
@@ -27,7 +28,7 @@ export function SectionRenderer({
 
   switch (section.type) {
     // ----------------------------------------------------
-    // 1. HERO BANNER + GRID MULTI-TARJETAS (Paleta Navy & Slate)
+    // 1. HERO BANNER + GRID MULTI-TARJETAS (Fondo navy-900 sólido con alto contraste)
     // ----------------------------------------------------
     case "hero": {
       const waHero = `https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(
@@ -36,23 +37,32 @@ export function SectionRenderer({
 
       return (
         <section className="relative pb-10 bg-slate-100">
-          {/* Banner Hero Superior (navy-900 / navy-950) */}
-          <div className="relative bg-gradient-to-r from-navy-950 via-navy-900 to-navy-950 text-white pt-10 pb-36 px-4 sm:px-8 overflow-hidden">
+          {/* Banner Hero Superior: Fondo Navy Sólido (#1a2f85) para garantizar legibilidad del texto blanco */}
+          <div
+            style={{ backgroundColor: "#1a2f85" }}
+            className="relative text-white pt-10 pb-36 px-4 sm:px-8 overflow-hidden shadow-inner"
+          >
             <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
               <div className="max-w-2xl z-10">
-                <span className="inline-block px-3 py-1 rounded bg-navy-800 text-navy-100 border border-navy-700 text-xs font-semibold uppercase tracking-wider mb-3">
+                <span className="inline-block px-3 py-1 rounded bg-navy-800 text-white border border-navy-700 text-xs font-semibold uppercase tracking-wider mb-3 shadow-xs">
                   Catálogo Oficial y Servicios en Sucursal
                 </span>
-                <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-tight">
-                  Todo en tecnología y servicios digitales
+                
+                {/* Título en Blanco Nítido sobre Fondo Navy */}
+                <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-tight drop-shadow-xs">
+                  {section.title}
                 </h1>
-                <p className="mt-4 text-base sm:text-lg text-slate-200 leading-relaxed font-normal">
-                  Renta de computadoras por hora ($7.00/hr y $4.00/media hr), centro de impresiones express, trámites digitales, reparación de equipos y catálogo de accesorios tecnológicos.
+
+                {/* Subtítulo en Navy-100 de alta legibilidad */}
+                <p className="mt-4 text-base sm:text-lg text-navy-100 leading-relaxed font-normal">
+                  {section.subtitle}
                 </p>
-                <div className="mt-6 flex flex-wrap items-center gap-3">
+
+                {/* Botones de acción con alto contraste */}
+                <div className="mt-7 flex flex-wrap items-center gap-3">
                   <Link
                     href="/catalogo"
-                    className="px-6 py-3 rounded-lg bg-white hover:bg-slate-100 text-navy-900 font-bold text-sm shadow-sm transition-colors"
+                    className="px-6 py-3 rounded-lg bg-white hover:bg-slate-100 text-navy-900 font-extrabold text-sm shadow-md transition-colors"
                   >
                     Ver Todo el Catálogo
                   </Link>
@@ -60,39 +70,36 @@ export function SectionRenderer({
                     href={waHero}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold text-sm border border-white/20 backdrop-blur transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-md transition-colors"
                   >
-                    <MessageCircle className="w-4 h-4 text-emerald-400" />
+                    <MessageCircle className="w-4 h-4 text-white" />
                     <span>Contactar por WhatsApp</span>
                   </a>
                 </div>
               </div>
 
               {/* Imagen lateral */}
-              <div className="hidden lg:block w-96 h-64 rounded-xl overflow-hidden border border-white/15 shadow-2xl relative">
+              <div className="hidden lg:block w-96 h-64 rounded-xl overflow-hidden border border-white/20 shadow-2xl relative">
                 <img
                   src="https://images.unsplash.com/photo-1547082299-de196ea013d6?auto=format&fit=crop&w=800&q=80"
                   alt="Chavonauta Cómputo"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-transparent to-transparent flex items-end p-4">
+                <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-transparent to-transparent flex items-end p-4">
                   <span className="text-xs font-semibold text-white bg-navy-900/90 border border-navy-700 px-3 py-1 rounded-md">
                     Renta de PC: $7.00 / hora
                   </span>
                 </div>
               </div>
             </div>
-
-            {/* Degradado hacia el fondo slate-100 */}
-            <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-slate-100 to-transparent pointer-events-none" />
           </div>
 
-          {/* Cuadrícula de 4 Tarjetas (Solapadas en el Hero) */}
-          <div className="max-w-[1440px] mx-auto px-4 -mt-24 sm:-mt-28 relative z-20">
+          {/* Cuadrícula de 4 Tarjetas Solapadas en el Hero */}
+          <div className="max-w-[1440px] mx-auto px-4 -mt-20 sm:-mt-24 relative z-20">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
               
               {/* Tarjeta 1: Renta de PC e Internet */}
-              <div className="bg-white p-5 rounded-lg shadow-sm border border-slate-200 flex flex-col justify-between">
+              <div className="bg-white p-5 rounded-lg shadow-md border border-slate-200 flex flex-col justify-between">
                 <div>
                   <h2 className="font-heading font-bold text-xl text-slate-900 mb-3">
                     Renta de PC e Internet
@@ -121,7 +128,7 @@ export function SectionRenderer({
               </div>
 
               {/* Tarjeta 2: Cuadrante 2x2 Impresiones y Servicios */}
-              <div className="bg-white p-5 rounded-lg shadow-sm border border-slate-200 flex flex-col justify-between">
+              <div className="bg-white p-5 rounded-lg shadow-md border border-slate-200 flex flex-col justify-between">
                 <div>
                   <h2 className="font-heading font-bold text-xl text-slate-900 mb-3">
                     Centro de Impresiones
@@ -191,7 +198,7 @@ export function SectionRenderer({
               </div>
 
               {/* Tarjeta 3: Cuadrante 2x2 Accesorios de Cómputo */}
-              <div className="bg-white p-5 rounded-lg shadow-sm border border-slate-200 flex flex-col justify-between">
+              <div className="bg-white p-5 rounded-lg shadow-md border border-slate-200 flex flex-col justify-between">
                 <div>
                   <h2 className="font-heading font-bold text-xl text-slate-900 mb-3">
                     Accesorios Tecnológicos
@@ -257,7 +264,7 @@ export function SectionRenderer({
               </div>
 
               {/* Tarjeta 4: Reparación y Soporte Técnico */}
-              <div className="bg-white p-5 rounded-lg shadow-sm border border-slate-200 flex flex-col justify-between">
+              <div className="bg-white p-5 rounded-lg shadow-md border border-slate-200 flex flex-col justify-between">
                 <div>
                   <h2 className="font-heading font-bold text-xl text-slate-900 mb-3">
                     Reparación de Equipos
@@ -296,7 +303,7 @@ export function SectionRenderer({
     }
 
     // ----------------------------------------------------
-    // 2. PRODUCTOS DESTACADOS (Estante con paleta Navy/Slate)
+    // 2. PRODUCTOS DESTACADOS
     // ----------------------------------------------------
     case "featured_catalog": {
       const products = items.filter((item) => item.type === "product");
@@ -362,7 +369,7 @@ export function SectionRenderer({
                       </div>
                     </div>
 
-                    {/* Botón WhatsApp en navy-800 (#1c38a8) */}
+                    {/* Botón WhatsApp en navy-800 */}
                     <div className="mt-4 pt-3 border-t border-slate-100">
                       <a
                         href={waLink}
@@ -580,35 +587,104 @@ export function SectionRenderer({
     }
 
     // ----------------------------------------------------
-    // 5. UBICACIÓN Y HORARIOS DE TIENDA
+    // 5. UBICACIÓN, HORARIOS Y DATOS OFICIALES DE SUCURSAL
     // ----------------------------------------------------
     case "location": {
       return (
         <section id="ubicacion" className="bg-slate-100 py-6 px-4">
           <div className="max-w-[1440px] mx-auto bg-white p-6 sm:p-8 rounded-lg shadow-sm border border-slate-200">
-            <h2 className="font-heading font-bold text-xl text-slate-900 mb-4">
-              Ubicación y Horarios de Atención
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-slate-700">
-              <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-navy-700 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="block text-sm text-slate-900 mb-1">Dirección:</strong>
-                  <span>{business.address}</span>
+            <div className="mb-6">
+              <span className="text-xs font-bold text-navy-800 uppercase tracking-wider">
+                Atención en Sucursal
+              </span>
+              <h2 className="font-heading font-bold text-2xl text-slate-900 mt-1">
+                Ubicación y Horarios de Atención
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1">
+                {business.branchName ? `Sucursal ${business.branchName}` : "Sucursal Principal"}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Dirección y Contacto */}
+              <div className="space-y-5 lg:col-span-1">
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 text-navy-700 shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="block text-sm text-slate-900 mb-1">Dirección:</strong>
+                    <span className="text-xs text-slate-700 leading-relaxed block">
+                      {business.address}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Clock className="w-5 h-5 text-navy-700 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="block text-sm text-slate-900 mb-1">Horarios:</strong>
-                  <span>{business.schedule}</span>
+
+                <div className="flex items-start gap-3">
+                  <MessageCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="block text-sm text-slate-900 mb-1">WhatsApp de Atención:</strong>
+                    <a
+                      href={`https://wa.me/${business.whatsappNumber}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-navy-800 font-bold hover:underline"
+                    >
+                      449 402 2163
+                    </a>
+                  </div>
                 </div>
+
+                {business.email && (
+                  <div className="flex items-start gap-3">
+                    <Mail className="w-5 h-5 text-navy-700 shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="block text-sm text-slate-900 mb-1">Correo Electrónico:</strong>
+                      <a
+                        href={`mailto:${business.email}`}
+                        className="text-xs text-navy-800 font-semibold hover:underline"
+                      >
+                        {business.email}
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="flex items-start gap-3">
-                <MessageCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="block text-sm text-slate-900 mb-1">Contacto Directo:</strong>
-                  <span>WhatsApp: +{business.whatsappNumber}</span>
+
+              {/* Horario Comercial Completo */}
+              <div className="lg:col-span-2 bg-slate-50 border border-slate-200 rounded-lg p-5">
+                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-200">
+                  <Clock className="w-4 h-4 text-navy-800" />
+                  <h3 className="font-bold text-sm text-slate-900">
+                    Horario Comercial (Abierto en horario específico)
+                  </h3>
+                </div>
+
+                {business.scheduleDetails && business.scheduleDetails.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-xs">
+                    {business.scheduleDetails.map((item) => (
+                      <div
+                        key={item.day}
+                        className="flex items-center justify-between py-1 border-b border-slate-200/60"
+                      >
+                        <span className="font-semibold text-slate-800">{item.day}</span>
+                        <span className="font-mono text-slate-700">{item.hours}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-700">{business.schedule}</p>
+                )}
+
+                <div className="mt-4 pt-3 border-t border-slate-200/80 flex items-center justify-between text-xs text-slate-500">
+                  <span>* Modificable por el cliente desde el panel de administración</span>
+                  <a
+                    href={`https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent("Hola Chavonauta, deseo consultar si están abiertos en este momento.")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-bold text-emerald-700 hover:underline flex items-center gap-1"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    <span>Preguntar por WhatsApp</span>
+                  </a>
                 </div>
               </div>
             </div>

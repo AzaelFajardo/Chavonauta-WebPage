@@ -33,15 +33,23 @@ export interface ThemePalette {
   border: string;
 }
 
+export interface ScheduleItem {
+  day: string;
+  hours: string;
+}
+
 export interface BusinessInfo {
   name: string;
   slogan: string;
+  branchName?: string;
   logoUrl?: string;
   announcementText?: string;
   announcementEnabled: boolean;
   whatsappNumber: string;
+  email?: string;
   address: string;
   schedule: string;
+  scheduleDetails?: ScheduleItem[];
   googleMapsUrl?: string;
   socialLinks: {
     facebook?: string;

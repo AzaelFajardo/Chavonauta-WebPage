@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Mail, MapPin, Clock } from "lucide-react";
 import { BusinessInfo, Category } from "@/types";
 
 interface FooterProps {
@@ -45,7 +45,7 @@ export function Footer({ business, categories }: FooterProps) {
               <span className="text-navy-200 block font-semibold text-[11px] uppercase">
                 Sucursal:
               </span>
-              <span className="text-slate-300">{business.address}</span>
+              <span className="text-slate-300 leading-relaxed block">{business.address}</span>
             </li>
           </ul>
         </div>
@@ -102,9 +102,24 @@ export function Footer({ business, categories }: FooterProps) {
         {/* Columna 4: Contacto */}
         <div>
           <h4 className="font-bold text-white text-sm mb-3">Atención al Cliente</h4>
-          <p className="text-navy-100 mb-3 leading-relaxed">
-            Envía tus archivos para imprimir o consulta disponibilidad de artículos.
-          </p>
+          <div className="space-y-2 text-slate-300 mb-4">
+            <p className="flex items-center gap-1.5">
+              <MessageCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span>WhatsApp: 449 402 2163</span>
+            </p>
+            {business.email && (
+              <p className="flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 text-navy-300 shrink-0" />
+                <a href={`mailto:${business.email}`} className="hover:underline">
+                  {business.email}
+                </a>
+              </p>
+            )}
+            <p className="flex items-start gap-1.5 pt-1">
+              <Clock className="w-3.5 h-3.5 text-navy-300 shrink-0 mt-0.5" />
+              <span className="text-[11px] text-navy-100">{business.schedule}</span>
+            </p>
+          </div>
           <a
             href={whatsappHref}
             target="_blank"
@@ -114,21 +129,21 @@ export function Footer({ business, categories }: FooterProps) {
             <MessageCircle className="w-4 h-4 text-emerald-400" />
             <span>WhatsApp Directo</span>
           </a>
-          <div className="mt-3 text-[11px] text-navy-200">
-            Horarios: {business.schedule}
-          </div>
         </div>
       </div>
 
       {/* Franja Inferior */}
       <div className="border-t border-navy-950 bg-slate-950 py-8 px-4 text-center">
         <div className="flex flex-col items-center justify-center gap-3">
-          {/* Logo */}
-          <div className="flex items-baseline">
-            <span className="font-heading font-black text-xl tracking-tighter text-white">
-              chavonauta
-            </span>
-            <span className="text-xs font-bold text-navy-400 ml-0.5">.mx</span>
+          {/* Logo sin sonrisa */}
+          <div className="flex items-center">
+            {business.logoUrl ? (
+              <img src={business.logoUrl} alt={business.name} className="h-7 w-auto object-contain" />
+            ) : (
+              <span className="font-heading font-black text-xl tracking-tight text-white uppercase">
+                {business.name}
+              </span>
+            )}
           </div>
 
           <div className="text-slate-400 text-[11px] max-w-xl">

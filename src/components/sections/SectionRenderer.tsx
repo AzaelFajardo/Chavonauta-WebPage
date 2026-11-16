@@ -47,7 +47,7 @@ export function SectionRenderer({
                 <span className="inline-block px-3 py-1 rounded bg-navy-800 text-white border border-navy-700 text-xs font-semibold uppercase tracking-wider mb-3 shadow-xs">
                   Catálogo Oficial y Servicios en Sucursal
                 </span>
-                
+
                 {/* Título en Blanco Nítido sobre Fondo Navy */}
                 <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-tight drop-shadow-xs">
                   {section.title}
@@ -97,7 +97,7 @@ export function SectionRenderer({
           {/* Cuadrícula de 4 Tarjetas Solapadas en el Hero */}
           <div className="max-w-[1440px] mx-auto px-4 -mt-20 sm:-mt-24 relative z-20">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-              
+
               {/* Tarjeta 1: Renta de PC e Internet */}
               <div className="bg-white p-5 rounded-lg shadow-md border border-slate-200 flex flex-col justify-between">
                 <div>
@@ -398,7 +398,7 @@ export function SectionRenderer({
         <section className="bg-slate-100 py-6 px-4">
           <div className="max-w-[1440px] mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-              
+
               {/* Tarjeta: Trámites Digitales */}
               <div className="bg-white p-5 rounded-lg shadow-sm border border-slate-200 flex flex-col justify-between">
                 <div>
@@ -675,7 +675,7 @@ export function SectionRenderer({
                 )}
 
                 <div className="mt-4 pt-3 border-t border-slate-200/80 flex items-center justify-between text-xs text-slate-500">
-                  <span>* Modificable por el cliente desde el panel de administración</span>
+                  <span>Te esperamos en Whatsapp!!!</span>
                   <a
                     href={`https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent("Hola Chavonauta, deseo consultar si están abiertos en este momento.")}`}
                     target="_blank"

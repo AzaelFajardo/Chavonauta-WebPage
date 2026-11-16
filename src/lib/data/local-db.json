@@ -1,0 +1,553 @@
+{
+  "theme": {
+    "id": "default-chavonauta-theme",
+    "name": "Chavonauta Minimal",
+    "mode": "light",
+    "palette": {
+      "background": "#f8fafc",
+      "foreground": "#0f172a",
+      "primary": "#1c38a8",
+      "primaryForeground": "#ffffff",
+      "secondary": "#eef6ff",
+      "secondaryForeground": "#1a2f85",
+      "accent": "#336dff",
+      "accentForeground": "#ffffff",
+      "card": "#ffffff",
+      "cardForeground": "#1e293b",
+      "muted": "#f1f5f9",
+      "mutedForeground": "#64748b",
+      "border": "#e2e8f0"
+    },
+    "radius": "0.5rem",
+    "fonts": {
+      "heading": "Inter, system-ui, sans-serif",
+      "body": "Inter, system-ui, sans-serif"
+    },
+    "business": {
+      "name": "CHAVONAUTA",
+      "slogan": "Tecnología, accesorios y soluciones digitales",
+      "branchName": "Haciendas de Aguascalientes",
+      "logoUrl": "",
+      "announcementText": "Atención directa por WhatsApp al 449 402 2163 • Impresiones, trámites, soporte y renta de PC.",
+      "announcementEnabled": true,
+      "whatsappNumber": "5214494022163",
+      "email": "ciberchavonauta@gmail.com",
+      "address": "Hacienda las Amarillas #44, Haciendas de Aguascalientes, Aguascalientes, Ags.",
+      "schedule": "Lunes a Viernes: 8:00 - 22:00 | Sábado y Domingo: 12:00 - 22:00",
+      "scheduleDetails": [
+        {
+          "day": "Domingo",
+          "hours": "12:00 - 22:00"
+        },
+        {
+          "day": "Lunes",
+          "hours": "8:00 - 22:00"
+        },
+        {
+          "day": "Martes",
+          "hours": "8:00 - 22:00"
+        },
+        {
+          "day": "Miércoles",
+          "hours": "8:00 - 22:00"
+        },
+        {
+          "day": "Jueves",
+          "hours": "8:00 - 22:00"
+        },
+        {
+          "day": "Viernes",
+          "hours": "8:00 - 22:00"
+        },
+        {
+          "day": "Sábado",
+          "hours": "12:00 - 22:00"
+        }
+      ],
+      "googleMapsUrl": "https://maps.google.com/?q=Hacienda+las+Amarillas+44+Haciendas+de+Aguascalientes",
+      "socialLinks": {
+        "facebook": "https://facebook.com",
+        "instagram": "https://instagram.com",
+        "tiktok": "https://tiktok.com"
+      }
+    },
+    "sections": [
+      {
+        "id": "sec-hero",
+        "type": "hero",
+        "title": "Tecnología, accesorios y servicios digitales en un solo lugar",
+        "subtitle": "Catálogo de productos de cómputo, audio, conectividad y papelería, además de centro de impresión, trámites, renta de equipos y soporte técnico especializado.",
+        "enabled": true,
+        "order": 1,
+        "content": {
+          "badgeText": "Catálogo Digital y Servicios",
+          "primaryCtaText": "Ver Catálogo",
+          "primaryCtaHref": "/catalogo",
+          "secondaryCtaText": "Consultar por WhatsApp",
+          "secondaryCtaHref": "https://wa.me/5215500000000"
+        }
+      },
+      {
+        "id": "sec-featured",
+        "type": "featured_catalog",
+        "title": "Productos Destacados",
+        "subtitle": "Accesorios de cómputo, audio y conectividad disponibles en tienda.",
+        "enabled": true,
+        "order": 2,
+        "content": {
+          "maxItems": 8
+        }
+      },
+      {
+        "id": "sec-services",
+        "type": "services",
+        "title": "Servicios Digitales y Soporte",
+        "subtitle": "Soluciones ágiles para estudiantes, profesionales y público en general.",
+        "enabled": true,
+        "order": 3,
+        "content": {}
+      },
+      {
+        "id": "sec-rates",
+        "type": "rates",
+        "title": "Renta de Equipos e Internet",
+        "subtitle": "Equipos con conexión de alta velocidad para trabajo, estudio y navegación.",
+        "enabled": true,
+        "order": 4,
+        "content": {
+          "computerRates": {
+            "oneHour": 7,
+            "halfHour": 4
+          }
+        }
+      },
+      {
+        "id": "sec-location",
+        "type": "location",
+        "title": "Ubicación y Horarios",
+        "subtitle": "Visítanos en sucursal o contáctanos de forma inmediata.",
+        "enabled": true,
+        "order": 5,
+        "content": {}
+      }
+    ],
+    "updatedAt": "2026-11-16T16:05:33.463Z"
+  },
+  "categories": [
+    {
+      "id": "cat-teclados-mouse",
+      "slug": "teclados-y-mouse",
+      "name": "Teclados y Mouse",
+      "description": "Periféricos ergonómicos, inalámbricos y para oficina o gaming.",
+      "icon": "Mouse"
+    },
+    {
+      "id": "cat-audifonos",
+      "slug": "audifonos-y-diademas",
+      "name": "Audífonos y Diademas",
+      "description": "Audífonos bluetooth, diademas con micrófono y manos libres.",
+      "icon": "Headphones"
+    },
+    {
+      "id": "cat-cables",
+      "slug": "cables-y-cargadores",
+      "name": "Cables y Cargadores",
+      "description": "Cables Tipo C, Lightning, cargadores rápidos y adaptadores.",
+      "icon": "Zap"
+    },
+    {
+      "id": "cat-memorias",
+      "slug": "memorias",
+      "name": "Memorias y Almacenamiento",
+      "description": "Memorias USB de alta velocidad y tarjetas MicroSD.",
+      "icon": "HardDrive"
+    },
+    {
+      "id": "cat-bocinas",
+      "slug": "bocinas",
+      "name": "Bocinas y Audio",
+      "description": "Bocinas bluetooth portátiles y sistemas estéreo.",
+      "icon": "Speaker"
+    },
+    {
+      "id": "cat-focos",
+      "slug": "focos",
+      "name": "Iluminación y Focos",
+      "description": "Lámparas LED de escritorio y barras de iluminación.",
+      "icon": "Lightbulb"
+    },
+    {
+      "id": "cat-accesorios",
+      "slug": "accesorios",
+      "name": "Accesorios",
+      "description": "Soportes, ventiladores portátiles y complementos de cómputo.",
+      "icon": "Sparkles"
+    },
+    {
+      "id": "cat-redes",
+      "slug": "redes",
+      "name": "Redes y Conectividad",
+      "description": "Cables Ethernet, repetidores Wi-Fi y adaptadores de red.",
+      "icon": "Wifi"
+    },
+    {
+      "id": "cat-papeleria",
+      "slug": "papeleria",
+      "name": "Papelería y Oficina",
+      "description": "Artículos escolares, plumones, libretas y consumibles.",
+      "icon": "FileText"
+    },
+    {
+      "id": "cat-servicios",
+      "slug": "servicios-cyber",
+      "name": "Servicios del Cyber",
+      "description": "Impresiones, trámites, escaneo, enmicados y reparación de equipos.",
+      "icon": "Monitor"
+    }
+  ],
+  "items": [
+    {
+      "id": "prod-combo-teclado-mouse",
+      "slug": "combo-teclado-y-mouse-inalambrico-ergonomico",
+      "name": "Combo Teclado y Mouse Inalámbrico Ultra Slim",
+      "shortDescription": "Diseño ergonómico, teclas silenciosas y nano receptor USB unificado.",
+      "description": "Teclado completo con distribución en español y mouse óptico de alta precisión (1200 DPI). Conexión inalámbrica de 2.4 GHz con alcance de hasta 10 metros. Compatible con Windows y macOS.",
+      "type": "product",
+      "categorySlug": "teclados-y-mouse",
+      "priceLabel": "$249.00 MXN",
+      "referencePrice": 249,
+      "imageUrl": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=1200&q=85",
+      "badges": [
+        "Nuevo"
+      ],
+      "featured": true,
+      "active": true,
+      "specs": [
+        {
+          "label": "Conexión",
+          "value": "Inalámbrica 2.4 GHz USB"
+        },
+        {
+          "label": "Compatibilidad",
+          "value": "Windows, macOS, Linux"
+        },
+        {
+          "label": "Baterías",
+          "value": "Incluye baterías AAA"
+        }
+      ]
+    },
+    {
+      "id": "prod-audifonos-diadema",
+      "slug": "audifonos-gamer-diadema-con-microfono-rgb",
+      "name": "Audífonos de Diadema con Micrófono y Aislamiento Acústico",
+      "shortDescription": "Sonido estéreo nítido, almohadillas suaves y micrófono flexible.",
+      "description": "Diadema ergonómica con almohadillas transpirables y aislamiento pasivo de ruido. Incluye micrófono omnidireccional y control de volumen integrado en el cable. Conexión de audio estándar 3.5 mm.",
+      "type": "product",
+      "categorySlug": "audifonos-y-diademas",
+      "priceLabel": "$299.00 MXN",
+      "referencePrice": 299,
+      "imageUrl": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=1200&q=85",
+      "badges": [
+        "Popular"
+      ],
+      "featured": true,
+      "active": true,
+      "specs": [
+        {
+          "label": "Conector",
+          "value": "Jack 3.5 mm universal"
+        },
+        {
+          "label": "Longitud de cable",
+          "value": "1.8 metros reforzado"
+        },
+        {
+          "label": "Micrófono",
+          "value": "Flexible con cancelación de ruido"
+        }
+      ]
+    },
+    {
+      "id": "prod-memoria-usb",
+      "slug": "memoria-usb-32gb-kingston-3-2",
+      "name": "Memoria USB 32GB Kingston DataTraveler 3.2",
+      "shortDescription": "Transferencias de alta velocidad y carcasa metálica resistente con argolla.",
+      "description": "Memoria flash USB 3.2 Gen 1 para transferencia rápida de archivos, documentos y contenido multimedia. Compatible con puertos USB 3.0 y 2.0.",
+      "type": "product",
+      "categorySlug": "memorias",
+      "priceLabel": "$119.00 MXN",
+      "referencePrice": 119,
+      "imageUrl": "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=1200&q=85",
+      "badges": [
+        "Popular"
+      ],
+      "featured": true,
+      "active": true,
+      "specs": [
+        {
+          "label": "Capacidad",
+          "value": "32 GB"
+        },
+        {
+          "label": "Velocidad",
+          "value": "USB 3.2 Gen 1"
+        },
+        {
+          "label": "Cuerpo",
+          "value": "Metálico compacto"
+        }
+      ]
+    },
+    {
+      "id": "prod-barras-luz",
+      "slug": "barras-de-luz-led-rgb-ritmicas",
+      "name": "Barras de Luz LED para Escritorio",
+      "shortDescription": "Iluminación ambiental decorativa con modos dinámicos y alimentación USB.",
+      "description": "Juego de dos barras LED diseñadas para setups de cómputo, monitores y áreas de trabajo. Varios modos de iluminación y conexión directa por puerto USB.",
+      "type": "product",
+      "categorySlug": "focos",
+      "priceLabel": "$180.00 MXN",
+      "referencePrice": 180,
+      "imageUrl": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=85",
+      "badges": [
+        "Destacado"
+      ],
+      "featured": true,
+      "active": true,
+      "specs": [
+        {
+          "label": "Alimentación",
+          "value": "USB 5V"
+        },
+        {
+          "label": "Controles",
+          "value": "Modos de color y brillo ajustables"
+        },
+        {
+          "label": "Contenido",
+          "value": "2 barras LED y bases de soporte"
+        }
+      ]
+    },
+    {
+      "id": "prod-cable-tipo-c",
+      "slug": "cable-carga-rapida-tipo-c-reforzado",
+      "name": "Cable de Carga Rápida Tipo C de 2 Metros",
+      "shortDescription": "Cable con recubrimiento de nylon trenzado de alta durabilidad.",
+      "description": "Cable USB a Tipo C con soporte de carga rápida de hasta 3A y sincronización de datos a 480 Mbps. Conectores de aluminio reforzados contra dobleces.",
+      "type": "product",
+      "categorySlug": "cables-y-cargadores",
+      "priceLabel": "$65.00 MXN",
+      "referencePrice": 65,
+      "imageUrl": "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=1200&q=85",
+      "badges": [
+        "Nuevo"
+      ],
+      "featured": true,
+      "active": true,
+      "specs": [
+        {
+          "label": "Longitud",
+          "value": "2.0 metros"
+        },
+        {
+          "label": "Corriente máxima",
+          "value": "3.0 Amperes"
+        },
+        {
+          "label": "Material",
+          "value": "Nylon trenzado reforzado"
+        }
+      ]
+    },
+    {
+      "id": "prod-bocina-bluetooth",
+      "slug": "bocina-portatil-bluetooth-recargable",
+      "name": "Bocina Portátil Inalámbrica Bluetooth",
+      "shortDescription": "Sonido nítido de alta fidelidad, batería recargable y entrada auxiliar/USB.",
+      "description": "Bocina inalámbrica compacta con conectividad Bluetooth 5.0, ranura para tarjeta MicroSD, puerto USB y batería de litio recargable de hasta 6 horas continuas.",
+      "type": "product",
+      "categorySlug": "bocinas",
+      "priceLabel": "$165.00 MXN",
+      "referencePrice": 165,
+      "imageUrl": "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=1200&q=85",
+      "badges": [],
+      "featured": true,
+      "active": true,
+      "specs": [
+        {
+          "label": "Batería",
+          "value": "Hasta 6 horas de reproducción"
+        },
+        {
+          "label": "Conectividad",
+          "value": "Bluetooth 5.0, USB, TF Card"
+        },
+        {
+          "label": "Potencia",
+          "value": "5W RMS"
+        }
+      ]
+    },
+    {
+      "id": "prod-ventilador-portatil",
+      "slug": "ventilador-portatil-usb-recargable",
+      "name": "Ventilador Portátil de Escritorio USB Recargable",
+      "shortDescription": "Diseño compacto y silencioso con base de soporte y tres velocidades.",
+      "description": "Ventilador de mano y escritorio con batería recargable por puerto Micro-USB. Cuenta con 3 niveles de potencia y base desmontable.",
+      "type": "product",
+      "categorySlug": "accesorios",
+      "priceLabel": "$89.00 MXN",
+      "referencePrice": 89,
+      "imageUrl": "https://images.unsplash.com/photo-1585771724684-38269d6639fd?auto=format&fit=crop&w=1200&q=85",
+      "badges": [],
+      "featured": true,
+      "active": true
+    },
+    {
+      "id": "prod-plumones-punta-pincel",
+      "slug": "set-de-plumones-punta-pincel-12-piezas",
+      "name": "Set de Plumones Doble Punta (12 Colores)",
+      "shortDescription": "Punta pincel y punta fina para lettering, dibujo y notas de estudio.",
+      "description": "Estuche de 12 marcadores de tinta lavable a base de agua con doble punta: punta fina de 0.4 mm y punta pincel flexible de 1-2 mm.",
+      "type": "product",
+      "categorySlug": "papeleria",
+      "priceLabel": "$75.00 MXN",
+      "referencePrice": 75,
+      "imageUrl": "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?auto=format&fit=crop&w=1200&q=85",
+      "badges": [],
+      "featured": true,
+      "active": true
+    },
+    {
+      "id": "serv-renta-pc",
+      "slug": "renta-de-computadoras-por-hora",
+      "name": "Renta de Computadora e Internet",
+      "shortDescription": "Conexión de alta velocidad, Office completo, tareas e impresión directa.",
+      "description": "Renta de estaciones de trabajo con conexión rápida a internet. Tarifa estándar: $7.00 MXN por hora y $4.00 MXN por media hora. Disponibilidad de paquetería de oficina e impresión directa.",
+      "type": "service",
+      "categorySlug": "servicios-cyber",
+      "priceLabel": "$7.00 / hr (Media hr: $4.00)",
+      "referencePrice": 7,
+      "imageUrl": "https://images.unsplash.com/photo-1547082299-de196ea013d6?auto=format&fit=crop&w=1200&q=85",
+      "badges": [
+        "Popular"
+      ],
+      "featured": false,
+      "active": true,
+      "specs": [
+        {
+          "label": "1 Hora",
+          "value": "$7.00 MXN"
+        },
+        {
+          "label": "Media Hora",
+          "value": "$4.00 MXN"
+        },
+        {
+          "label": "Software",
+          "value": "Office, navegadores actualizados, visor PDF"
+        }
+      ]
+    },
+    {
+      "id": "serv-impresiones-copias",
+      "slug": "impresiones-blanco-negro-y-color",
+      "name": "Impresiones B/N y Color / Copias",
+      "shortDescription": "Impresión láser y de alta resolución desde USB, correo o WhatsApp.",
+      "description": "Servicio de impresión y fotocopiado en papel bond, opalina y fotográfico. Envío directo de archivos por WhatsApp para entrega sin esperas.",
+      "type": "service",
+      "categorySlug": "servicios-cyber",
+      "priceLabel": "Consultar por WhatsApp",
+      "imageUrl": "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=1200&q=85",
+      "badges": [
+        "Destacado"
+      ],
+      "featured": false,
+      "active": true,
+      "specs": [
+        {
+          "label": "Modalidad",
+          "value": "Blanco y Negro / Color"
+        },
+        {
+          "label": "Papeles",
+          "value": "Bond, Opalina, Fotográfico"
+        },
+        {
+          "label": "Recepción",
+          "value": "Vía WhatsApp o memoria USB"
+        }
+      ]
+    },
+    {
+      "id": "serv-reparacion-mantenimiento",
+      "slug": "reparacion-y-mantenimiento-equipos-digitales",
+      "name": "Mantenimiento y Reparación de Equipos Digitales",
+      "shortDescription": "Computadoras, laptops, celulares, consolas, tablets e impresoras.",
+      "description": "Diagnóstico, mantenimiento preventivo, limpieza, cambio de pasta térmica, formateo y reparación de fallas en equipos digitales (no electrodomésticos).",
+      "type": "service",
+      "categorySlug": "servicios-cyber",
+      "priceLabel": "Cotización por WhatsApp",
+      "imageUrl": "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=1200&q=85",
+      "badges": [
+        "Destacado"
+      ],
+      "featured": false,
+      "active": true,
+      "specs": [
+        {
+          "label": "Equipos",
+          "value": "PC, Laptops, Celulares, Consolas, Tablets, Impresoras"
+        },
+        {
+          "label": "Diagnóstico",
+          "value": "Revisión física previa"
+        }
+      ]
+    },
+    {
+      "id": "serv-tramites-digitales",
+      "slug": "tramites-digitales-curp-actas-citas",
+      "name": "Trámites Digitales por Internet",
+      "shortDescription": "Consulta, descarga e impresión de CURP, actas, recibos CFE y citas.",
+      "description": "Asesoría e impresión de trámites digitales: CURP certificada, actas de nacimiento, recibos CFE, citas médicas y formatos oficiales (excepto RFC por primera vez).",
+      "type": "service",
+      "categorySlug": "servicios-cyber",
+      "priceLabel": "Consultar por WhatsApp",
+      "imageUrl": "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=85",
+      "badges": [],
+      "featured": false,
+      "active": true
+    },
+    {
+      "id": "serv-recargas-telefonicas",
+      "slug": "recargas-electronicas-multicompania",
+      "name": "Recargas Telefónicas",
+      "shortDescription": "Saldo y paquetes para Telcel, Movistar, AT&T, Bait y más.",
+      "description": "Recargas electrónicas para todas las compañías de telefonía móvil. (Aclaración: contamos con recargas telefónicas, no con pago de servicios en ventanilla).",
+      "type": "service",
+      "categorySlug": "servicios-cyber",
+      "priceLabel": "En mostrador",
+      "imageUrl": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1200&q=85",
+      "badges": [],
+      "featured": false,
+      "active": true
+    },
+    {
+      "id": "serv-diseno-programacion",
+      "slug": "diseno-grafico-y-desarrollo-web",
+      "name": "Diseño Gráfico y Programación a la Medida",
+      "shortDescription": "Lonas, invitaciones, publicidad y páginas web o sistemas personalizados.",
+      "description": "Servicios de diseño gráfico profesional (lonas, volantes, logotipos) y desarrollo de sitios web o sistemas a la medida de tu negocio.",
+      "type": "service",
+      "categorySlug": "servicios-cyber",
+      "priceLabel": "Cotización por WhatsApp",
+      "imageUrl": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=85",
+      "badges": [],
+      "featured": false,
+      "active": true
+    }
+  ]
+}

@@ -1,26 +1,27 @@
-import Link from "next/link";
+import React from "react";
+import { repository } from "@/lib/data/repository";
+import { AdminCustomizerManager } from "@/components/customizer/AdminCustomizerManager";
 
-export default function AdminCustomizerPage() {
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export const metadata = {
+  title: "Personalizador Visual | Chavonauta Admin",
+  description: "Personaliza la identidad, colores y bloques del escaparate digital.",
+};
+
+export default async function AdminCustomizerPage() {
+  const [theme, items, categories] = await Promise.all([
+    repository.getThemeConfig(),
+    repository.getCatalogItems({ includeInactive: false }),
+    repository.getCategories(),
+  ]);
+
   return (
-    <div className="min-h-screen bg-background text-foreground p-8">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-heading font-bold">
-              Personalizador Visual (Estilo Tiendanube)
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Estructura base lista para conectar el editor de paleta, fuentes y secciones.
-            </p>
-          </div>
-          <Link
-            href="/"
-            className="px-4 py-2 text-sm rounded-theme bg-primary text-primary-foreground"
-          >
-            Ver Escaparate
-          </Link>
-        </div>
-      </div>
-    </div>
+    <AdminCustomizerManager
+      initialTheme={theme}
+      items={items}
+      categories={categories}
+    />
   );
 }

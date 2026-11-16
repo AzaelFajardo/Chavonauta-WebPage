@@ -39,37 +39,37 @@ export default async function CatalogPage({
   return (
     <div className="max-w-[1440px] mx-auto px-4 py-6">
       {/* Barra superior de resultados */}
-      <div className="bg-white p-4 rounded-sm border border-slate-200 shadow-sm mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2 text-slate-500">
-          <Link href="/" className="hover:text-[#c7511f] flex items-center gap-1 font-semibold">
+          <Link href="/" className="hover:text-navy-900 flex items-center gap-1 font-semibold">
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Inicio</span>
           </Link>
           <span>/</span>
-          <span className="text-[#0f1111] font-bold">
+          <span className="text-slate-900 font-bold">
             {currentCategory ? currentCategory.name : "Catálogo y Departamentos"}
           </span>
         </div>
 
         <div className="text-slate-600 font-medium">
-          <strong className="text-[#0f1111]">{filteredItems.length}</strong> resultados
+          <strong className="text-slate-900">{filteredItems.length}</strong> resultados
           {queryClean && <span> para "{queryClean}"</span>}
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-        {/* Barra lateral de departamentos (Estilo Amazon Sidebar) */}
-        <aside className="lg:col-span-1 bg-white p-4 rounded-sm border border-slate-200 shadow-sm h-fit">
-          <h3 className="font-bold text-sm text-[#0f1111] mb-3 pb-2 border-b border-slate-200">
+        {/* Barra lateral de departamentos */}
+        <aside className="lg:col-span-1 bg-white p-4 rounded-lg border border-slate-200 shadow-sm h-fit">
+          <h3 className="font-bold text-sm text-slate-900 mb-3 pb-2 border-b border-slate-200">
             Departamentos
           </h3>
-          <ul className="space-y-1.5 text-xs">
+          <ul className="space-y-1 text-xs">
             <li>
               <Link
                 href="/catalogo"
-                className={`block py-1 hover:text-[#c7511f] ${
+                className={`block py-1.5 px-2 rounded hover:bg-navy-50 hover:text-navy-900 transition-colors ${
                   !categoria || categoria === "todas"
-                    ? "font-bold text-[#c7511f]"
+                    ? "font-bold text-navy-900 bg-navy-50"
                     : "text-slate-700"
                 }`}
               >
@@ -82,8 +82,10 @@ export default async function CatalogPage({
                 <li key={cat.id}>
                   <Link
                     href={`/catalogo?categoria=${cat.slug}`}
-                    className={`block py-1 hover:text-[#c7511f] ${
-                      active ? "font-bold text-[#c7511f]" : "text-slate-700"
+                    className={`block py-1.5 px-2 rounded hover:bg-navy-50 hover:text-navy-900 transition-colors ${
+                      active
+                        ? "font-bold text-navy-900 bg-navy-50"
+                        : "text-slate-700"
                     }`}
                   >
                     {cat.name}
@@ -94,7 +96,7 @@ export default async function CatalogPage({
           </ul>
         </aside>
 
-        {/* Grilla de Productos estilo Amazon */}
+        {/* Grilla de Productos */}
         <main className="lg:col-span-4">
           {filteredItems.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -106,13 +108,13 @@ export default async function CatalogPage({
                 return (
                   <div
                     key={item.id}
-                    className="bg-white border border-slate-200 rounded p-4 flex flex-col justify-between hover:shadow-md transition-shadow group"
+                    className="bg-white border border-slate-200 rounded-lg p-4 flex flex-col justify-between hover:border-navy-300 hover:shadow-md transition-all group"
                   >
                     <div>
                       {/* Imagen */}
                       <Link
                         href={`/item/${item.slug}`}
-                        className="relative block aspect-square w-full overflow-hidden bg-slate-50 mb-3"
+                        className="relative block aspect-square w-full overflow-hidden bg-slate-50 rounded-md mb-3"
                       >
                         <img
                           src={item.imageUrl}
@@ -120,7 +122,7 @@ export default async function CatalogPage({
                           className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
                         />
                         {item.badges.length > 0 && (
-                          <span className="absolute top-2 left-2 bg-[#cc0c39] text-white text-[10px] font-bold px-2 py-0.5 rounded-sm">
+                          <span className="absolute top-2 left-2 bg-navy-100 text-navy-900 border border-navy-200 text-[10px] font-bold px-2 py-0.5 rounded">
                             {item.badges[0]}
                           </span>
                         )}
@@ -133,28 +135,28 @@ export default async function CatalogPage({
 
                       {/* Título */}
                       <Link href={`/item/${item.slug}`}>
-                        <h2 className="font-heading font-medium text-xs sm:text-sm text-[#0f1111] line-clamp-2 group-hover:text-[#007185] transition-colors leading-snug">
+                        <h2 className="font-heading font-medium text-xs sm:text-sm text-slate-900 line-clamp-2 group-hover:text-navy-700 transition-colors leading-snug">
                           {item.name}
                         </h2>
                       </Link>
 
                       {/* Precio */}
                       <div className="mt-2 flex items-baseline gap-1">
-                        <span className="text-base sm:text-xl font-bold text-[#0f1111]">
+                        <span className="text-base sm:text-xl font-bold text-slate-900">
                           {item.priceLabel}
                         </span>
                       </div>
                     </div>
 
-                    {/* Botón WhatsApp estilo Amazon */}
+                    {/* Botón WhatsApp */}
                     <div className="mt-4 pt-3 border-t border-slate-100 flex flex-col gap-1.5">
                       <a
                         href={waLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-full bg-[#ffd814] hover:bg-[#f7ca00] text-[#0f1111] text-xs font-bold transition-colors"
+                        className="flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-lg bg-navy-800 hover:bg-navy-700 text-white text-xs font-semibold shadow-xs transition-colors"
                       >
-                        <MessageCircle className="w-3.5 h-3.5" />
+                        <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
                         <span>Consultar por WhatsApp</span>
                       </a>
                     </div>
@@ -163,9 +165,9 @@ export default async function CatalogPage({
               })}
             </div>
           ) : (
-            <div className="bg-white rounded p-12 text-center border border-slate-200">
+            <div className="bg-white rounded-lg p-12 text-center border border-slate-200">
               <Search className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <h3 className="font-bold text-[#0f1111] text-base">
+              <h3 className="font-bold text-slate-900 text-base">
                 No se encontraron resultados
               </h3>
               <p className="text-xs text-slate-500 mt-1">
@@ -173,7 +175,7 @@ export default async function CatalogPage({
               </p>
               <Link
                 href="/catalogo"
-                className="inline-block mt-4 text-xs font-bold text-[#007185] hover:underline"
+                className="inline-block mt-4 text-xs font-bold text-navy-800 hover:underline"
               >
                 Ver todos los productos
               </Link>

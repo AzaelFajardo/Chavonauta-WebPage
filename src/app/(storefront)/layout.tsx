@@ -19,7 +19,7 @@ export default async function StorefrontLayout({
   return (
     <div
       style={cssVars as React.CSSProperties}
-      className="min-h-screen flex flex-col bg-[#e3e6e6] text-[#0f1111] antialiased"
+      className="min-h-screen flex flex-col bg-slate-100 text-slate-800 antialiased"
     >
       <Navbar business={theme.business} categories={categories} />
       <main className="flex-1">{children}</main>

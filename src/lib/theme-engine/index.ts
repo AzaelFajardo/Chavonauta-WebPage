@@ -1,61 +1,45 @@
 import { ThemeConfig, ThemePalette } from "@/types";
 
-export const PRESET_PALETTES: Record<string, { label: string; mode: "dark" | "light"; palette: ThemePalette }> = {
-  chavonauta_space: {
-    label: "Chavonauta Espacial (Oscuro)",
+export const PRESET_PALETTES: Record<
+  string,
+  { label: string; mode: "dark" | "light"; palette: ThemePalette }
+> = {
+  chavonauta_navy: {
+    label: "Chavonauta Oficial (Navy & Slate)",
+    mode: "light",
+    palette: {
+      background: "#f8fafc", // slate-50
+      foreground: "#0f172a", // slate-900
+      primary: "#1c38a8", // navy-800
+      primaryForeground: "#ffffff",
+      secondary: "#eef6ff", // navy-50
+      secondaryForeground: "#1a2f85", // navy-900
+      accent: "#336dff", // navy-500
+      accentForeground: "#ffffff",
+      card: "#ffffff", // white
+      cardForeground: "#1e293b", // slate-800
+      muted: "#f1f5f9", // slate-100
+      mutedForeground: "#64748b", // slate-500
+      border: "#e2e8f0", // slate-200
+    },
+  },
+  chavonauta_dark: {
+    label: "Chavonauta Noche Espacial",
     mode: "dark",
     palette: {
-      background: "#0b0f19",
+      background: "#0b1120",
       foreground: "#f8fafc",
-      primary: "#6366f1",
-      primaryForeground: "#ffffff",
-      secondary: "#1e293b",
+      primary: "#5c93ff",
+      primaryForeground: "#0b1120",
+      secondary: "#162035",
       secondaryForeground: "#f8fafc",
-      accent: "#06b6d4",
-      accentForeground: "#0f172a",
-      card: "#111827",
+      accent: "#38bdf8",
+      accentForeground: "#0b1120",
+      card: "#111b2e",
       cardForeground: "#f8fafc",
       muted: "#1e293b",
       mutedForeground: "#94a3b8",
-      border: "#1e293b",
-    },
-  },
-  neon_arcade: {
-    label: "Arcade Neón (Oscuro)",
-    mode: "dark",
-    palette: {
-      background: "#09090b",
-      foreground: "#fafafa",
-      primary: "#a855f7",
-      primaryForeground: "#ffffff",
-      secondary: "#18181b",
-      secondaryForeground: "#f4f4f5",
-      accent: "#22d3ee",
-      accentForeground: "#09090b",
-      card: "#121217",
-      cardForeground: "#fafafa",
-      muted: "#27272a",
-      mutedForeground: "#a1a1aa",
-      border: "#27272a",
-    },
-  },
-  clean_daylight: {
-    label: "Estación Clara (Claro)",
-    mode: "light",
-    palette: {
-      background: "#f8fafc",
-      foreground: "#0f172a",
-      primary: "#4f46e5",
-      primaryForeground: "#ffffff",
-      secondary: "#e2e8f0",
-      secondaryForeground: "#0f172a",
-      accent: "#0891b2",
-      accentForeground: "#ffffff",
-      card: "#ffffff",
-      cardForeground: "#0f172a",
-      muted: "#f1f5f9",
-      mutedForeground: "#475569",
-      border: "#e2e8f0",
+      border: "#1e2c45",
     },
   },
 };

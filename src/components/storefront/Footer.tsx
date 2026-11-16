@@ -152,7 +152,7 @@ export function Footer({ business, categories }: FooterProps) {
 
           <div className="pt-2">
             <Link
-              href="/admin/personalizador"
+              href="/admin"
               className="text-[11px] text-slate-500 hover:text-slate-300 transition-colors"
             >
               Acceso a Administración

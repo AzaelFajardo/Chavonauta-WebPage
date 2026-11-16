@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Cybercafé Chavonauta | Catálogo y Estación Digital",
+  title: "Chavonauta | Catálogo",
   description:
     "Escaparate digital y catálogo de servicios de cybercafé, impresiones, trámites, accesorios y zona gamer.",
 };

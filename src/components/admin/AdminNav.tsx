@@ -11,7 +11,6 @@ import {
   Menu,
   X,
   Store,
-  Sparkles,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -151,17 +150,7 @@ export function AdminNav() {
         </div>
 
         {/* Footer del Sidebar con enlace a la tienda */}
-        <div className="p-4 border-t border-navy-900 bg-navy-950/95 space-y-3">
-          <div className="p-3 rounded-xl bg-navy-900/60 border border-navy-800/80">
-            <div className="flex items-center gap-2 text-sky-300 text-xs font-semibold mb-1">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Modo Escaparate</span>
-            </div>
-            <p className="text-[11px] text-slate-400 leading-snug">
-              Edita tu catálogo y tema. Los cambios se reflejarán directamente en el escaparate.
-            </p>
-          </div>
-
+        <div className="p-4 border-t border-navy-900 bg-navy-950/95">
           <Link
             href="/"
             target="_blank"

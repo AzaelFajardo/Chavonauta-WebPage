@@ -1,12 +1,17 @@
-export default function AdminSettingsPage() {
-  return (
-    <div className="min-h-screen bg-background text-foreground p-8">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-2xl font-heading font-bold">Configuración del Cybercafé</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Datos generales de sucursal, horarios, redes sociales y contacto.
-        </p>
-      </div>
-    </div>
-  );
+import React from "react";
+import { repository } from "@/lib/data/repository";
+import { AdminSettingsManager } from "@/components/admin/AdminSettingsManager";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export const metadata = {
+  title: "Configuración | Chavonauta Admin",
+  description: "Configuración general de sucursal, horarios, redes sociales y contacto.",
+};
+
+export default async function AdminSettingsPage() {
+  const theme = await repository.getThemeConfig();
+
+  return <AdminSettingsManager initialTheme={theme} />;
 }

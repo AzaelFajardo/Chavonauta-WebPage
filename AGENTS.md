@@ -72,7 +72,10 @@ Todo agente de IA o desarrollador debe respetar estrictamente las siguientes reg
 ### A. Una Rama por Implementación (`Branch per Implementation`)
 1. **No desarrollar directamente en `main`**: La rama `main` representa la versión estable e integrada.
 2. **Crear una rama dedicada antes de escribir código**: Cada nueva funcionalidad, módulo o corrección debe tener su propia rama creada a partir de `main`.
-3. **Convención de nombres de ramas**:
+3. **Prohibido hacer merge a `main` sin autorización explícita**:
+   - Todo el trabajo debe permanecer en su rama correspondiente y subirse al remoto (`git push -u origin <rama>`).
+   - **SOLO el usuario puede autorizar explícitamente un merge hacia `main`**. Ningún agente debe ejecutar `git merge` hacia `main` por iniciativa propia.
+4. **Convención de nombres de ramas**:
    - `feat/<nombre-corto>` — Nuevas características o secciones (ej. `feat/theme-engine`, `feat/catalog-showcase`, `feat/admin-customizer`).
    - `fix/<nombre-corto>` — Corrección de errores (ej. `fix/mobile-navbar`).
    - `chore/<nombre-corto>` — Configuración de proyecto, dependencias o estructura base (ej. `chore/project-scaffold`).

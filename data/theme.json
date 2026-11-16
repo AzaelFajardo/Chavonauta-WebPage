@@ -1,0 +1,134 @@
+{
+  "id": "default-chavonauta-theme",
+  "name": "Chavonauta Minimal",
+  "mode": "light",
+  "palette": {
+    "background": "#f8fafc",
+    "foreground": "#0f172a",
+    "primary": "#1c38a8",
+    "primaryForeground": "#ffffff",
+    "secondary": "#eef6ff",
+    "secondaryForeground": "#1a2f85",
+    "accent": "#336dff",
+    "accentForeground": "#ffffff",
+    "card": "#ffffff",
+    "cardForeground": "#1e293b",
+    "muted": "#f1f5f9",
+    "mutedForeground": "#64748b",
+    "border": "#e2e8f0"
+  },
+  "radius": "0.5rem",
+  "fonts": {
+    "heading": "Inter, system-ui, sans-serif",
+    "body": "Inter, system-ui, sans-serif"
+  },
+  "business": {
+    "name": "CHAVONAUTA",
+    "slogan": "Tecnología, accesorios y soluciones digitales",
+    "branchName": "Haciendas de Aguascalientes",
+    "logoUrl": "",
+    "announcementText": "Atención directa por WhatsApp al 449 402 2163 • Impresiones, trámites, soporte y renta de PC.",
+    "announcementEnabled": true,
+    "whatsappNumber": "5214494022163",
+    "email": "ciberchavonauta@gmail.com",
+    "address": "Hacienda las Amarillas #44, Haciendas de Aguascalientes, Aguascalientes, Ags.",
+    "schedule": "Lunes a Viernes: 8:00 - 22:00 | Sábado y Domingo: 12:00 - 22:00",
+    "scheduleDetails": [
+      {
+        "day": "Domingo",
+        "hours": "12:00 - 22:00"
+      },
+      {
+        "day": "Lunes",
+        "hours": "8:00 - 22:00"
+      },
+      {
+        "day": "Martes",
+        "hours": "8:00 - 22:00"
+      },
+      {
+        "day": "Miércoles",
+        "hours": "8:00 - 22:00"
+      },
+      {
+        "day": "Jueves",
+        "hours": "8:00 - 22:00"
+      },
+      {
+        "day": "Viernes",
+        "hours": "8:00 - 22:00"
+      },
+      {
+        "day": "Sábado",
+        "hours": "12:00 - 22:00"
+      }
+    ],
+    "googleMapsUrl": "https://maps.google.com/?q=Hacienda+las+Amarillas+44+Haciendas+de+Aguascalientes",
+    "socialLinks": {
+      "facebook": "https://facebook.com",
+      "instagram": "https://instagram.com",
+      "tiktok": "https://tiktok.com"
+    }
+  },
+  "sections": [
+    {
+      "id": "sec-hero",
+      "type": "hero",
+      "title": "Tecnología, accesorios y servicios digitales en un solo lugar",
+      "subtitle": "Catálogo de productos de cómputo, audio, conectividad y papelería, además de centro de impresión, trámites, renta de equipos y soporte técnico especializado.",
+      "enabled": true,
+      "order": 1,
+      "content": {
+        "badgeText": "Catálogo Digital y Servicios",
+        "primaryCtaText": "Ver Catálogo",
+        "primaryCtaHref": "/catalogo",
+        "secondaryCtaText": "Consultar por WhatsApp",
+        "secondaryCtaHref": "https://wa.me/5215500000000"
+      }
+    },
+    {
+      "id": "sec-featured",
+      "type": "featured_catalog",
+      "title": "Productos Destacados",
+      "subtitle": "Accesorios de cómputo, audio y conectividad disponibles en tienda.",
+      "enabled": true,
+      "order": 2,
+      "content": {
+        "maxItems": 8
+      }
+    },
+    {
+      "id": "sec-services",
+      "type": "services",
+      "title": "Servicios Digitales y Soporte",
+      "subtitle": "Soluciones ágiles para estudiantes, profesionales y público en general.",
+      "enabled": true,
+      "order": 3,
+      "content": {}
+    },
+    {
+      "id": "sec-rates",
+      "type": "rates",
+      "title": "Renta de Equipos e Internet",
+      "subtitle": "Equipos con conexión de alta velocidad para trabajo, estudio y navegación.",
+      "enabled": true,
+      "order": 4,
+      "content": {
+        "computerRates": {
+          "oneHour": 7,
+          "halfHour": 4
+        }
+      }
+    },
+    {
+      "id": "sec-location",
+      "type": "location",
+      "title": "Ubicación y Horarios",
+      "subtitle": "Visítanos en sucursal o contáctanos de forma inmediata.",
+      "enabled": true,
+      "order": 5,
+      "content": {}
+    }
+  ],
+  "updatedAt": "2026-11-16T03:21:32.411Z"
+}

@@ -3,6 +3,7 @@
 import React from "react";
 import { BusinessInfo } from "@/types";
 import { Store, Megaphone, Phone, MapPin, Mail, Clock } from "lucide-react";
+import { ImageUploader } from "@/components/ui/ImageUploader";
 
 interface BusinessInfoEditorProps {
   business: BusinessInfo;
@@ -47,31 +48,27 @@ export function BusinessInfoEditor({
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                Nombre de Sucursal
-              </label>
-              <input
-                type="text"
-                value={business.branchName || ""}
-                onChange={(e) => onChange({ branchName: e.target.value })}
-                placeholder="Ej. Haciendas de Aguascalientes"
-                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-800"
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                URL del Logotipo (Opcional)
-              </label>
-              <input
-                type="url"
-                value={business.logoUrl || ""}
-                onChange={(e) => onChange({ logoUrl: e.target.value })}
-                placeholder="https://..."
-                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-800"
-              />
-            </div>
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+              Nombre de Sucursal
+            </label>
+            <input
+              type="text"
+              value={business.branchName || ""}
+              onChange={(e) => onChange({ branchName: e.target.value })}
+              placeholder="Ej. Haciendas de Aguascalientes"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-800"
+            />
+          </div>
+
+          {/* Subida de Logotipo Oficial */}
+          <div className="pt-2">
+            <ImageUploader
+              value={business.logoUrl || ""}
+              onChange={(url) => onChange({ logoUrl: url })}
+              label="Logotipo del Cybercafé"
+              helperText="El logotipo aparecerá en la cabecera y en el pie de página del escaparate. Si no subes ninguno, se mostrará el nombre con la tipografía de la marca."
+            />
           </div>
         </div>
       </div>

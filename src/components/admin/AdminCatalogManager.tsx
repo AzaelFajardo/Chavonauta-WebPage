@@ -643,7 +643,7 @@ export function AdminCatalogManager({
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                  <th className="py-3 px-3 w-10 text-center">
+                  <th className="py-3 px-4 w-10 text-center">
                     <input
                       type="checkbox"
                       checked={
@@ -653,9 +653,6 @@ export function AdminCatalogManager({
                       onChange={handleSelectAll}
                       className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
                     />
-                  </th>
-                  <th className="py-3 px-1 w-9 text-center" title="Destacado en portada">
-                    <Star className="w-3.5 h-3.5 text-slate-400 mx-auto" />
                   </th>
                   <th className="py-3 px-4">Producto</th>
                   <th className="py-3 px-4 text-center">Disponibilidad</th>
@@ -677,7 +674,7 @@ export function AdminCatalogManager({
                       } ${isSelected ? "bg-blue-50/30" : ""}`}
                     >
                       {/* Checkbox de fila */}
-                      <td className="py-3.5 px-3 text-center">
+                      <td className="py-3.5 px-4 text-center">
                         <input
                           type="checkbox"
                           checked={isSelected}
@@ -686,49 +683,53 @@ export function AdminCatalogManager({
                         />
                       </td>
 
-                      {/* Estrellita de Destacado (1-click toggle) */}
-                      <td className="py-3.5 px-1 text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleFeatured(item)}
-                          className="p-1 rounded-md hover:bg-amber-50 transition-colors group"
-                          title={
-                            item.featured
-                              ? "Producto destacado en portada (clic para quitar)"
-                              : "Hacer producto destacado en portada"
-                          }
-                        >
-                          <Star
-                            className={`w-4 h-4 transition-transform group-hover:scale-115 ${
-                              item.featured
-                                ? "fill-amber-400 text-amber-500 drop-shadow-xs"
-                                : "text-slate-300 hover:text-amber-400"
-                            }`}
-                          />
-                        </button>
-                      </td>
-
-                      {/* Producto: Imagen + Nombre azul cliqueable + Categoría + Etiquetas */}
+                      {/* Producto: Imagen + Nombre azul cliqueable + Estrella discreta + Categoría + Etiquetas */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
-                          <img
-                            src={item.imageUrl}
-                            alt={item.name}
-                            onClick={() => handleEdit(item)}
-                            className="w-12 h-12 rounded-lg object-cover border border-slate-200 shrink-0 bg-slate-100 cursor-pointer hover:opacity-90 transition-opacity"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src =
-                                "https://placehold.co/100x100?text=Sin+Foto";
-                            }}
-                          />
-                          <div className="min-w-0">
-                            <button
-                              type="button"
+                          <div className="relative shrink-0">
+                            <img
+                              src={item.imageUrl}
+                              alt={item.name}
                               onClick={() => handleEdit(item)}
-                              className="font-semibold text-blue-600 hover:text-blue-800 text-left hover:underline truncate max-w-xs sm:max-w-md block"
-                            >
-                              {item.name}
-                            </button>
+                              className="w-12 h-12 rounded-lg object-cover border border-slate-200 bg-slate-100 cursor-pointer hover:opacity-90 transition-opacity"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src =
+                                  "https://placehold.co/100x100?text=Sin+Foto";
+                              }}
+                            />
+                            {/* Estrella discreta en la esquina de la miniatura */}
+                            {item.featured && (
+                              <span
+                                className="absolute -top-1 -right-1 bg-amber-400 text-amber-950 p-0.5 rounded-full shadow-2xs border border-white"
+                                title="Producto destacado en portada"
+                              >
+                                <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-950" />
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => handleEdit(item)}
+                                className="font-semibold text-blue-600 hover:text-blue-800 text-left hover:underline truncate max-w-xs sm:max-w-md block"
+                              >
+                                {item.name}
+                              </button>
+
+                              {/* Estrellita discreta al lado del nombre */}
+                              {item.featured && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleFeatured(item)}
+                                  className="shrink-0 p-0.5 text-amber-500 hover:text-amber-600 transition-colors"
+                                  title="Producto destacado (clic para quitar de portada)"
+                                >
+                                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                                </button>
+                              )}
+                            </div>
 
                             <div className="flex flex-wrap items-center gap-1.5 mt-1">
                               {/* Chip de categoría */}
@@ -747,7 +748,7 @@ export function AdminCatalogManager({
                                 {item.type === "product" ? "Físico" : "Servicio"}
                               </span>
 
-                              {/* Badge de Destacado */}
+                              {/* Badge discreto de Destacado */}
                               {item.featured && (
                                 <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
                                   <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-500" />
@@ -846,6 +847,30 @@ export function AdminCatalogManager({
                             ) : (
                               <EyeOff className="w-4 h-4" />
                             )}
+                          </button>
+
+                          {/* Destacar / Quitar de destacados (1 clic) */}
+                          <button
+                            type="button"
+                            onClick={() => handleToggleFeatured(item)}
+                            className={`p-1.5 rounded-lg transition-colors ${
+                              item.featured
+                                ? "text-amber-500 hover:text-amber-600 hover:bg-amber-50"
+                                : "text-slate-400 hover:text-amber-500 hover:bg-amber-50"
+                            }`}
+                            title={
+                              item.featured
+                                ? "Quitar de destacados en portada"
+                                : "Destacar en la portada"
+                            }
+                          >
+                            <Star
+                              className={`w-4 h-4 ${
+                                item.featured
+                                  ? "fill-amber-400 text-amber-500"
+                                  : "text-slate-400"
+                              }`}
+                            />
                           </button>
 
                           {/* Editar */}

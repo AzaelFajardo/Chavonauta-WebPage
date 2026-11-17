@@ -113,21 +113,26 @@ export function ItemFormModal({
     setCustomTagInput("");
   }, [item, categories, isOpen]);
 
-  // Si se ingresa un precio numérico mayor a 0, marcar automáticamente "Mostrar el precio en la tienda"
+  // Si se ingresa un precio numérico mayor a 0, marcar automáticamente "Mostrar el precio en la tienda".
+  // Si vuelve a estar vacío o en 0, desmarcar automáticamente.
   const handlePriceChange = (val: string) => {
     setReferencePrice(val);
-    const num = parseFloat(val);
-    if (!isNaN(num) && num > 0) {
-      setShowPriceInStore(true);
-    }
+    const numRef = parseFloat(val);
+    const numPromo = parseFloat(promotionalPrice);
+    const hasValidPrice =
+      (!isNaN(numRef) && numRef > 0) || (!isNaN(numPromo) && numPromo > 0);
+
+    setShowPriceInStore(hasValidPrice);
   };
 
   const handlePromoPriceChange = (val: string) => {
     setPromotionalPrice(val);
-    const num = parseFloat(val);
-    if (!isNaN(num) && num > 0) {
-      setShowPriceInStore(true);
-    }
+    const numRef = parseFloat(referencePrice);
+    const numPromo = parseFloat(val);
+    const hasValidPrice =
+      (!isNaN(numRef) && numRef > 0) || (!isNaN(numPromo) && numPromo > 0);
+
+    setShowPriceInStore(hasValidPrice);
   };
 
   // Manejar cambio de nombre y auto-generar slug simple

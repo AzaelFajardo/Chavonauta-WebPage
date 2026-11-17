@@ -49,7 +49,7 @@ export function ItemFormModal({
   isSaving,
   onCategoryCreated,
 }: ItemFormModalProps) {
-  const isEditing = Boolean(item);
+  const isEditing = Boolean(item && item.id);
 
   // Form states
   const [name, setName] = useState("");
@@ -59,7 +59,7 @@ export function ItemFormModal({
   const [referencePrice, setReferencePrice] = useState<string>("");
   const [promotionalPrice, setPromotionalPrice] = useState<string>("");
   const [customPriceText, setCustomPriceText] = useState("");
-  const [showPriceInStore, setShowPriceInStore] = useState(true);
+  const [showPriceInStore, setShowPriceInStore] = useState(false);
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [badges, setBadges] = useState<string[]>([]);
@@ -76,21 +76,15 @@ export function ItemFormModal({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (item) {
+    if (item && item.id) {
       setName(item.name || "");
       setSlug(item.slug || "");
       setType(item.type || "product");
       setCategorySlug(item.categorySlug || (categories[0]?.slug ?? ""));
-      setReferencePrice(
-        item.referencePrice !== undefined && item.referencePrice !== null
-          ? String(item.referencePrice)
-          : ""
-      );
-      setPromotionalPrice(
-        item.promotionalPrice !== undefined && item.promotionalPrice !== null
-          ? String(item.promotionalPrice)
-          : ""
-      );
+      const hasRef = item.referencePrice !== undefined && item.referencePrice !== null;
+      setReferencePrice(hasRef ? String(item.referencePrice) : "");
+      const hasPromo = item.promotionalPrice !== undefined && item.promotionalPrice !== null;
+      setPromotionalPrice(hasPromo ? String(item.promotionalPrice) : "");
       setCustomPriceText(item.priceLabel || "");
       setShowPriceInStore(Boolean(item.priceLabel && item.priceLabel !== "Consultar en mostrador"));
       setDescription(item.description || item.shortDescription || "");
@@ -106,7 +100,7 @@ export function ItemFormModal({
       setReferencePrice("");
       setPromotionalPrice("");
       setCustomPriceText("");
-      setShowPriceInStore(true);
+      setShowPriceInStore(false);
       setDescription("");
       setImageUrl("");
       setBadges([]);
@@ -118,6 +112,23 @@ export function ItemFormModal({
     setNewCategoryName("");
     setCustomTagInput("");
   }, [item, categories, isOpen]);
+
+  // Si se ingresa un precio numérico mayor a 0, marcar automáticamente "Mostrar el precio en la tienda"
+  const handlePriceChange = (val: string) => {
+    setReferencePrice(val);
+    const num = parseFloat(val);
+    if (!isNaN(num) && num > 0) {
+      setShowPriceInStore(true);
+    }
+  };
+
+  const handlePromoPriceChange = (val: string) => {
+    setPromotionalPrice(val);
+    const num = parseFloat(val);
+    if (!isNaN(num) && num > 0) {
+      setShowPriceInStore(true);
+    }
+  };
 
   // Manejar cambio de nombre y auto-generar slug simple
   const handleNameChange = (val: string) => {
@@ -261,10 +272,12 @@ export function ItemFormModal({
         <header className="sticky top-0 z-20 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-xs">
           <div>
             <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-              {isEditing ? `Editar "${item?.name}"` : "Nuevo producto"}
+              {isEditing ? `Editar "${item?.name}"` : "Agregar Producto"}
             </h2>
             <p className="text-xs text-slate-500">
-              Completa los datos del producto o servicio para el catálogo.
+              {isEditing
+                ? "Modifica los datos, precios o fotos del producto seleccionado."
+                : "Completa los datos del nuevo producto o servicio para el catálogo."}
             </p>
           </div>
 
@@ -289,7 +302,7 @@ export function ItemFormModal({
                   <span>Guardando...</span>
                 </>
               ) : (
-                <span>Guardar producto</span>
+                <span>{isEditing ? "Guardar cambios" : "Agregar Producto"}</span>
               )}
             </button>
           </div>
@@ -385,7 +398,7 @@ export function ItemFormModal({
                     step="0.5"
                     min="0"
                     value={referencePrice}
-                    onChange={(e) => setReferencePrice(e.target.value)}
+                    onChange={(e) => handlePriceChange(e.target.value)}
                     placeholder="0.00"
                     className="w-full pl-7 pr-3.5 py-2.5 text-xs sm:text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900 placeholder:text-slate-400 bg-white"
                   />
@@ -407,7 +420,7 @@ export function ItemFormModal({
                     step="0.5"
                     min="0"
                     value={promotionalPrice}
-                    onChange={(e) => setPromotionalPrice(e.target.value)}
+                    onChange={(e) => handlePromoPriceChange(e.target.value)}
                     placeholder="0.00"
                     className="w-full pl-7 pr-3.5 py-2.5 text-xs sm:text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900 placeholder:text-slate-400 bg-white"
                   />
@@ -757,7 +770,7 @@ export function ItemFormModal({
                 <span>Guardando...</span>
               </>
             ) : (
-              <span>Guardar producto</span>
+              <span>{isEditing ? "Guardar cambios" : "Agregar Producto"}</span>
             )}
           </button>
         </footer>

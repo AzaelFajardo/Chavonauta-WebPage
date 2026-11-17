@@ -23,7 +23,6 @@ import {
 import { CatalogItem, Category } from "@/types";
 import { ItemFormModal } from "./ItemFormModal";
 import { ItemDeleteDialog } from "./ItemDeleteDialog";
-import { Tooltip, InfoTooltip } from "@/components/ui/Tooltip";
 
 interface AdminCatalogManagerProps {
   initialItems: CatalogItem[];
@@ -142,7 +141,7 @@ export function AdminCatalogManager({
 
   // Open Form for Create
   const handleCreateNew = (defaultType: "product" | "service" = "product") => {
-    setEditingItem({ type: defaultType } as CatalogItem);
+    setEditingItem(null);
     setIsFormOpen(true);
   };
 
@@ -300,16 +299,14 @@ export function AdminCatalogManager({
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <Tooltip content="Crear un nuevo producto físico o servicio para el catálogo">
-            <button
-              type="button"
-              onClick={() => handleCreateNew("product")}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-xs"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Agregar producto</span>
-            </button>
-          </Tooltip>
+          <button
+            type="button"
+            onClick={() => handleCreateNew("product")}
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-xs"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Agregar producto</span>
+          </button>
         </div>
       </div>
 
@@ -374,7 +371,7 @@ export function AdminCatalogManager({
           </div>
         </div>
 
-        {/* Pestañas de tipo (Píldoras rápidas con Tooltips) */}
+        {/* Pestañas de tipo (Píldoras rápidas) */}
         <div className="flex items-center gap-1.5 pt-2 border-t border-slate-100">
           <button
             type="button"
@@ -388,35 +385,31 @@ export function AdminCatalogManager({
             Todos ({items.length})
           </button>
 
-          <Tooltip content="Artículos tangibles (papelería, accesorios, botanas, cables)">
-            <button
-              type="button"
-              onClick={() => setTypeFilter("product")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                typeFilter === "product"
-                  ? "bg-slate-900 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
-              }`}
-            >
-              <Package className="w-3.5 h-3.5" />
-              <span>Físicos ({stats.products})</span>
-            </button>
-          </Tooltip>
+          <button
+            type="button"
+            onClick={() => setTypeFilter("product")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              typeFilter === "product"
+                ? "bg-slate-900 text-white"
+                : "text-slate-600 hover:bg-slate-100"
+            }`}
+          >
+            <Package className="w-3.5 h-3.5" />
+            <span>Físicos ({stats.products})</span>
+          </button>
 
-          <Tooltip content="Servicios digitales y en tienda (impresiones, renta de PC/consolas, trámites)">
-            <button
-              type="button"
-              onClick={() => setTypeFilter("service")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                typeFilter === "service"
-                  ? "bg-slate-900 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
-              }`}
-            >
-              <Monitor className="w-3.5 h-3.5" />
-              <span>Servicios ({stats.services})</span>
-            </button>
-          </Tooltip>
+          <button
+            type="button"
+            onClick={() => setTypeFilter("service")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              typeFilter === "service"
+                ? "bg-slate-900 text-white"
+                : "text-slate-600 hover:bg-slate-100"
+            }`}
+          >
+            <Monitor className="w-3.5 h-3.5" />
+            <span>Servicios ({stats.services})</span>
+          </button>
         </div>
       </div>
 
@@ -452,37 +445,20 @@ export function AdminCatalogManager({
               <thead>
                 <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                   <th className="py-3 px-4 w-10 text-center">
-                    <Tooltip content="Seleccionar todos los productos">
-                      <input
-                        type="checkbox"
-                        checked={
-                          filteredItems.length > 0 &&
-                          selectedIds.length === filteredItems.length
-                        }
-                        onChange={handleSelectAll}
-                        className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
-                      />
-                    </Tooltip>
+                    <input
+                      type="checkbox"
+                      checked={
+                        filteredItems.length > 0 &&
+                        selectedIds.length === filteredItems.length
+                      }
+                      onChange={handleSelectAll}
+                      className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
+                    />
                   </th>
                   <th className="py-3 px-4">Producto</th>
-                  <th className="py-3 px-4 text-center">
-                    <span className="inline-flex items-center justify-center gap-1">
-                      <span>Disponibilidad</span>
-                      <InfoTooltip text="Indica si el producto está visible y disponible (Infinito) o si fue pausado." />
-                    </span>
-                  </th>
-                  <th className="py-3 px-4 text-center">
-                    <span className="inline-flex items-center justify-center gap-1">
-                      <span>Precio</span>
-                      <InfoTooltip text="Precio de venta habitual mostrado a los visitantes." />
-                    </span>
-                  </th>
-                  <th className="py-3 px-4 text-center">
-                    <span className="inline-flex items-center justify-center gap-1">
-                      <span>Promocional</span>
-                      <InfoTooltip text="Precio especial de oferta con descuento si aplica." />
-                    </span>
-                  </th>
+                  <th className="py-3 px-4 text-center">Disponibilidad</th>
+                  <th className="py-3 px-4 text-center">Precio</th>
+                  <th className="py-3 px-4 text-center">Promocional</th>
                   <th className="py-3 px-4 text-right">Acciones</th>
                 </tr>
               </thead>
@@ -598,65 +574,55 @@ export function AdminCatalogManager({
 
                       {/* Acciones */}
                       <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1">
+                        <div className="flex items-center justify-end gap-1.5">
                           {/* Ver en tienda */}
-                          <Tooltip content="Ver en la tienda pública">
-                            <Link
-                              href={`/item/${item.slug}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors inline-flex items-center justify-center"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </Link>
-                          </Tooltip>
+                          <Link
+                            href={`/item/${item.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                            title="Ver en la tienda pública"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Link>
 
                           {/* Pausar / Activar */}
-                          <Tooltip
-                            content={
+                          <button
+                            type="button"
+                            onClick={() => handleToggleActive(item)}
+                            className={`p-1.5 rounded-lg transition-colors ${
                               item.active
-                                ? "Pausar producto (ocultar de la tienda)"
-                                : "Activar producto (mostrar a los clientes)"
-                            }
+                                ? "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                                : "text-amber-500 hover:text-amber-700 hover:bg-amber-50"
+                            }`}
+                            title={item.active ? "Pausar producto" : "Activar producto"}
                           >
-                            <button
-                              type="button"
-                              onClick={() => handleToggleActive(item)}
-                              className={`p-1.5 rounded-lg transition-colors inline-flex items-center justify-center ${
-                                item.active
-                                  ? "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
-                                  : "text-amber-500 hover:text-amber-700 hover:bg-amber-50"
-                              }`}
-                            >
-                              {item.active ? (
-                                <Eye className="w-4 h-4" />
-                              ) : (
-                                <EyeOff className="w-4 h-4" />
-                              )}
-                            </button>
-                          </Tooltip>
+                            {item.active ? (
+                              <Eye className="w-4 h-4" />
+                            ) : (
+                              <EyeOff className="w-4 h-4" />
+                            )}
+                          </button>
 
                           {/* Editar */}
-                          <Tooltip content="Editar datos, fotos y precios">
-                            <button
-                              type="button"
-                              onClick={() => handleEdit(item)}
-                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors inline-flex items-center justify-center"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                          </Tooltip>
+                          <button
+                            type="button"
+                            onClick={() => handleEdit(item)}
+                            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Editar producto"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
 
                           {/* Eliminar */}
-                          <Tooltip content="Eliminar permanentemente del catálogo">
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteClick(item)}
-                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors inline-flex items-center justify-center"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </Tooltip>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteClick(item)}
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Eliminar producto"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>

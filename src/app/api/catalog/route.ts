@@ -72,6 +72,8 @@ export async function POST(request: NextRequest) {
       priceLabel: body.priceLabel?.trim() || "Consultar en mostrador",
       referencePrice:
         typeof body.referencePrice === "number" ? body.referencePrice : undefined,
+      promotionalPrice:
+        typeof body.promotionalPrice === "number" ? body.promotionalPrice : undefined,
       imageUrl:
         body.imageUrl?.trim() ||
         "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80",

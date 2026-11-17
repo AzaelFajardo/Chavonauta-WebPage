@@ -17,8 +17,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Sparkles,
-  Layers,
   ArrowUpDown,
+  Tag,
 } from "lucide-react";
 import { CatalogItem, Category } from "@/types";
 import { ItemFormModal } from "./ItemFormModal";
@@ -31,13 +31,20 @@ interface AdminCatalogManagerProps {
 
 export function AdminCatalogManager({
   initialItems,
-  categories,
+  categories: initialCategories,
 }: AdminCatalogManagerProps) {
   const [items, setItems] = useState<CatalogItem[]>(initialItems);
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
+
+  // Filters & Search
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "product" | "service">("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive" | "featured">("all");
+  const [sortBy, setSortBy] = useState<"recent" | "price-asc" | "price-desc" | "name">("recent");
+
+  // Selection
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // Modal States
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -73,9 +80,9 @@ export function AdminCatalogManager({
     return { total, active, inactive, featured, products, services };
   }, [items]);
 
-  // Filtered Items
+  // Filtered & Sorted Items
   const filteredItems = useMemo(() => {
-    return items.filter((item) => {
+    const result = items.filter((item) => {
       // Type
       if (typeFilter !== "all" && item.type !== typeFilter) return false;
 
@@ -94,18 +101,47 @@ export function AdminCatalogManager({
         const matchesSlug = item.slug.toLowerCase().includes(query);
         const matchesDesc = item.description?.toLowerCase().includes(query);
         const matchesShort = item.shortDescription?.toLowerCase().includes(query);
-        if (!matchesName && !matchesSlug && !matchesDesc && !matchesShort) {
+        const matchesBadges = item.badges?.some((b) => b.toLowerCase().includes(query));
+        if (!matchesName && !matchesSlug && !matchesDesc && !matchesShort && !matchesBadges) {
           return false;
         }
       }
 
       return true;
     });
-  }, [items, search, typeFilter, categoryFilter, statusFilter]);
+
+    // Sort
+    if (sortBy === "price-asc") {
+      result.sort((a, b) => (a.referencePrice ?? 0) - (b.referencePrice ?? 0));
+    } else if (sortBy === "price-desc") {
+      result.sort((a, b) => (b.referencePrice ?? 0) - (a.referencePrice ?? 0));
+    } else if (sortBy === "name") {
+      result.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    return result;
+  }, [items, search, typeFilter, categoryFilter, statusFilter, sortBy]);
+
+  // Select all checkbox handler
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedIds(filteredItems.map((item) => item.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleToggleSelectOne = (id: string) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter((item) => item !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
+    }
+  };
 
   // Open Form for Create
-  const handleCreateNew = (defaultType?: "product" | "service") => {
-    setEditingItem(defaultType ? ({ type: defaultType } as CatalogItem) : null);
+  const handleCreateNew = (defaultType: "product" | "service" = "product") => {
+    setEditingItem({ type: defaultType } as CatalogItem);
     setIsFormOpen(true);
   };
 
@@ -113,6 +149,15 @@ export function AdminCatalogManager({
   const handleEdit = (item: CatalogItem) => {
     setEditingItem(item);
     setIsFormOpen(true);
+  };
+
+  // Add newly created category to state
+  const handleCategoryCreated = (newCat: Category) => {
+    setCategories((prev) => {
+      if (prev.some((c) => c.id === newCat.id || c.slug === newCat.slug)) return prev;
+      return [...prev, newCat];
+    });
+    showToast(`Categoría "${newCat.name}" creada con éxito.`);
   };
 
   // Save Item (Create or Update)
@@ -176,10 +221,11 @@ export function AdminCatalogManager({
       }
 
       setItems((prev) => prev.filter((i) => i.id !== id));
+      setSelectedIds((prev) => prev.filter((item) => item !== id));
       setIsDeleteOpen(false);
-      showToast("Ítem eliminado correctamente.");
+      showToast("Producto eliminado correctamente.");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "No se pudo eliminar el ítem";
+      const msg = err instanceof Error ? err.message : "No se pudo eliminar el producto";
       showToast(msg, "error");
     } finally {
       setIsDeleting(false);
@@ -219,40 +265,8 @@ export function AdminCatalogManager({
     }
   };
 
-  // Toggle Featured
-  const handleToggleFeatured = async (item: CatalogItem) => {
-    const updatedFeatured = !item.featured;
-    // Optimistic update
-    setItems((prev) =>
-      prev.map((i) => (i.id === item.id ? { ...i, featured: updatedFeatured } : i))
-    );
-
-    try {
-      const res = await fetch("/api/catalog", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: item.id, action: "toggleFeatured" }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Error al cambiar destacado");
-      }
-
-      showToast(
-        updatedFeatured
-          ? `"${item.name}" marcado como destacado.`
-          : `"${item.name}" desmarcado de destacados.`
-      );
-    } catch {
-      setItems((prev) =>
-        prev.map((i) => (i.id === item.id ? { ...i, featured: item.featured } : i))
-      );
-      showToast("No se pudo actualizar el destacado.", "error");
-    }
-  };
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Toast Flotante */}
       {toastMessage && (
         <div
@@ -271,103 +285,33 @@ export function AdminCatalogManager({
         </div>
       )}
 
-      {/* Cabecera Principal */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+      {/* Encabezado Principal Estilo Tiendanube */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-xl sm:text-2xl font-heading font-black text-slate-900 tracking-tight">
-              Catálogo de Productos y Servicios
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+              Productos
             </h1>
-            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-navy-100 text-navy-800">
-              {stats.total}
+            <span className="text-xs sm:text-sm font-medium text-slate-500 mt-1">
+              ({filteredItems.length} productos)
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Crea, edita, pausa o elimina productos físicos y servicios digitales para tu cybercafé.
-          </p>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={() => handleCreateNew("product")}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-semibold text-white bg-navy-800 hover:bg-navy-900 rounded-xl transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-xs"
           >
             <Plus className="w-4 h-4" />
-            <span>Nuevo Producto</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleCreateNew("service")}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-semibold text-navy-900 bg-navy-50 hover:bg-navy-100 border border-navy-200 rounded-xl transition-colors"
-          >
-            <Plus className="w-4 h-4 text-navy-700" />
-            <span>Nuevo Servicio</span>
+            <span>Agregar producto</span>
           </button>
         </div>
       </div>
 
-      {/* Métricas / Chips rápidos */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-white p-4 rounded-xl border border-slate-200/80 flex items-center justify-between">
-          <div>
-            <div className="text-[11px] font-semibold uppercase text-slate-500">
-              Activos en Tienda
-            </div>
-            <div className="text-xl font-heading font-bold text-slate-900 mt-0.5">
-              {stats.active}
-            </div>
-          </div>
-          <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-            <Eye className="w-4 h-4" />
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200/80 flex items-center justify-between">
-          <div>
-            <div className="text-[11px] font-semibold uppercase text-slate-500">
-              Pausados
-            </div>
-            <div className="text-xl font-heading font-bold text-slate-900 mt-0.5">
-              {stats.inactive}
-            </div>
-          </div>
-          <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center">
-            <EyeOff className="w-4 h-4" />
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200/80 flex items-center justify-between">
-          <div>
-            <div className="text-[11px] font-semibold uppercase text-slate-500">
-              Destacados
-            </div>
-            <div className="text-xl font-heading font-bold text-slate-900 mt-0.5">
-              {stats.featured}
-            </div>
-          </div>
-          <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center">
-            <Star className="w-4 h-4" />
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200/80 flex items-center justify-between">
-          <div>
-            <div className="text-[11px] font-semibold uppercase text-slate-500">
-              Servicios Digitales
-            </div>
-            <div className="text-xl font-heading font-bold text-slate-900 mt-0.5">
-              {stats.services}
-            </div>
-          </div>
-          <div className="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center">
-            <Monitor className="w-4 h-4" />
-          </div>
-        </div>
-      </div>
-
-      {/* Barra de Filtros y Búsqueda */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+      {/* Barra de Filtros y Búsqueda Estilo Tiendanube */}
+      <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-2xs space-y-3">
         <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
           {/* Buscador */}
           <div className="relative flex-1">
@@ -376,18 +320,18 @@ export function AdminCatalogManager({
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por nombre, código o descripción..."
-              className="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900 placeholder:text-slate-400"
+              placeholder="Buscar por nombre, código o tags..."
+              className="w-full pl-9 pr-3.5 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900 placeholder:text-slate-400 bg-white"
             />
           </div>
 
-          {/* Filtro por Categoría */}
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-slate-400 shrink-0 hidden sm:block" />
+          {/* Filtros desplegables */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Categoría */}
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-navy-600"
+              className="px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600"
             >
               <option value="all">Todas las categorías</option>
               {categories.map((cat) => (
@@ -397,29 +341,44 @@ export function AdminCatalogManager({
               ))}
             </select>
 
+            {/* Estado */}
             <select
               value={statusFilter}
               onChange={(e) =>
                 setStatusFilter(e.target.value as "all" | "active" | "inactive" | "featured")
               }
-              className="px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-navy-600"
+              className="px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600"
             >
               <option value="all">Todos los estados</option>
               <option value="active">Solo Activos</option>
               <option value="inactive">Solo Pausados</option>
               <option value="featured">Solo Destacados</option>
             </select>
+
+            {/* Orden */}
+            <select
+              value={sortBy}
+              onChange={(e) =>
+                setSortBy(e.target.value as "recent" | "price-asc" | "price-desc" | "name")
+              }
+              className="px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600"
+            >
+              <option value="recent">Más recientes</option>
+              <option value="price-asc">Menor precio</option>
+              <option value="price-desc">Mayor precio</option>
+              <option value="name">Nombre (A - Z)</option>
+            </select>
           </div>
         </div>
 
-        {/* Pestañas de Tipo */}
+        {/* Pestañas de tipo (Píldoras rápidas) */}
         <div className="flex items-center gap-1.5 pt-2 border-t border-slate-100">
           <button
             type="button"
             onClick={() => setTypeFilter("all")}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
               typeFilter === "all"
-                ? "bg-navy-900 text-white"
+                ? "bg-slate-900 text-white"
                 : "text-slate-600 hover:bg-slate-100"
             }`}
           >
@@ -430,19 +389,19 @@ export function AdminCatalogManager({
             onClick={() => setTypeFilter("product")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
               typeFilter === "product"
-                ? "bg-navy-900 text-white"
+                ? "bg-slate-900 text-white"
                 : "text-slate-600 hover:bg-slate-100"
             }`}
           >
             <Package className="w-3.5 h-3.5" />
-            <span>Productos ({stats.products})</span>
+            <span>Físicos ({stats.products})</span>
           </button>
           <button
             type="button"
             onClick={() => setTypeFilter("service")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
               typeFilter === "service"
-                ? "bg-navy-900 text-white"
+                ? "bg-slate-900 text-white"
                 : "text-slate-600 hover:bg-slate-100"
             }`}
           >
@@ -452,8 +411,8 @@ export function AdminCatalogManager({
         </div>
       </div>
 
-      {/* Lista de Ítems */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      {/* Tabla Limpia Estilo Tiendanube (Capturas 1 y 7) */}
+      <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs overflow-hidden">
         {filteredItems.length === 0 ? (
           <div className="text-center py-16 px-4">
             <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
@@ -473,7 +432,7 @@ export function AdminCatalogManager({
                 setCategoryFilter("all");
                 setStatusFilter("all");
               }}
-              className="mt-4 px-3.5 py-1.5 text-xs font-semibold text-navy-800 bg-navy-50 rounded-lg hover:bg-navy-100 transition-colors"
+              className="mt-4 px-3.5 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
             >
               Restablecer filtros
             </button>
@@ -482,163 +441,183 @@ export function AdminCatalogManager({
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  <th className="py-3 px-4">Ítem / Tipo</th>
-                  <th className="py-3 px-4">Categoría</th>
-                  <th className="py-3 px-4">Precio Mostrado</th>
-                  <th className="py-3 px-4 text-center">Estado</th>
-                  <th className="py-3 px-4 text-center">Destacado</th>
+                <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  <th className="py-3 px-4 w-10 text-center">
+                    <input
+                      type="checkbox"
+                      checked={
+                        filteredItems.length > 0 &&
+                        selectedIds.length === filteredItems.length
+                      }
+                      onChange={handleSelectAll}
+                      className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
+                    />
+                  </th>
+                  <th className="py-3 px-4">Producto</th>
+                  <th className="py-3 px-4 text-center">Disponibilidad</th>
+                  <th className="py-3 px-4 text-center">Precio</th>
+                  <th className="py-3 px-4 text-center">Promocional</th>
                   <th className="py-3 px-4 text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs">
                 {filteredItems.map((item) => {
                   const cat = categories.find((c) => c.slug === item.categorySlug);
+                  const isSelected = selectedIds.includes(item.id);
 
                   return (
                     <tr
                       key={item.id}
                       className={`hover:bg-slate-50/70 transition-colors ${
                         !item.active ? "opacity-60 bg-slate-50/30" : ""
-                      }`}
+                      } ${isSelected ? "bg-blue-50/30" : ""}`}
                     >
-                      {/* Ítem & Thumbnail */}
+                      {/* Checkbox de fila */}
+                      <td className="py-3.5 px-4 text-center">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleToggleSelectOne(item.id)}
+                          className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
+                        />
+                      </td>
+
+                      {/* Producto: Imagen + Nombre azul cliqueable + Categoría + Etiquetas */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
                           <img
                             src={item.imageUrl}
                             alt={item.name}
-                            className="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0 bg-slate-100"
+                            onClick={() => handleEdit(item)}
+                            className="w-12 h-12 rounded-lg object-cover border border-slate-200 shrink-0 bg-slate-100 cursor-pointer hover:opacity-90 transition-opacity"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src =
-                                "https://placehold.co/100x100?text=No+Img";
+                                "https://placehold.co/100x100?text=Sin+Foto";
                             }}
                           />
                           <div className="min-w-0">
-                            <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleEdit(item)}
+                              className="font-semibold text-blue-600 hover:text-blue-800 text-left hover:underline truncate max-w-xs sm:max-w-md block"
+                            >
+                              {item.name}
+                            </button>
+
+                            <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                              {/* Chip de categoría */}
+                              <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                {cat?.name || item.categorySlug}
+                              </span>
+
+                              {/* Chip de tipo */}
                               <span
-                                className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
+                                className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
                                   item.type === "product"
-                                    ? "bg-navy-100 text-navy-800"
-                                    : "bg-sky-100 text-sky-800"
+                                    ? "bg-slate-100 text-slate-700"
+                                    : "bg-sky-50 text-sky-700 border border-sky-100"
                                 }`}
                               >
-                                {item.type === "product" ? "Producto" : "Servicio"}
+                                {item.type === "product" ? "Físico" : "Servicio"}
                               </span>
+
+                              {/* Etiquetas personalizadas / default */}
                               {item.badges?.map((b) => (
                                 <span
                                   key={b}
-                                  className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-amber-100 text-amber-800"
+                                  className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-blue-50 text-blue-700 border border-blue-200"
                                 >
                                   {b}
                                 </span>
                               ))}
                             </div>
-                            <div className="font-semibold text-slate-900 mt-1 truncate max-w-xs sm:max-w-md">
-                              {item.name}
-                            </div>
-                            <div className="text-[11px] text-slate-400 font-mono truncate max-w-xs">
-                              /{item.slug}
-                            </div>
                           </div>
                         </div>
                       </td>
 
-                      {/* Categoría */}
-                      <td className="py-3.5 px-4 text-slate-600">
-                        <span className="inline-block px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-medium text-[11px]">
-                          {cat?.name || item.categorySlug}
-                        </span>
-                      </td>
-
-                      {/* Precio */}
-                      <td className="py-3.5 px-4">
-                        <div className="font-bold text-slate-900">{item.priceLabel}</div>
-                        {item.referencePrice && (
-                          <div className="text-[10px] text-slate-400">
-                            Ref: ${item.referencePrice}
-                          </div>
+                      {/* Disponibilidad estilo Tiendanube */}
+                      <td className="py-3.5 px-4 text-center">
+                        {item.active ? (
+                          <span className="text-[11px] text-slate-600 font-medium">
+                            ∞ Infinito
+                          </span>
+                        ) : (
+                          <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                            Pausado
+                          </span>
                         )}
                       </td>
 
-                      {/* Estado: Switch Activo / Pausado */}
-                      <td className="py-3.5 px-4 text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleActive(item)}
-                          title={
-                            item.active
-                              ? "Pausar ítem (ocultar del catálogo público)"
-                              : "Activar ítem (mostrar en catálogo público)"
-                          }
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all ${
-                            item.active
-                              ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                              : "bg-slate-200 text-slate-600 hover:bg-slate-300"
-                          }`}
-                        >
-                          {item.active ? (
-                            <>
-                              <Eye className="w-3.5 h-3.5" />
-                              <span>Activo</span>
-                            </>
-                          ) : (
-                            <>
-                              <EyeOff className="w-3.5 h-3.5" />
-                              <span>Pausado</span>
-                            </>
-                          )}
-                        </button>
+                      {/* Precio */}
+                      <td className="py-3.5 px-4 text-center font-semibold text-slate-800">
+                        {item.referencePrice !== undefined ? (
+                          <span>${item.referencePrice.toFixed(2)}</span>
+                        ) : (
+                          <span className="text-slate-500 text-[11px]">
+                            {item.priceLabel || "—"}
+                          </span>
+                        )}
                       </td>
 
-                      {/* Destacado: Toggle Estrella */}
+                      {/* Precio Promocional (Oferta) */}
                       <td className="py-3.5 px-4 text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleFeatured(item)}
-                          title={
-                            item.featured
-                              ? "Quitar de destacados en inicio"
-                              : "Marcar como destacado en inicio"
-                          }
-                          className={`p-1.5 rounded-lg transition-colors ${
-                            item.featured
-                              ? "text-amber-500 hover:bg-amber-50"
-                              : "text-slate-300 hover:text-slate-500 hover:bg-slate-100"
-                          }`}
-                        >
-                          <Star
-                            className={`w-4 h-4 ${
-                              item.featured ? "fill-amber-400 text-amber-500" : ""
-                            }`}
-                          />
-                        </button>
+                        {item.promotionalPrice !== undefined ? (
+                          <span className="inline-block font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded text-xs">
+                            ${item.promotionalPrice.toFixed(2)}
+                          </span>
+                        ) : (
+                          <span className="text-slate-300 font-mono">—</span>
+                        )}
                       </td>
 
                       {/* Acciones */}
                       <td className="py-3.5 px-4 text-right">
-                        <div className="inline-flex items-center gap-1">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {/* Ver en tienda */}
                           <Link
                             href={`/item/${item.slug}`}
                             target="_blank"
-                            title="Ver en escaparate público"
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-navy-900 hover:bg-slate-100 transition-colors"
+                            rel="noopener noreferrer"
+                            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                            title="Ver en la tienda pública"
                           >
                             <ExternalLink className="w-4 h-4" />
                           </Link>
+
+                          {/* Pausar / Activar */}
+                          <button
+                            type="button"
+                            onClick={() => handleToggleActive(item)}
+                            className={`p-1.5 rounded-lg transition-colors ${
+                              item.active
+                                ? "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                                : "text-amber-500 hover:text-amber-700 hover:bg-amber-50"
+                            }`}
+                            title={item.active ? "Pausar producto" : "Activar producto"}
+                          >
+                            {item.active ? (
+                              <Eye className="w-4 h-4" />
+                            ) : (
+                              <EyeOff className="w-4 h-4" />
+                            )}
+                          </button>
+
+                          {/* Editar */}
                           <button
                             type="button"
                             onClick={() => handleEdit(item)}
-                            title="Editar ítem"
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-navy-900 hover:bg-navy-50 transition-colors"
+                            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Editar producto"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
+
+                          {/* Eliminar */}
                           <button
                             type="button"
                             onClick={() => handleDeleteClick(item)}
-                            title="Eliminar ítem"
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Eliminar producto"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -653,27 +632,22 @@ export function AdminCatalogManager({
         )}
       </div>
 
-      {/* Modal Formulario de Creación / Edición */}
+      {/* Modal de Creación / Edición estilo Tiendanube */}
       <ItemFormModal
         isOpen={isFormOpen}
         item={editingItem}
         categories={categories}
-        onClose={() => {
-          setIsFormOpen(false);
-          setEditingItem(null);
-        }}
+        onClose={() => setIsFormOpen(false)}
         onSave={handleSaveItem}
         isSaving={isSaving}
+        onCategoryCreated={handleCategoryCreated}
       />
 
-      {/* Diálogo de Confirmación de Eliminación */}
+      {/* Diálogo de Eliminación */}
       <ItemDeleteDialog
         isOpen={isDeleteOpen}
         item={deletingItem}
-        onClose={() => {
-          setIsDeleteOpen(false);
-          setDeletingItem(null);
-        }}
+        onClose={() => setIsDeleteOpen(false)}
         onConfirm={handleConfirmDelete}
         isDeleting={isDeleting}
       />

@@ -88,7 +88,7 @@ export interface Category {
   icon: string;
 }
 
-export type ItemBadge = "Nuevo" | "Oferta" | "Popular" | "Destacado";
+export type ItemBadge = "Nuevo" | "Oferta" | "Popular" | "Destacado" | string;
 
 export interface CatalogItem {
   id: string;
@@ -100,8 +100,9 @@ export interface CatalogItem {
   categorySlug: string;
   priceLabel: string;
   referencePrice?: number;
+  promotionalPrice?: number;
   imageUrl: string;
-  badges: ItemBadge[];
+  badges: string[];
   featured: boolean;
   active: boolean;
   specs?: { label: string; value: string }[];

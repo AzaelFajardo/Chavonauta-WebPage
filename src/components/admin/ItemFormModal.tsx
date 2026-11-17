@@ -8,11 +8,15 @@ import {
   Plus,
   Trash2,
   Sparkles,
-  Image as ImageIcon,
   Check,
   AlertCircle,
+  Tag,
+  FolderPlus,
+  Loader2,
+  DollarSign,
+  Image as ImageIcon,
 } from "lucide-react";
-import { CatalogItem, Category, ItemBadge } from "@/types";
+import { CatalogItem, Category } from "@/types";
 import { ImageUploader } from "@/components/ui/ImageUploader";
 
 interface ItemFormModalProps {
@@ -22,27 +26,17 @@ interface ItemFormModalProps {
   onClose: () => void;
   onSave: (item: Partial<CatalogItem>) => Promise<void>;
   isSaving: boolean;
+  onCategoryCreated?: (newCategory: Category) => void;
 }
 
-const AVAILABLE_BADGES: ItemBadge[] = ["Nuevo", "Oferta", "Popular", "Destacado"];
-
-const QUICK_IMAGE_PRESETS = [
-  {
-    label: "Accesorios Cómputo",
-    url: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=1200&q=85",
-  },
-  {
-    label: "Audio & Diademas",
-    url: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=1200&q=85",
-  },
-  {
-    label: "Servicios & Impresión",
-    url: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1200&q=85",
-  },
-  {
-    label: "Gaming & Consolas",
-    url: "https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?auto=format&fit=crop&w=1200&q=85",
-  },
+// Etiquetas sugeridas por defecto
+const DEFAULT_BADGES = [
+  "Nuevo",
+  "Oferta",
+  "Más pedido",
+  "Recomendado",
+  "Gamer",
+  "Popular",
 ];
 
 export function ItemFormModal({
@@ -52,78 +46,92 @@ export function ItemFormModal({
   onClose,
   onSave,
   isSaving,
+  onCategoryCreated,
 }: ItemFormModalProps) {
   const isEditing = Boolean(item);
 
+  // Form states
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
-  const [slugManual, setSlugManual] = useState(false);
   const [type, setType] = useState<"product" | "service">("product");
   const [categorySlug, setCategorySlug] = useState("");
-  const [priceLabel, setPriceLabel] = useState("");
   const [referencePrice, setReferencePrice] = useState<string>("");
-  const [shortDescription, setShortDescription] = useState("");
+  const [promotionalPrice, setPromotionalPrice] = useState<string>("");
+  const [customPriceText, setCustomPriceText] = useState("");
+  const [showPriceInStore, setShowPriceInStore] = useState(true);
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [badges, setBadges] = useState<ItemBadge[]>([]);
+  const [badges, setBadges] = useState<string[]>([]);
+  const [customTagInput, setCustomTagInput] = useState("");
   const [featured, setFeatured] = useState(false);
   const [active, setActive] = useState(true);
-  const [specs, setSpecs] = useState<{ label: string; value: string }[]>([]);
+
+  // Nueva categoría inline
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+  const [categoryCreateError, setCategoryCreateError] = useState<string | null>(null);
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (item) {
       setName(item.name || "");
       setSlug(item.slug || "");
-      setSlugManual(true);
       setType(item.type || "product");
       setCategorySlug(item.categorySlug || (categories[0]?.slug ?? ""));
-      setPriceLabel(item.priceLabel || "");
       setReferencePrice(
         item.referencePrice !== undefined && item.referencePrice !== null
           ? String(item.referencePrice)
           : ""
       );
-      setShortDescription(item.shortDescription || "");
-      setDescription(item.description || "");
+      setPromotionalPrice(
+        item.promotionalPrice !== undefined && item.promotionalPrice !== null
+          ? String(item.promotionalPrice)
+          : ""
+      );
+      setCustomPriceText(item.priceLabel || "");
+      setShowPriceInStore(Boolean(item.priceLabel && item.priceLabel !== "Consultar en mostrador"));
+      setDescription(item.description || item.shortDescription || "");
       setImageUrl(item.imageUrl || "");
       setBadges(item.badges || []);
       setFeatured(Boolean(item.featured));
       setActive(item.active !== false);
-      setSpecs(item.specs || []);
     } else {
       setName("");
       setSlug("");
-      setSlugManual(false);
       setType("product");
       setCategorySlug(categories[0]?.slug ?? "");
-      setPriceLabel("");
       setReferencePrice("");
-      setShortDescription("");
+      setPromotionalPrice("");
+      setCustomPriceText("");
+      setShowPriceInStore(true);
       setDescription("");
       setImageUrl("");
       setBadges([]);
       setFeatured(false);
       setActive(true);
-      setSpecs([]);
     }
     setErrorMessage(null);
+    setShowNewCategoryInput(false);
+    setNewCategoryName("");
+    setCustomTagInput("");
   }, [item, categories, isOpen]);
 
+  // Manejar cambio de nombre y auto-generar slug simple
   const handleNameChange = (val: string) => {
     setName(val);
-    if (!slugManual) {
-      const generated = val
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
-      setSlug(generated);
-    }
+    const generated = val
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    setSlug(generated);
   };
 
-  const toggleBadge = (badge: ItemBadge) => {
+  // Alternar etiqueta de la lista sugerida
+  const toggleBadge = (badge: string) => {
     if (badges.includes(badge)) {
       setBadges(badges.filter((b) => b !== badge));
     } else {
@@ -131,26 +139,67 @@ export function ItemFormModal({
     }
   };
 
-  const addSpec = () => {
-    setSpecs([...specs, { label: "", value: "" }]);
+  // Agregar etiqueta personalizada
+  const handleAddCustomTag = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const tag = customTagInput.trim();
+    if (!tag) return;
+    if (!badges.includes(tag)) {
+      setBadges([...badges, tag]);
+    }
+    setCustomTagInput("");
   };
 
-  const updateSpec = (index: number, key: "label" | "value", value: string) => {
-    const updated = [...specs];
-    updated[index][key] = value;
-    setSpecs(updated);
+  // Eliminar etiqueta
+  const handleRemoveBadge = (badgeToRemove: string) => {
+    setBadges(badges.filter((b) => b !== badgeToRemove));
   };
 
-  const removeSpec = (index: number) => {
-    setSpecs(specs.filter((_, i) => i !== index));
+  // Crear categoría personalizada inline
+  const handleCreateCategory = async () => {
+    const trimmed = newCategoryName.trim();
+    if (!trimmed) {
+      setCategoryCreateError("Ingresa un nombre para la categoría.");
+      return;
+    }
+
+    setIsCreatingCategory(true);
+    setCategoryCreateError(null);
+
+    try {
+      const res = await fetch("/api/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: trimmed }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || "No se pudo crear la categoría");
+      }
+
+      const created: Category = await res.json();
+      if (onCategoryCreated) {
+        onCategoryCreated(created);
+      }
+      setCategorySlug(created.slug);
+      setShowNewCategoryInput(false);
+      setNewCategoryName("");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al crear categoría";
+      setCategoryCreateError(msg);
+    } finally {
+      setIsCreatingCategory(false);
+    }
   };
 
+  // Guardar formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
 
     if (!name.trim()) {
-      setErrorMessage("El nombre del ítem es obligatorio.");
+      setErrorMessage("Por favor ingresa el nombre del producto o servicio.");
       return;
     }
     if (!categorySlug) {
@@ -158,27 +207,38 @@ export function ItemFormModal({
       return;
     }
 
-    const cleanedSpecs = specs.filter(
-      (s) => s.label.trim() !== "" || s.value.trim() !== ""
-    );
+    const numRefPrice = referencePrice ? parseFloat(referencePrice) : undefined;
+    const numPromoPrice = promotionalPrice ? parseFloat(promotionalPrice) : undefined;
 
-    const numPrice = referencePrice ? parseFloat(referencePrice) : undefined;
+    // Calcular etiqueta de precio visible
+    let finalPriceLabel = customPriceText.trim();
+    if (!finalPriceLabel) {
+      if (!showPriceInStore) {
+        finalPriceLabel = "Consultar en mostrador";
+      } else if (numPromoPrice !== undefined && !isNaN(numPromoPrice)) {
+        finalPriceLabel = `$${numPromoPrice.toFixed(2)} MXN`;
+      } else if (numRefPrice !== undefined && !isNaN(numRefPrice)) {
+        finalPriceLabel = `$${numRefPrice.toFixed(2)} MXN`;
+      } else {
+        finalPriceLabel = "Consultar en mostrador";
+      }
+    }
 
     const payload: Partial<CatalogItem> = {
       ...(item ? { id: item.id } : {}),
       name: name.trim(),
-      slug: slug.trim(),
+      slug: slug.trim() || `item-${Date.now()}`,
       type,
       categorySlug,
-      priceLabel: priceLabel.trim() || "Consultar en mostrador",
-      referencePrice: !isNaN(Number(numPrice)) ? numPrice : undefined,
-      shortDescription: shortDescription.trim(),
-      description: description.trim() || shortDescription.trim(),
-      imageUrl: imageUrl.trim() || QUICK_IMAGE_PRESETS[0].url,
+      priceLabel: finalPriceLabel,
+      referencePrice: !isNaN(Number(numRefPrice)) ? numRefPrice : undefined,
+      promotionalPrice: !isNaN(Number(numPromoPrice)) ? numPromoPrice : undefined,
+      shortDescription: description.trim().slice(0, 160),
+      description: description.trim(),
+      imageUrl: imageUrl.trim() || "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80",
       badges,
       featured,
       active,
-      specs: cleanedSpecs,
     };
 
     try {
@@ -186,7 +246,7 @@ export function ItemFormModal({
       onClose();
     } catch (err: unknown) {
       setErrorMessage(
-        err instanceof Error ? err.message : "Error al guardar el ítem."
+        err instanceof Error ? err.message : "Error al guardar el producto."
       );
     }
   };
@@ -194,132 +254,296 @@ export function ItemFormModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/65 backdrop-blur-xs overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[92vh]">
-        {/* Modal Header */}
-        <div className="p-5 border-b border-slate-200 bg-slate-50/80 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-navy-800 text-white flex items-center justify-center shadow-xs">
-              {type === "product" ? (
-                <Package className="w-5 h-5 text-sky-300" />
-              ) : (
-                <Monitor className="w-5 h-5 text-sky-300" />
-              )}
-            </div>
-            <div>
-              <h2 className="font-heading font-bold text-lg text-slate-900">
-                {isEditing ? "Editar Ítem del Catálogo" : "Nuevo Ítem en Catálogo"}
-              </h2>
-              <p className="text-xs text-slate-500">
-                {isEditing
-                  ? `Modificando: ${item?.name}`
-                  : "Añade un nuevo producto físico o servicio del cybercafé"}
-              </p>
-            </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/60 backdrop-blur-xs overflow-y-auto">
+      <div className="bg-slate-100 rounded-2xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden my-6 flex flex-col max-h-[92vh]">
+        {/* Barra superior estilo Tiendanube */}
+        <header className="sticky top-0 z-20 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-xs">
+          <div>
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+              {isEditing ? `Editar "${item?.name}"` : "Nuevo producto"}
+            </h2>
+            <p className="text-xs text-slate-500">
+              Completa los datos del producto o servicio para el catálogo.
+            </p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isSaving}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
 
-        {/* Modal Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSaving}
+              className="px-4 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 rounded-lg transition-colors shadow-2xs"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSaving}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-xs disabled:opacity-50"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Guardando...</span>
+                </>
+              ) : (
+                <span>Guardar producto</span>
+              )}
+            </button>
+          </div>
+        </header>
+
+        {/* Contenido en Tarjetas Blancas (Estilo Tiendanube) */}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
           {errorMessage && (
-            <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+            <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{errorMessage}</span>
             </div>
           )}
 
-          {/* Tipo de Ítem (Producto vs Servicio) */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
-              Tipo de Ítem
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setType("product")}
-                className={`flex items-center justify-center gap-2.5 p-3 rounded-xl border text-xs font-semibold transition-all ${
-                  type === "product"
-                    ? "bg-navy-900 text-white border-navy-900 shadow-sm"
-                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
-                }`}
-              >
-                <Package className="w-4 h-4" />
-                <span>Producto Físico</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setType("service")}
-                className={`flex items-center justify-center gap-2.5 p-3 rounded-xl border text-xs font-semibold transition-all ${
-                  type === "service"
-                    ? "bg-navy-900 text-white border-navy-900 shadow-sm"
-                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
-                }`}
-              >
-                <Monitor className="w-4 h-4" />
-                <span>Servicio Digital / Cyber</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Nombre y Slug */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Tarjeta 1: Nombre y descripción */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Nombre del {type === "product" ? "Producto" : "Servicio"} *
+              <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                Nombre y descripción
+              </h3>
+              <p className="text-xs text-slate-500">
+                La información principal que verán tus clientes al ver este artículo.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-slate-700">
+                Nombre del producto o servicio <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => handleNameChange(e.target.value)}
-                placeholder={
-                  type === "product"
-                    ? "Ej. Combo Teclado y Mouse Inalámbrico"
-                    : "Ej. Impresiones a Color por Hoja"
-                }
+                placeholder="Ej: Cable HDMI 2.0, Cuaderno profesional, Impresiones a color..."
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900 placeholder:text-slate-400 bg-white"
                 required
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 focus:border-transparent text-slate-900"
               />
             </div>
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-semibold text-slate-700">
-                  Slug URL (Identificador)
-                </label>
-                {!slugManual && (
-                  <span className="text-[10px] text-slate-400">Automático</span>
-                )}
-              </div>
-              <input
-                type="text"
-                value={slug}
-                onChange={(e) => {
-                  setSlugManual(true);
-                  setSlug(e.target.value);
-                }}
-                placeholder="ej-nombre-del-item"
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 bg-slate-50/70 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-700 font-mono"
+
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-slate-700">
+                Descripción
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                placeholder="Escribe aquí las características, detalles o especificaciones que el cliente debe saber..."
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900 placeholder:text-slate-400 bg-white"
               />
             </div>
           </div>
 
-          {/* Categoría y Precios */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Tarjeta 2: Fotos */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Categoría *
+              <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                Fotos
+              </h3>
+              <p className="text-xs text-slate-500">
+                Arrastra una foto desde tu equipo o selecciona un archivo para tu producto.
+              </p>
+            </div>
+
+            <ImageUploader
+              value={imageUrl}
+              onChange={(url) => setImageUrl(url)}
+              label="Foto del producto"
+              helperText="Formatos recomendados: JPG, PNG, WEBP o GIF (hasta 10 MB)."
+              placeholderText="Arrastra y suelta, o sube una foto del producto"
+            />
+          </div>
+
+          {/* Tarjeta 3: Precios */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                Precios
+              </h3>
+              <p className="text-xs text-slate-500">
+                Indica el precio habitual y opcionalmente un precio de oferta.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Precio de venta ($)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-semibold">
+                    $
+                  </span>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    value={referencePrice}
+                    onChange={(e) => setReferencePrice(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full pl-7 pr-3.5 py-2.5 text-xs sm:text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900 placeholder:text-slate-400 bg-white"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-400">Precio normal del artículo</p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Precio promocional ($ oferta)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-semibold">
+                    $
+                  </span>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    value={promotionalPrice}
+                    onChange={(e) => setPromotionalPrice(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full pl-7 pr-3.5 py-2.5 text-xs sm:text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900 placeholder:text-slate-400 bg-white"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-400">Opcional. Se mostrará con descuento</p>
+              </div>
+            </div>
+
+            <div className="pt-2 flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="showPriceInStore"
+                checked={showPriceInStore}
+                onChange={(e) => setShowPriceInStore(e.target.checked)}
+                className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
+              />
+              <label htmlFor="showPriceInStore" className="text-xs text-slate-700 cursor-pointer font-medium select-none">
+                Mostrar el precio en la tienda
               </label>
+            </div>
+
+            <div className="space-y-1.5 pt-1">
+              <label className="block text-xs font-semibold text-slate-600">
+                Texto personalizado de precio (opcional)
+              </label>
+              <input
+                type="text"
+                value={customPriceText}
+                onChange={(e) => setCustomPriceText(e.target.value)}
+                placeholder="Ej: $ 15 / hora, Desde $ 5.00, En mostrador..."
+                className="w-full px-3.5 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-800 placeholder:text-slate-400 bg-slate-50/50"
+              />
+            </div>
+          </div>
+
+          {/* Tarjeta 4: Tipo de producto */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                Tipo de producto
+              </h3>
+              <p className="text-xs text-slate-500">
+                Selecciona si se trata de un producto físico o un servicio en tienda.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label
+                onClick={() => setType("product")}
+                className={`flex items-start gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                  type === "product"
+                    ? "border-blue-600 bg-blue-50/40 text-blue-950"
+                    : "border-slate-200 hover:border-slate-300 bg-white text-slate-700"
+                }`}
+              >
+                <div className="mt-0.5">
+                  <input
+                    type="radio"
+                    name="productType"
+                    checked={type === "product"}
+                    onChange={() => setType("product")}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 font-bold text-xs">
+                    <Package className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Físico</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Artículos tangibles (papelería, accesorios de cómputo, botanas, cables...)
+                  </p>
+                </div>
+              </label>
+
+              <label
+                onClick={() => setType("service")}
+                className={`flex items-start gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                  type === "service"
+                    ? "border-blue-600 bg-blue-50/40 text-blue-950"
+                    : "border-slate-200 hover:border-slate-300 bg-white text-slate-700"
+                }`}
+              >
+                <div className="mt-0.5">
+                  <input
+                    type="radio"
+                    name="productType"
+                    checked={type === "service"}
+                    onChange={() => setType("service")}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 font-bold text-xs">
+                    <Monitor className="w-3.5 h-3.5 text-sky-600" />
+                    <span>Digital / Servicio</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Servicios del cybercafé (impresiones, escaneo, renta de PC/consolas...)
+                  </p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* Tarjeta 5: Categorías (Con opción de crear personalizada) */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                  Categoría
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Ayuda a tus clientes a encontrar más rápido tus productos.
+                </p>
+              </div>
+
+              {!showNewCategoryInput && (
+                <button
+                  type="button"
+                  onClick={() => setShowNewCategoryInput(true)}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800"
+                >
+                  <FolderPlus className="w-3.5 h-3.5" />
+                  <span>+ Nueva categoría</span>
+                </button>
+              )}
+            </div>
+
+            {/* Selector de categoría */}
+            <div className="space-y-1.5">
               <select
                 value={categorySlug}
                 onChange={(e) => setCategorySlug(e.target.value)}
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600"
               >
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.slug}>
@@ -329,223 +553,219 @@ export function ItemFormModal({
               </select>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Texto de Precio (Visible)
-              </label>
-              <input
-                type="text"
-                value={priceLabel}
-                onChange={(e) => setPriceLabel(e.target.value)}
-                placeholder="Ej. $249.00 MXN o $15 / hr"
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Precio Numérico (Ref.)
-              </label>
-              <input
-                type="number"
-                step="0.5"
-                value={referencePrice}
-                onChange={(e) => setReferencePrice(e.target.value)}
-                placeholder="Ej. 249"
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900"
-              />
-            </div>
-          </div>
-
-          {/* Descripción Corta */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Descripción Corta (Para tarjetas)
-            </label>
-            <input
-              type="text"
-              value={shortDescription}
-              onChange={(e) => setShortDescription(e.target.value)}
-              placeholder="Resumen conciso de 1 línea..."
-              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900"
-            />
-          </div>
-
-          {/* Descripción Completa */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Descripción Detallada
-            </label>
-            <textarea
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Explica las características, condiciones, materiales o detalles del servicio..."
-              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900 resize-none"
-            />
-          </div>
-
-          {/* Imagen: Subida de archivo o URL */}
-          <div className="space-y-2">
-            <ImageUploader
-              value={imageUrl}
-              onChange={(url) => setImageUrl(url)}
-              label="Fotografía del Producto o Servicio"
-              placeholderText="Arrastra una foto aquí o haz clic para subir imagen"
-              helperText="Formatos: PNG, JPG, SVG, WEBP, GIF, AVIF. O elige una de las fotos de ejemplo abajo."
-            />
-
-            {/* Presets Rápidos */}
-            <div className="pt-1 flex flex-wrap gap-1.5 items-center">
-              <span className="text-[10px] text-slate-400 font-medium">Fotos de ejemplo:</span>
-              {QUICK_IMAGE_PRESETS.map((preset) => (
-                <button
-                  key={preset.label}
-                  type="button"
-                  onClick={() => setImageUrl(preset.url)}
-                  className="px-2 py-0.5 rounded text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
-                >
-                  {preset.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Badges / Etiquetas */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-2">
-              Etiquetas Visuales (Badges)
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {AVAILABLE_BADGES.map((badge) => {
-                const isSelected = badges.includes(badge);
-                return (
+            {/* Mini formulario para agregar categoría personalizada */}
+            {showNewCategoryInput && (
+              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2 animate-in fade-in duration-150">
+                <div className="text-xs font-bold text-slate-800">
+                  Crear categoría personalizada:
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    placeholder="Ej: Snacks Fríos, Fotocopias, Reparación..."
+                    className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600"
+                  />
                   <button
-                    key={badge}
                     type="button"
-                    onClick={() => toggleBadge(badge)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all flex items-center gap-1.5 ${
-                      isSelected
-                        ? "bg-navy-800 text-white border-navy-800 shadow-xs"
-                        : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
-                    }`}
+                    onClick={handleCreateCategory}
+                    disabled={isCreatingCategory}
+                    className="px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
                   >
-                    {isSelected && <Check className="w-3.5 h-3.5 text-sky-300" />}
-                    <span>{badge}</span>
+                    {isCreatingCategory ? "Creando..." : "Guardar"}
                   </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Especificaciones Clave-Valor */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-semibold text-slate-700">
-                Especificaciones / Características
-              </label>
-              <button
-                type="button"
-                onClick={addSpec}
-                className="inline-flex items-center gap-1 text-[11px] font-semibold text-navy-800 hover:text-navy-900"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Agregar Característica</span>
-              </button>
-            </div>
-
-            {specs.length === 0 ? (
-              <p className="text-[11px] text-slate-400 italic">
-                Sin especificaciones añadidas. Pulsa el botón de arriba si deseas agregar atributos como &quot;Conexión&quot;, &quot;Garantía&quot;, etc.
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {specs.map((spec, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      placeholder="Atributo (ej. Conector)"
-                      value={spec.label}
-                      onChange={(e) => updateSpec(idx, "label", e.target.value)}
-                      className="w-1/3 px-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-navy-600 text-slate-800"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Valor (ej. USB-C)"
-                      value={spec.value}
-                      onChange={(e) => updateSpec(idx, "value", e.target.value)}
-                      className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-navy-600 text-slate-800"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeSpec(idx)}
-                      className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowNewCategoryInput(false);
+                      setCategoryCreateError(null);
+                    }}
+                    className="px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-200 rounded-lg"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+                {categoryCreateError && (
+                  <p className="text-[11px] text-red-600 font-medium">
+                    {categoryCreateError}
+                  </p>
+                )}
               </div>
             )}
           </div>
 
-          {/* Switches de Estado: Activo y Destacado */}
-          <div className="pt-3 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <label className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer hover:bg-slate-100/70 transition-colors">
-              <input
-                type="checkbox"
-                checked={active}
-                onChange={(e) => setActive(e.target.checked)}
-                className="w-4 h-4 text-navy-800 rounded focus:ring-navy-800"
-              />
-              <div>
-                <span className="text-xs font-bold text-slate-800 block">
-                  Activo en el Escaparate
-                </span>
-                <span className="text-[11px] text-slate-500 block">
-                  Visible para los visitantes de la página.
-                </span>
-              </div>
-            </label>
+          {/* Tarjeta 6: Etiquetas (Default + Personalizables) */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                Etiquetas y Distintivos
+              </h3>
+              <p className="text-xs text-slate-500">
+                Destaca cualidades con un clic o añade tus propias etiquetas personalizadas.
+              </p>
+            </div>
 
-            <label className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer hover:bg-slate-100/70 transition-colors">
-              <input
-                type="checkbox"
-                checked={featured}
-                onChange={(e) => setFeatured(e.target.checked)}
-                className="w-4 h-4 text-navy-800 rounded focus:ring-navy-800"
-              />
-              <div>
-                <span className="text-xs font-bold text-slate-800 block">
-                  Destacado en Portada
-                </span>
-                <span className="text-[11px] text-slate-500 block">
-                  Aparece en la sección de Productos Destacados.
-                </span>
+            {/* Etiquetas sugeridas con un clic */}
+            <div className="space-y-1.5">
+              <span className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">
+                Etiquetas sugeridas:
+              </span>
+              <div className="flex flex-wrap gap-2 pt-1">
+                {DEFAULT_BADGES.map((b) => {
+                  const isSelected = badges.includes(b);
+                  return (
+                    <button
+                      key={b}
+                      type="button"
+                      onClick={() => toggleBadge(b)}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                        isSelected
+                          ? "bg-blue-600 text-white shadow-2xs"
+                          : "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
+                      }`}
+                    >
+                      {isSelected && <Check className="w-3 h-3" />}
+                      <span>{b}</span>
+                    </button>
+                  );
+                })}
               </div>
-            </label>
+            </div>
+
+            {/* Creador de etiqueta personalizada */}
+            <div className="pt-2 border-t border-slate-100 space-y-2">
+              <span className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">
+                Añadir etiqueta personalizada:
+              </span>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={customTagInput}
+                  onChange={(e) => setCustomTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddCustomTag();
+                    }
+                  }}
+                  placeholder="Ej: 2x1, Edición Especial, Sin costo extra..."
+                  className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleAddCustomTag()}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span>Añadir</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Etiquetas activas asignadas a este producto */}
+            {badges.length > 0 && (
+              <div className="pt-2 border-t border-slate-100 space-y-1.5">
+                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+                  Etiquetas asignadas ({badges.length}):
+                </span>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {badges.map((b) => (
+                    <span
+                      key={b}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200"
+                    >
+                      <span>{b}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveBadge(b)}
+                        className="p-0.5 hover:bg-blue-200/60 rounded-full text-blue-600"
+                        title="Quitar etiqueta"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Footer del Modal */}
-          <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-3 sticky bottom-0 bg-white">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isSaving}
-              className="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors disabled:opacity-50"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="inline-flex items-center gap-2 px-5 py-2 text-xs font-semibold text-white bg-navy-900 hover:bg-navy-800 rounded-xl transition-colors shadow-sm disabled:opacity-50"
-            >
-              <Check className="w-4 h-4 text-sky-400" />
-              <span>{isSaving ? "Guardando..." : isEditing ? "Actualizar Ítem" : "Crear Ítem"}</span>
-            </button>
+          {/* Tarjeta 7: Destacar y Visibilidad */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-3">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                Destacar y Visibilidad
+              </h3>
+              <p className="text-xs text-slate-500">
+                Controla dónde y cómo verán este producto tus visitantes.
+              </p>
+            </div>
+
+            <div className="space-y-3 pt-1">
+              <label className="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50/60 cursor-pointer transition-colors">
+                <input
+                  type="checkbox"
+                  checked={active}
+                  onChange={(e) => setActive(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
+                />
+                <div>
+                  <div className="text-xs font-bold text-slate-900">
+                    Mostrar en la tienda (Activo)
+                  </div>
+                  <p className="text-[11px] text-slate-500">
+                    Si está desmarcado, el producto quedará pausado y no será visible para tus clientes.
+                  </p>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50/60 cursor-pointer transition-colors">
+                <input
+                  type="checkbox"
+                  checked={featured}
+                  onChange={(e) => setFeatured(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
+                />
+                <div>
+                  <div className="text-xs font-bold text-slate-900">
+                    Destacar en la página principal
+                  </div>
+                  <p className="text-[11px] text-slate-500">
+                    Aparecerá en los bloques destacados del inicio de tu página para captar más atención.
+                  </p>
+                </div>
+              </label>
+            </div>
           </div>
         </form>
+
+        {/* Barra inferior fija de acciones */}
+        <footer className="sticky bottom-0 z-20 bg-white border-t border-slate-200 px-6 py-3.5 flex items-center justify-end gap-3 shadow-xs">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isSaving}
+            className="px-4 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 rounded-lg transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isSaving}
+            className="inline-flex items-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-xs disabled:opacity-50"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Guardando...</span>
+              </>
+            ) : (
+              <span>Guardar producto</span>
+            )}
+          </button>
+        </footer>
       </div>
     </div>
   );

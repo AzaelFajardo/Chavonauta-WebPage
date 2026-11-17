@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   Layers,
   Palette,
-  Store,
   Monitor,
   Tablet,
   Smartphone,
@@ -16,11 +15,11 @@ import {
   CheckCircle2,
   AlertCircle,
   Eye,
+  Settings,
 } from "lucide-react";
 import { CatalogItem, Category, SectionBlock, ThemeConfig } from "@/types";
 import { SectionManager } from "./SectionManager";
 import { ColorPaletteEditor } from "./ColorPaletteEditor";
-import { BusinessInfoEditor } from "./BusinessInfoEditor";
 import { LivePreview } from "./LivePreview";
 
 interface AdminCustomizerManagerProps {
@@ -35,7 +34,7 @@ export function AdminCustomizerManager({
   categories,
 }: AdminCustomizerManagerProps) {
   const [theme, setTheme] = useState<ThemeConfig>(initialTheme);
-  const [activeTab, setActiveTab] = useState<"sections" | "colors" | "identity">("sections");
+  const [activeTab, setActiveTab] = useState<"sections" | "colors">("sections");
   const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -218,8 +217,8 @@ export function AdminCustomizerManager({
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Panel de Controles / Sidebar del Editor */}
         <div className="w-full lg:w-96 border-b lg:border-b-0 lg:border-r border-slate-200 bg-white flex flex-col shrink-0">
-          {/* Pestañas de Navegación del Editor */}
-          <div className="p-2 border-b border-slate-200 bg-slate-50/70 grid grid-cols-3 gap-1">
+          {/* Pestañas de Navegación del Editor Visual */}
+          <div className="p-2 border-b border-slate-200 bg-slate-50/70 grid grid-cols-2 gap-1">
             <button
               type="button"
               onClick={() => setActiveTab("sections")}
@@ -245,19 +244,6 @@ export function AdminCustomizerManager({
               <Palette className="w-3.5 h-3.5" />
               <span>Colores</span>
             </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("identity")}
-              className={`flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg text-xs font-bold transition-all ${
-                activeTab === "identity"
-                  ? "bg-white text-navy-900 shadow-2xs border border-slate-200"
-                  : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
-              }`}
-            >
-              <Store className="w-3.5 h-3.5" />
-              <span>Identidad</span>
-            </button>
           </div>
 
           {/* Contenido de la Pestaña Activa con Scroll */}
@@ -275,20 +261,20 @@ export function AdminCustomizerManager({
                 onChange={handleUpdateTheme}
               />
             )}
+          </div>
 
-            {activeTab === "identity" && (
-              <BusinessInfoEditor
-                business={theme.business}
-                onChange={(updates) =>
-                  handleUpdateTheme({
-                    business: {
-                      ...theme.business,
-                      ...updates,
-                    },
-                  })
-                }
-              />
-            )}
+          {/* Pie informativo para redirigir a Configuración */}
+          <div className="p-3 bg-slate-50 border-t border-slate-200 text-center shrink-0">
+            <p className="text-[11px] text-slate-500">
+              ¿Deseas cambiar logotipo, nombre, horarios o contacto?
+            </p>
+            <Link
+              href="/admin/configuracion"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline mt-0.5"
+            >
+              <Settings className="w-3.5 h-3.5" />
+              <span>Ir a Configuración</span>
+            </Link>
           </div>
         </div>
 

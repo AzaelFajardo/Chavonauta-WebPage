@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Building2,
   Phone,
@@ -16,8 +16,13 @@ import {
   ExternalLink,
   MessageCircle,
   Calendar,
+  AlertTriangle,
+  X,
+  Loader2,
+  RotateCcw,
 } from "lucide-react";
 import { BusinessInfo, ScheduleItem, ThemeConfig } from "@/types";
+import { ImageUploader } from "@/components/ui/ImageUploader";
 
 interface AdminSettingsManagerProps {
   initialTheme: ThemeConfig;
@@ -36,6 +41,7 @@ const DEFAULT_DAYS = [
 export function AdminSettingsManager({
   initialTheme,
 }: AdminSettingsManagerProps) {
+  const router = useRouter();
   const [business, setBusiness] = useState<BusinessInfo>(initialTheme.business);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -43,6 +49,10 @@ export function AdminSettingsManager({
     text: string;
     type: "success" | "error";
   } | null>(null);
+
+  // Estados para diálogo personalizado de confirmación de salida
+  const [isLeaveConfirmOpen, setIsLeaveConfirmOpen] = useState(false);
+  const [pendingNavigationUrl, setPendingNavigationUrl] = useState<string | null>(null);
 
   const showToast = (text: string, type: "success" | "error" = "success") => {
     setToastMessage({ text, type });
@@ -92,6 +102,12 @@ export function AdminSettingsManager({
     setHasChanges(true);
   };
 
+  const handleDiscard = () => {
+    setBusiness(initialTheme.business);
+    setHasChanges(false);
+    showToast("Cambios descartados.");
+  };
+
   const handleSave = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setIsSaving(true);
@@ -113,13 +129,90 @@ export function AdminSettingsManager({
       }
 
       setHasChanges(false);
-      showToast("¡Configuración de sucursal guardada con éxito!");
+      showToast("¡Configuración guardada con éxito!");
+      return true;
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "Error desconocido al guardar";
       showToast(msg, "error");
+      return false;
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Interceptar navegación cuando hay cambios sin guardar
+  useEffect(() => {
+    if (!hasChanges) return;
+
+    // 1. Interceptar clics en enlaces internos (por ejemplo el menú de navegación)
+    const handleAnchorClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest("a");
+      if (!target) return;
+
+      const href = target.getAttribute("href");
+      if (!href || href.startsWith("#") || href.startsWith("javascript:")) return;
+      if (target.target === "_blank") return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      setPendingNavigationUrl(href);
+      setIsLeaveConfirmOpen(true);
+    };
+
+    // 2. Interceptar botón "Atrás" del navegador
+    const handlePopState = () => {
+      window.history.pushState(null, "", window.location.href);
+      setPendingNavigationUrl("BACK");
+      setIsLeaveConfirmOpen(true);
+    };
+
+    // 3. Advertencia al cerrar pestaña o recargar página
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", handlePopState);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("click", handleAnchorClick, true);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("click", handleAnchorClick, true);
+    };
+  }, [hasChanges]);
+
+  // Acciones del diálogo de confirmación
+  const handleCancelLeave = () => {
+    setIsLeaveConfirmOpen(false);
+    setPendingNavigationUrl(null);
+  };
+
+  const handleConfirmLeaveWithoutSaving = () => {
+    setIsLeaveConfirmOpen(false);
+    setHasChanges(false);
+
+    if (pendingNavigationUrl === "BACK") {
+      window.history.back();
+    } else if (pendingNavigationUrl) {
+      router.push(pendingNavigationUrl);
+    }
+  };
+
+  const handleSaveAndLeave = async () => {
+    const success = await handleSave();
+    if (success) {
+      setIsLeaveConfirmOpen(false);
+      setHasChanges(false);
+
+      if (pendingNavigationUrl === "BACK") {
+        window.history.back();
+      } else if (pendingNavigationUrl) {
+        router.push(pendingNavigationUrl);
+      }
     }
   };
 
@@ -146,37 +239,63 @@ export function AdminSettingsManager({
         </div>
       )}
 
-      {/* Cabecera Principal */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+      {/* Cabecera Principal Sticky: Un único botón de guardado siempre accesible */}
+      <div className="sticky top-0 z-30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/95 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs transition-shadow">
         <div>
-          <h1 className="text-xl sm:text-2xl font-heading font-black text-slate-900 tracking-tight">
-            Configuración del Cybercafé
-          </h1>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+              Configuración
+            </h1>
+            {hasChanges && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 animate-pulse">
+                Cambios pendientes
+              </span>
+            )}
+          </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Administra los datos de sucursal, números de contacto, horarios y redes sociales.
+            Administra los datos de sucursal, logotipo, números de contacto, horarios y redes sociales.
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => handleSave()}
-          disabled={isSaving || !hasChanges}
-          className={`inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold rounded-xl transition-all shadow-xs shrink-0 ${
-            hasChanges
-              ? "bg-navy-900 hover:bg-navy-800 text-white shadow-navy-900/20"
-              : "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
-          }`}
-        >
-          <Save className="w-4 h-4 text-sky-300" />
-          <span>{isSaving ? "Guardando..." : "Guardar Cambios"}</span>
-        </button>
+        {/* Único botón de guardado en la página */}
+        <div className="flex items-center gap-2 shrink-0">
+          {hasChanges && (
+            <button
+              type="button"
+              onClick={handleDiscard}
+              disabled={isSaving}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Descartar</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => handleSave()}
+            disabled={isSaving || !hasChanges}
+            className={`inline-flex items-center gap-2 px-5 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all shadow-xs ${
+              hasChanges
+                ? "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20 active:scale-95 cursor-pointer"
+                : "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
+            }`}
+          >
+            {isSaving ? (
+              <Loader2 className="w-4 h-4 animate-spin text-white" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            <span>{isSaving ? "Guardando..." : "Guardar cambios"}</span>
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* Bloque 1: Identidad y Sucursal */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-            <div className="w-8 h-8 rounded-lg bg-navy-50 text-navy-800 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
               <Building2 className="w-4 h-4" />
             </div>
             <div>
@@ -184,7 +303,7 @@ export function AdminSettingsManager({
                 Información de la Sucursal y Marca
               </h2>
               <p className="text-[11px] text-slate-500">
-                Datos generales que identifican al negocio en la cabecera y pie de página.
+                Datos generales que identifican al cybercafé en la cabecera y pie de página.
               </p>
             </div>
           </div>
@@ -199,7 +318,7 @@ export function AdminSettingsManager({
                 value={business.name}
                 onChange={(e) => handleFieldChange("name", e.target.value)}
                 required
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900"
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
               />
             </div>
 
@@ -212,7 +331,7 @@ export function AdminSettingsManager({
                 value={business.branchName || ""}
                 onChange={(e) => handleFieldChange("branchName", e.target.value)}
                 placeholder="Ej. Haciendas de Aguascalientes"
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900"
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
               />
             </div>
 
@@ -225,25 +344,18 @@ export function AdminSettingsManager({
                 value={business.slogan}
                 onChange={(e) => handleFieldChange("slogan", e.target.value)}
                 placeholder="Ej. Tecnología, accesorios y soluciones digitales"
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900"
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
               />
             </div>
 
-            <div className="sm:col-span-2 p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <span className="font-semibold text-slate-800 text-xs block">
-                  ¿Deseas subir o modificar el Logotipo?
-                </span>
-                <span className="text-[11px] text-slate-500 block">
-                  El logotipo y la identidad visual se gestionan con previsualización en vivo desde el Personalizador Visual.
-                </span>
-              </div>
-              <Link
-                href="/admin/personalizador"
-                className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold text-navy-800 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors shrink-0 shadow-2xs"
-              >
-                Personalizador Visual →
-              </Link>
+            {/* Subida de Logotipo Oficial en Configuración */}
+            <div className="sm:col-span-2 pt-2 border-t border-slate-100">
+              <ImageUploader
+                value={business.logoUrl || ""}
+                onChange={(url) => handleFieldChange("logoUrl", url)}
+                label="Logotipo del Cybercafé"
+                helperText="El logotipo aparecerá en la cabecera y en el pie de página de toda la web. Si no subes ninguno, se mostrará el nombre comercial con la tipografía de la marca."
+              />
             </div>
           </div>
         </div>
@@ -251,7 +363,7 @@ export function AdminSettingsManager({
         {/* Bloque 2: Contacto y Ubicación */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-            <div className="w-8 h-8 rounded-lg bg-navy-50 text-navy-800 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
               <Phone className="w-4 h-4" />
             </div>
             <div>
@@ -286,7 +398,7 @@ export function AdminSettingsManager({
                 onChange={(e) => handleFieldChange("whatsappNumber", e.target.value)}
                 placeholder="5214494022163"
                 required
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900"
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
               />
               <span className="text-[10px] text-slate-400 mt-1 block">
                 Incluye la clave de país (ej. 521 para México + número a 10 dígitos).
@@ -302,7 +414,7 @@ export function AdminSettingsManager({
                 value={business.email || ""}
                 onChange={(e) => handleFieldChange("email", e.target.value)}
                 placeholder="ciberchavonauta@gmail.com"
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900"
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
               />
             </div>
 
@@ -315,7 +427,7 @@ export function AdminSettingsManager({
                 value={business.address}
                 onChange={(e) => handleFieldChange("address", e.target.value)}
                 placeholder="Calle, Número, Colonia, Ciudad, Estado"
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900"
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
               />
             </div>
 
@@ -328,7 +440,7 @@ export function AdminSettingsManager({
                 value={business.googleMapsUrl || ""}
                 onChange={(e) => handleFieldChange("googleMapsUrl", e.target.value)}
                 placeholder="https://maps.google.com/..."
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900"
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
               />
             </div>
           </div>
@@ -337,7 +449,7 @@ export function AdminSettingsManager({
         {/* Bloque 3: Horarios de Atención */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-            <div className="w-8 h-8 rounded-lg bg-navy-50 text-navy-800 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
               <Clock className="w-4 h-4" />
             </div>
             <div>
@@ -359,7 +471,7 @@ export function AdminSettingsManager({
               value={business.schedule}
               onChange={(e) => handleFieldChange("schedule", e.target.value)}
               placeholder="Lunes a Viernes: 8:00 - 22:00 | Sábado y Domingo: 12:00 - 22:00"
-              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900"
+              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
             />
           </div>
 
@@ -387,7 +499,7 @@ export function AdminSettingsManager({
                       value={current}
                       onChange={(e) => handleScheduleDetailChange(day, e.target.value)}
                       placeholder="8:00 - 22:00 o Cerrado"
-                      className="w-full px-2.5 py-1 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-navy-600 text-slate-800"
+                      className="w-full px-2.5 py-1 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
                     />
                   </div>
                 );
@@ -399,7 +511,7 @@ export function AdminSettingsManager({
         {/* Bloque 4: Redes Sociales */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-            <div className="w-8 h-8 rounded-lg bg-navy-50 text-navy-800 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
               <Share2 className="w-4 h-4" />
             </div>
             <div>
@@ -422,7 +534,7 @@ export function AdminSettingsManager({
                 value={business.socialLinks?.facebook || ""}
                 onChange={(e) => handleSocialChange("facebook", e.target.value)}
                 placeholder="https://facebook.com/..."
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900"
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
               />
             </div>
 
@@ -435,7 +547,7 @@ export function AdminSettingsManager({
                 value={business.socialLinks?.instagram || ""}
                 onChange={(e) => handleSocialChange("instagram", e.target.value)}
                 placeholder="https://instagram.com/..."
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900"
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
               />
             </div>
 
@@ -448,7 +560,7 @@ export function AdminSettingsManager({
                 value={business.socialLinks?.tiktok || ""}
                 onChange={(e) => handleSocialChange("tiktok", e.target.value)}
                 placeholder="https://tiktok.com/@..."
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900"
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
               />
             </div>
           </div>
@@ -457,7 +569,7 @@ export function AdminSettingsManager({
         {/* Bloque 5: Barra de Anuncio Superior */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-            <div className="w-8 h-8 rounded-lg bg-navy-50 text-navy-800 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
               <Megaphone className="w-4 h-4" />
             </div>
             <div>
@@ -465,7 +577,7 @@ export function AdminSettingsManager({
                 Barra de Anuncios Superior
               </h2>
               <p className="text-[11px] text-slate-500">
-                Aviso destacado en el encabezado de toda la página para avisar promociones o cierres.
+                Aviso destacado en el encabezado de toda la página para promociones, avisos o cierres.
               </p>
             </div>
           </div>
@@ -477,7 +589,7 @@ export function AdminSettingsManager({
               onChange={(e) =>
                 handleFieldChange("announcementEnabled", e.target.checked)
               }
-              className="w-4 h-4 text-navy-800 rounded focus:ring-navy-800"
+              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
             />
             <div>
               <span className="text-xs font-bold text-slate-800 block">
@@ -501,28 +613,78 @@ export function AdminSettingsManager({
                   handleFieldChange("announcementText", e.target.value)
                 }
                 placeholder="Ej. Atención directa por WhatsApp • Impresiones, trámites, soporte y renta de PC."
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-navy-600 text-slate-900"
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
               />
             </div>
           )}
         </div>
-
-        {/* Botón inferior fijo/de cierre */}
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <button
-            type="submit"
-            disabled={isSaving || !hasChanges}
-            className={`inline-flex items-center gap-2 px-6 py-3 text-xs font-bold rounded-xl transition-all shadow-sm ${
-              hasChanges
-                ? "bg-navy-900 hover:bg-navy-800 text-white shadow-navy-900/20"
-                : "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
-            }`}
-          >
-            <Save className="w-4 h-4 text-sky-300" />
-            <span>{isSaving ? "Guardando..." : "Guardar Toda la Configuración"}</span>
-          </button>
-        </div>
       </form>
+
+      {/* Diálogo Personalizado de Confirmación para Salir sin Guardar (NUNCA el del navegador) */}
+      {isLeaveConfirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-150 p-6">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-heading font-bold text-base text-slate-900">
+                    ¿Salir sin guardar los cambios?
+                  </h3>
+                  <p className="text-xs text-slate-500">Hay modificaciones pendientes</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleCancelLeave}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="py-4">
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Has realizado cambios en la configuración que aún no se han guardado. Si sales ahora de esta página, se perderán todas las modificaciones.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={handleCancelLeave}
+                disabled={isSaving}
+                className="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors order-2 sm:order-1"
+              >
+                Seguir editando
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmLeaveWithoutSaving}
+                disabled={isSaving}
+                className="px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 border border-red-200 rounded-xl transition-colors order-3 sm:order-2"
+              >
+                Salir sin guardar
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveAndLeave}
+                disabled={isSaving}
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors shadow-xs order-1 sm:order-3 disabled:opacity-50"
+              >
+                {isSaving ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+                <span>{isSaving ? "Guardando..." : "Guardar y salir"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

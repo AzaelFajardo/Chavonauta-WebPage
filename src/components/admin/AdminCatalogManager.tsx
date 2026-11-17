@@ -19,6 +19,8 @@ import {
   Sparkles,
   ArrowUpDown,
   Tag,
+  Loader2,
+  X,
 } from "lucide-react";
 import { CatalogItem, Category } from "@/types";
 import { ItemFormModal } from "./ItemFormModal";
@@ -265,6 +267,113 @@ export function AdminCatalogManager({
     }
   };
 
+  // Toggle Featured (Estrellita de portada)
+  const handleToggleFeatured = async (item: CatalogItem) => {
+    const updatedFeatured = !item.featured;
+    setItems((prev) =>
+      prev.map((i) => (i.id === item.id ? { ...i, featured: updatedFeatured } : i))
+    );
+
+    try {
+      const res = await fetch("/api/catalog", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id, action: "toggleFeatured" }),
+      });
+
+      if (!res.ok) throw new Error();
+
+      showToast(
+        updatedFeatured
+          ? `"${item.name}" marcado como destacado en portada.`
+          : `"${item.name}" retirado de destacados.`
+      );
+    } catch {
+      setItems((prev) =>
+        prev.map((i) => (i.id === item.id ? { ...i, featured: item.featured } : i))
+      );
+      showToast("No se pudo actualizar el destacado.", "error");
+    }
+  };
+
+  // Estados y funciones para Acciones por Lote (Bulk Actions)
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+
+  const handleBulkAction = async (
+    action: "activate" | "pause" | "feature" | "unfeature"
+  ) => {
+    if (selectedIds.length === 0) return;
+    setIsBulkProcessing(true);
+
+    const actionMap = {
+      activate: "bulkActivate",
+      pause: "bulkPause",
+      feature: "bulkFeature",
+      unfeature: "bulkUnfeature",
+    };
+
+    // Actualización optimista en la lista local
+    setItems((prev) =>
+      prev.map((item) => {
+        if (!selectedIds.includes(item.id)) return item;
+        if (action === "activate") return { ...item, active: true };
+        if (action === "pause") return { ...item, active: false };
+        if (action === "feature") return { ...item, featured: true };
+        if (action === "unfeature") return { ...item, featured: false };
+        return item;
+      })
+    );
+
+    try {
+      const res = await fetch("/api/catalog", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: selectedIds, action: actionMap[action] }),
+      });
+
+      if (!res.ok) throw new Error();
+
+      const labels = {
+        activate: "activados",
+        pause: "pausados",
+        feature: "marcados como destacados",
+        unfeature: "retirados de destacados",
+      };
+
+      showToast(`${selectedIds.length} productos ${labels[action]} con éxito.`);
+      setSelectedIds([]);
+    } catch {
+      showToast("Hubo un error al aplicar la acción masiva.", "error");
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
+  const handleConfirmBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+    setIsBulkProcessing(true);
+
+    try {
+      const res = await fetch("/api/catalog", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: selectedIds }),
+      });
+
+      if (!res.ok) throw new Error();
+
+      setItems((prev) => prev.filter((i) => !selectedIds.includes(i.id)));
+      showToast(`${selectedIds.length} productos eliminados correctamente.`);
+      setSelectedIds([]);
+      setIsBulkDeleteOpen(false);
+    } catch {
+      showToast("Error al eliminar los productos seleccionados.", "error");
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
   return (
     <div className="space-y-5">
       {/* Toast Flotante */}
@@ -413,6 +522,96 @@ export function AdminCatalogManager({
         </div>
       </div>
 
+      {/* Barra de Acciones por Lote (Aparece al seleccionar 1 o más productos) */}
+      {selectedIds.length > 0 && (
+        <div className="bg-blue-50/90 border border-blue-200 rounded-xl p-3 sm:px-4 sm:py-3 flex flex-wrap items-center justify-between gap-3 shadow-2xs animate-in fade-in slide-in-from-top-1 duration-200">
+          <div className="flex items-center gap-2.5">
+            <span className="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full bg-blue-600 text-white font-bold text-xs">
+              {selectedIds.length}
+            </span>
+            <span className="text-xs sm:text-sm font-semibold text-blue-900">
+              {selectedIds.length === 1
+                ? "1 producto seleccionado"
+                : `${selectedIds.length} productos seleccionados`}
+            </span>
+            <span className="text-slate-300">|</span>
+            <button
+              type="button"
+              onClick={() => setSelectedIds([])}
+              className="text-xs text-blue-700 hover:text-blue-900 font-medium hover:underline"
+            >
+              Deseleccionar todos
+            </button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            {/* Activar */}
+            <button
+              type="button"
+              disabled={isBulkProcessing}
+              onClick={() => handleBulkAction("activate")}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 border border-slate-200 rounded-lg transition-colors shadow-2xs disabled:opacity-50"
+              title="Activar los productos seleccionados para que se muestren en la tienda"
+            >
+              <Eye className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Activar</span>
+            </button>
+
+            {/* Pausar */}
+            <button
+              type="button"
+              disabled={isBulkProcessing}
+              onClick={() => handleBulkAction("pause")}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white text-slate-700 hover:text-amber-700 hover:bg-amber-50 border border-slate-200 rounded-lg transition-colors shadow-2xs disabled:opacity-50"
+              title="Pausar los productos seleccionados para ocultarlos temporalmente"
+            >
+              <EyeOff className="w-3.5 h-3.5 text-amber-600" />
+              <span>Pausar</span>
+            </button>
+
+            {/* Destacar */}
+            <button
+              type="button"
+              disabled={isBulkProcessing}
+              onClick={() => handleBulkAction("feature")}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white text-slate-700 hover:text-amber-700 hover:bg-amber-50 border border-slate-200 rounded-lg transition-colors shadow-2xs disabled:opacity-50"
+              title="Marcar los productos seleccionados como destacados en la portada"
+            >
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+              <span>Destacar</span>
+            </button>
+
+            {/* Quitar Destacado */}
+            <button
+              type="button"
+              disabled={isBulkProcessing}
+              onClick={() => handleBulkAction("unfeature")}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors shadow-2xs disabled:opacity-50"
+              title="Quitar los productos seleccionados de la sección destacados"
+            >
+              <Star className="w-3.5 h-3.5 text-slate-400" />
+              <span>Quitar destacado</span>
+            </button>
+
+            {/* Eliminar Masivo */}
+            <button
+              type="button"
+              disabled={isBulkProcessing}
+              onClick={() => setIsBulkDeleteOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors shadow-2xs disabled:opacity-50"
+              title="Eliminar permanentemente todos los productos seleccionados"
+            >
+              {isBulkProcessing ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Trash2 className="w-3.5 h-3.5" />
+              )}
+              <span>Eliminar</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Tabla Limpia Estilo Tiendanube (Capturas 1 y 7) */}
       <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs overflow-hidden">
         {filteredItems.length === 0 ? (
@@ -444,7 +643,7 @@ export function AdminCatalogManager({
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                  <th className="py-3 px-4 w-10 text-center">
+                  <th className="py-3 px-3 w-10 text-center">
                     <input
                       type="checkbox"
                       checked={
@@ -454,6 +653,9 @@ export function AdminCatalogManager({
                       onChange={handleSelectAll}
                       className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
                     />
+                  </th>
+                  <th className="py-3 px-1 w-9 text-center" title="Destacado en portada">
+                    <Star className="w-3.5 h-3.5 text-slate-400 mx-auto" />
                   </th>
                   <th className="py-3 px-4">Producto</th>
                   <th className="py-3 px-4 text-center">Disponibilidad</th>
@@ -475,13 +677,35 @@ export function AdminCatalogManager({
                       } ${isSelected ? "bg-blue-50/30" : ""}`}
                     >
                       {/* Checkbox de fila */}
-                      <td className="py-3.5 px-4 text-center">
+                      <td className="py-3.5 px-3 text-center">
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleToggleSelectOne(item.id)}
                           className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
                         />
+                      </td>
+
+                      {/* Estrellita de Destacado (1-click toggle) */}
+                      <td className="py-3.5 px-1 text-center">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleFeatured(item)}
+                          className="p-1 rounded-md hover:bg-amber-50 transition-colors group"
+                          title={
+                            item.featured
+                              ? "Producto destacado en portada (clic para quitar)"
+                              : "Hacer producto destacado en portada"
+                          }
+                        >
+                          <Star
+                            className={`w-4 h-4 transition-transform group-hover:scale-115 ${
+                              item.featured
+                                ? "fill-amber-400 text-amber-500 drop-shadow-xs"
+                                : "text-slate-300 hover:text-amber-400"
+                            }`}
+                          />
+                        </button>
                       </td>
 
                       {/* Producto: Imagen + Nombre azul cliqueable + Categoría + Etiquetas */}
@@ -522,6 +746,14 @@ export function AdminCatalogManager({
                               >
                                 {item.type === "product" ? "Físico" : "Servicio"}
                               </span>
+
+                              {/* Badge de Destacado */}
+                              {item.featured && (
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                  <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-500" />
+                                  Destacado
+                                </span>
+                              )}
 
                               {/* Etiquetas personalizadas / default */}
                               {item.badges?.map((b) => (
@@ -657,7 +889,7 @@ export function AdminCatalogManager({
         onCategoryCreated={handleCategoryCreated}
       />
 
-      {/* Diálogo de Eliminación */}
+      {/* Diálogo de Eliminación Individual */}
       <ItemDeleteDialog
         isOpen={isDeleteOpen}
         item={deletingItem}
@@ -665,6 +897,71 @@ export function AdminCatalogManager({
         onConfirm={handleConfirmDelete}
         isDeleting={isDeleting}
       />
+
+      {/* Diálogo de Eliminación Masiva (Por Lote) */}
+      {isBulkDeleteOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-6">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                    <AlertCircle className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-bold text-base text-slate-900">
+                      Eliminar productos seleccionados
+                    </h3>
+                    <p className="text-xs text-slate-500">Esta acción no se puede deshacer</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsBulkDeleteOpen(false)}
+                  disabled={isBulkProcessing}
+                  className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="py-4">
+                <p className="text-sm text-slate-600">
+                  ¿Estás seguro de que deseas eliminar permanentemente los{" "}
+                  <strong className="text-slate-900 font-semibold">{selectedIds.length} productos</strong> seleccionados?
+                </p>
+                <p className="text-xs text-slate-500 mt-2">
+                  Se removerán del catálogo y de la tienda pública de forma definitiva.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsBulkDeleteOpen(false)}
+                  disabled={isBulkProcessing}
+                  className="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmBulkDelete}
+                  disabled={isBulkProcessing}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-sm disabled:opacity-50"
+                >
+                  {isBulkProcessing ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
+                  <span>{isBulkProcessing ? "Eliminando..." : `Sí, eliminar ${selectedIds.length}`}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

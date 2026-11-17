@@ -17,6 +17,8 @@ export interface StorefrontRepository {
   getCatalogItemById(id: string): Promise<CatalogItem | undefined>;
   saveCatalogItem(item: CatalogItem): Promise<CatalogItem>;
   deleteCatalogItem(id: string): Promise<boolean>;
+  deleteCatalogItems(ids: string[]): Promise<number>;
+  bulkUpdateCatalogItems(ids: string[], updates: Partial<CatalogItem>): Promise<number>;
   toggleCatalogItemActive(id: string): Promise<CatalogItem | undefined>;
   toggleCatalogItemFeatured(id: string): Promise<CatalogItem | undefined>;
 }
@@ -160,6 +162,37 @@ export const repository: StorefrontRepository = {
       await persistDatabase();
     }
     return deleted;
+  },
+
+  async deleteCatalogItems(ids: string[]): Promise<number> {
+    const db = await loadDatabase();
+    const initialLength = db.items.length;
+    const idSet = new Set(ids);
+    db.items = db.items.filter((item) => !idSet.has(item.id));
+    const deletedCount = initialLength - db.items.length;
+    if (deletedCount > 0) {
+      await persistDatabase();
+    }
+    return deletedCount;
+  },
+
+  async bulkUpdateCatalogItems(
+    ids: string[],
+    updates: Partial<CatalogItem>
+  ): Promise<number> {
+    const db = await loadDatabase();
+    const idSet = new Set(ids);
+    let count = 0;
+    for (const item of db.items) {
+      if (idSet.has(item.id)) {
+        Object.assign(item, updates);
+        count++;
+      }
+    }
+    if (count > 0) {
+      await persistDatabase();
+    }
+    return count;
   },
 
   async toggleCatalogItemActive(id: string): Promise<CatalogItem | undefined> {

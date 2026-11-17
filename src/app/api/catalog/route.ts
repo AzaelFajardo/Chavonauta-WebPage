@@ -101,34 +101,35 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     let id = searchParams.get("id");
+    let ids: string[] = [];
 
-    if (!id) {
-      try {
-        const body = await request.json();
-        id = body?.id;
-      } catch {
-        // Ignorar si no hay cuerpo JSON
+    try {
+      const body = await request.json();
+      if (Array.isArray(body?.ids)) {
+        ids = body.ids;
+      } else if (body?.id) {
+        id = body.id;
       }
+    } catch {
+      // Ignorar si no hay cuerpo JSON
     }
 
-    if (!id) {
+    if (id && !ids.includes(id)) {
+      ids.push(id);
+    }
+
+    if (ids.length === 0) {
       return NextResponse.json(
-        { error: "El ID del ítem es requerido para eliminar" },
+        { error: "Se requiere al menos un ID para eliminar" },
         { status: 400 }
       );
     }
 
-    const success = await repository.deleteCatalogItem(id);
-    if (!success) {
-      return NextResponse.json(
-        { error: "Ítem no encontrado o no se pudo eliminar" },
-        { status: 404 }
-      );
-    }
+    const deletedCount = await repository.deleteCatalogItems(ids);
 
-    return NextResponse.json({ success: true, id });
+    return NextResponse.json({ success: true, count: deletedCount, ids });
   } catch (error) {
-    console.error("Error al eliminar ítem de catálogo:", error);
+    console.error("Error al eliminar ítem(s) de catálogo:", error);
     return NextResponse.json(
       { error: "Error interno al eliminar el ítem" },
       { status: 500 }
@@ -139,33 +140,38 @@ export async function DELETE(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, action } = body;
+    const { id, ids, action } = body;
 
-    if (!id || !action) {
+    const targetIds: string[] = Array.isArray(ids) ? ids : id ? [id] : [];
+
+    if (targetIds.length === 0 || !action) {
       return NextResponse.json(
-        { error: "Se requiere ID y acción (toggleActive o toggleFeatured)" },
+        { error: "Se requiere ID(s) y acción" },
         { status: 400 }
       );
     }
-
-    let updated: CatalogItem | undefined;
 
     if (action === "toggleActive") {
-      updated = await repository.toggleCatalogItemActive(id);
+      const updated = await repository.toggleCatalogItemActive(targetIds[0]);
+      return NextResponse.json(updated);
     } else if (action === "toggleFeatured") {
-      updated = await repository.toggleCatalogItemFeatured(id);
-    } else {
-      return NextResponse.json(
-        { error: "Acción no válida. Use toggleActive o toggleFeatured" },
-        { status: 400 }
-      );
+      const updated = await repository.toggleCatalogItemFeatured(targetIds[0]);
+      return NextResponse.json(updated);
+    } else if (action === "bulkPause") {
+      const count = await repository.bulkUpdateCatalogItems(targetIds, { active: false });
+      return NextResponse.json({ success: true, count });
+    } else if (action === "bulkActivate") {
+      const count = await repository.bulkUpdateCatalogItems(targetIds, { active: true });
+      return NextResponse.json({ success: true, count });
+    } else if (action === "bulkFeature") {
+      const count = await repository.bulkUpdateCatalogItems(targetIds, { featured: true });
+      return NextResponse.json({ success: true, count });
+    } else if (action === "bulkUnfeature") {
+      const count = await repository.bulkUpdateCatalogItems(targetIds, { featured: false });
+      return NextResponse.json({ success: true, count });
     }
 
-    if (!updated) {
-      return NextResponse.json({ error: "Ítem no encontrado" }, { status: 404 });
-    }
-
-    return NextResponse.json(updated);
+    return NextResponse.json({ error: "Acción no reconocida" }, { status: 400 });
   } catch (error) {
     console.error("Error al actualizar estado del ítem:", error);
     return NextResponse.json(

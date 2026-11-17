@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -11,23 +11,24 @@ import {
   Menu,
   X,
   Store,
+  ChevronRight,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   {
-    label: "Catálogo y Servicios",
+    label: "CATÁLOGO",
     href: "/admin/catalogo",
     icon: Package,
     description: "Productos, servicios y categorías",
   },
   {
-    label: "Personalizador Visual",
+    label: "PERSONALIZADOR",
     href: "/admin/personalizador",
     icon: Palette,
     description: "Colores, fuentes y secciones",
   },
   {
-    label: "Configuración",
+    label: "CONFIGURACIÓN",
     href: "/admin/configuracion",
     icon: Settings,
     description: "Sucursal, horarios y contacto",
@@ -37,9 +38,68 @@ const NAV_ITEMS = [
 export function AdminNav() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const leaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Limpiar timer si el componente se desmonta
+  useEffect(() => {
+    return () => {
+      if (leaveTimeoutRef.current) {
+        clearTimeout(leaveTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleMouseEnter = () => {
+    if (leaveTimeoutRef.current) {
+      clearTimeout(leaveTimeoutRef.current);
+      leaveTimeoutRef.current = null;
+    }
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (leaveTimeoutRef.current) {
+      clearTimeout(leaveTimeoutRef.current);
+    }
+    // Breve margen de gracia para evitar que se cierre si el mouse sale accidentalmente unos milisegundos
+    leaveTimeoutRef.current = setTimeout(() => {
+      setIsHovered(false);
+    }, 220);
+  };
+
+  const handleItemClick = () => {
+    setIsHovered(false);
+    setMobileMenuOpen(false);
+  };
 
   return (
     <>
+      {/* Zona de activación hover en el borde izquierdo (Desktop) */}
+      <div
+        onMouseEnter={handleMouseEnter}
+        className="hidden lg:block fixed left-0 top-0 bottom-0 w-3 z-40 cursor-pointer"
+        aria-hidden="true"
+      />
+
+      {/* Pestaña flotante indicadora del menú en el borde izquierdo (Desktop) */}
+      <div
+        onMouseEnter={handleMouseEnter}
+        onClick={() => setIsHovered(true)}
+        className={`hidden lg:flex fixed top-6 left-0 z-40 items-center gap-2 pl-2.5 pr-3.5 py-2 bg-navy-950/95 text-sky-400 hover:text-white hover:bg-navy-900 border border-l-0 border-navy-800 rounded-r-xl shadow-xl shadow-navy-950/30 cursor-pointer transition-all duration-300 backdrop-blur-sm select-none group ${
+          isHovered
+            ? "opacity-0 pointer-events-none -translate-x-full"
+            : "opacity-100 translate-x-0"
+        }`}
+        title="Pasa el mouse para desplegar la barra lateral"
+      >
+        <Menu className="w-4 h-4 text-sky-400 group-hover:scale-110 transition-transform" />
+        <span className="text-[11px] font-black tracking-wider text-slate-200">
+          MENÚ
+        </span>
+        <ChevronRight className="w-3.5 h-3.5 text-navy-400 group-hover:translate-x-0.5 transition-transform" />
+      </div>
+
       {/* Barra superior para móvil */}
       <header className="lg:hidden sticky top-0 z-40 bg-navy-950 text-white border-b border-navy-800 px-4 py-3 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-2.5">
@@ -74,10 +134,12 @@ export function AdminNav() {
         />
       )}
 
-      {/* Sidebar fijo (Desktop) / Drawer móvil */}
+      {/* Sidebar Desplegable al Hover (Desktop) / Drawer móvil */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-navy-950 text-white flex flex-col border-r border-navy-900 shadow-xl transition-transform duration-200 ease-in-out lg:translate-x-0 ${
-          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-navy-950 text-white flex flex-col border-r border-navy-850 shadow-2xl shadow-navy-950/80 transition-transform duration-300 ease-in-out ${
+          mobileMenuOpen || isHovered ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Cabecera Sidebar */}
@@ -101,8 +163,12 @@ export function AdminNav() {
 
           <button
             type="button"
-            onClick={() => setMobileMenuOpen(false)}
-            className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              setIsHovered(false);
+            }}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-navy-900 transition-colors"
+            title="Cerrar barra lateral"
           >
             <X className="w-5 h-5" />
           </button>
@@ -110,8 +176,8 @@ export function AdminNav() {
 
         {/* Links de Navegación */}
         <div className="flex-1 py-6 px-3 space-y-1.5 overflow-y-auto">
-          <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-navy-300">
-            Gestión
+          <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-navy-400">
+            SECCIONES
           </div>
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
@@ -122,7 +188,7 @@ export function AdminNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={handleItemClick}
                 className={`group flex items-start gap-3.5 px-3.5 py-3 rounded-xl transition-all duration-150 ${
                   isActive
                     ? "bg-navy-800/90 text-white border border-navy-700 shadow-sm shadow-navy-950/30"
@@ -139,7 +205,9 @@ export function AdminNav() {
                   <Icon className="w-4 h-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs font-semibold">{item.label}</div>
+                  <div className="text-xs font-black tracking-wider uppercase">
+                    {item.label}
+                  </div>
                   <div className="text-[11px] text-navy-300/80 truncate">
                     {item.description}
                   </div>
@@ -155,11 +223,11 @@ export function AdminNav() {
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-200 hover:text-white border border-navy-800 hover:border-navy-700 transition-colors text-xs font-medium"
+            className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-200 hover:text-white border border-navy-800 hover:border-navy-700 transition-colors text-xs font-bold"
           >
             <div className="flex items-center gap-2">
               <Store className="w-4 h-4 text-sky-400" />
-              <span>Ver Tienda Pública</span>
+              <span className="tracking-wider uppercase">TIENDA</span>
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
           </Link>

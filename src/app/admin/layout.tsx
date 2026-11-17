@@ -14,8 +14,8 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800">
       <AdminNav />
-      {/* Contenedor principal desplazado por el sidebar en desktop */}
-      <div className="lg:pl-72 flex flex-col min-h-screen">
+      {/* Contenedor principal con ancho completo al estar la barra lateral oculta por defecto */}
+      <div className="flex flex-col min-h-screen">
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] w-full mx-auto">
           {children}
         </main>

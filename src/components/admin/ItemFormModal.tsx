@@ -479,7 +479,7 @@ export function ItemFormModal({
               <h3 className="text-sm font-bold text-slate-900 tracking-tight">
                 Tipo de producto
               </h3>
-              <InfoTooltip text="Físico para productos tangibles (papelería, snacks, cables). Digital/Servicio para atención o trabajos en el cybercafé (impresiones, renta de PC)." />
+              <InfoTooltip text="Físico para productos tangibles (papelería, snacks, cables). Digital/Servicio para atención o trabajos en tienda (impresiones, renta de PC)." />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -534,7 +534,7 @@ export function ItemFormModal({
                     <span>Digital / Servicio</span>
                   </div>
                   <p className="text-[11px] text-slate-500 mt-0.5">
-                    Servicios del cybercafé (impresiones, escaneo, renta de PC/consolas...)
+                    Servicios ofrecidos (impresiones, escaneo, renta de PC/consolas...)
                   </p>
                 </div>
               </label>
@@ -805,7 +805,7 @@ export function ItemFormModal({
               <h3 className="text-sm font-bold text-slate-900 tracking-tight">
                 Destacar y Visibilidad
               </h3>
-              <InfoTooltip text="Configura si el producto es visible de inmediato o si debe figurar en la portada de tu cybercafé." />
+              <InfoTooltip text="Configura si el producto es visible de inmediato o si debe figurar en la portada de tu tienda." />
             </div>
 
             <div className="space-y-3 pt-1">

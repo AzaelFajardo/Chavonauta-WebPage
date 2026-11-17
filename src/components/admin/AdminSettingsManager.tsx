@@ -303,7 +303,7 @@ export function AdminSettingsManager({
                 Información de la Sucursal y Marca
               </h2>
               <p className="text-[11px] text-slate-500">
-                Datos generales que identifican al cybercafé en la cabecera y pie de página.
+                Datos generales que identifican a tu negocio en la cabecera y pie de página.
               </p>
             </div>
           </div>
@@ -353,7 +353,7 @@ export function AdminSettingsManager({
               <ImageUploader
                 value={business.logoUrl || ""}
                 onChange={(url) => handleFieldChange("logoUrl", url)}
-                label="Logotipo del Cybercafé"
+                label="Logotipo"
                 helperText="El logotipo aparecerá en la cabecera y en el pie de página de toda la web. Si no subes ninguno, se mostrará el nombre comercial con la tipografía de la marca."
               />
             </div>

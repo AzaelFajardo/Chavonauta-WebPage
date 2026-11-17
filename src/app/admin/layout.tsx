@@ -2,8 +2,8 @@ import React from "react";
 import { AdminNav } from "@/components/admin/AdminNav";
 
 export const metadata = {
-  title: "Administración | Cybercafé Chavonauta",
-  description: "Panel de autogestión de catálogo y diseño del Cybercafé Chavonauta.",
+  title: "Administración | Chavonauta",
+  description: "Panel de autogestión de catálogo y diseño de Chavonauta.",
 };
 
 export default function AdminLayout({

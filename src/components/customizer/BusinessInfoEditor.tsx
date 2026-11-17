@@ -66,7 +66,7 @@ export function BusinessInfoEditor({
             <ImageUploader
               value={business.logoUrl || ""}
               onChange={(url) => onChange({ logoUrl: url })}
-              label="Logotipo del Cybercafé"
+              label="Logotipo"
               helperText="El logotipo aparecerá en la cabecera y en el pie de página del escaparate. Si no subes ninguno, se mostrará el nombre con la tipografía de la marca."
             />
           </div>

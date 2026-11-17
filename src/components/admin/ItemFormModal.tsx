@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { CatalogItem, Category } from "@/types";
 import { ImageUploader } from "@/components/ui/ImageUploader";
+import { Tooltip, InfoTooltip } from "@/components/ui/Tooltip";
 
 interface ItemFormModalProps {
   item: CatalogItem | null;
@@ -305,18 +306,17 @@ export function ItemFormModal({
 
           {/* Tarjeta 1: Nombre y descripción */}
           <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
-            <div>
+            <div className="flex items-center gap-1.5">
               <h3 className="text-sm font-bold text-slate-900 tracking-tight">
                 Nombre y descripción
               </h3>
-              <p className="text-xs text-slate-500">
-                La información principal que verán tus clientes al ver este artículo.
-              </p>
+              <InfoTooltip text="La información principal que tus clientes verán al buscar o abrir este artículo." />
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-slate-700">
-                Nombre del producto o servicio <span className="text-red-500">*</span>
+              <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                <span>Nombre del producto o servicio <span className="text-red-500">*</span></span>
+                <InfoTooltip text="El título claro con el que tus clientes identificarán el producto en el catálogo." />
               </label>
               <input
                 type="text"
@@ -329,8 +329,9 @@ export function ItemFormModal({
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-slate-700">
-                Descripción
+              <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                <span>Descripción</span>
+                <InfoTooltip text="Explica detalles como marcas, características técnicas, qué incluye o tiempos de entrega." />
               </label>
               <textarea
                 value={description}
@@ -344,13 +345,11 @@ export function ItemFormModal({
 
           {/* Tarjeta 2: Fotos */}
           <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
-            <div>
+            <div className="flex items-center gap-1.5">
               <h3 className="text-sm font-bold text-slate-900 tracking-tight">
                 Fotos
               </h3>
-              <p className="text-xs text-slate-500">
-                Arrastra una foto desde tu equipo o selecciona un archivo para tu producto.
-              </p>
+              <InfoTooltip text="Sube fotos claras con buena iluminación. Formatos recomendados: JPG, PNG o WEBP." />
             </div>
 
             <ImageUploader
@@ -364,19 +363,18 @@ export function ItemFormModal({
 
           {/* Tarjeta 3: Precios */}
           <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
-            <div>
+            <div className="flex items-center gap-1.5">
               <h3 className="text-sm font-bold text-slate-900 tracking-tight">
                 Precios
               </h3>
-              <p className="text-xs text-slate-500">
-                Indica el precio habitual y opcionalmente un precio de oferta.
-              </p>
+              <InfoTooltip text="Indica el precio habitual y opcionalmente un precio especial de oferta con descuento." />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-slate-700">
-                  Precio de venta ($)
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                  <span>Precio de venta ($)</span>
+                  <InfoTooltip text="El precio habitual en pesos mexicanos que pagarán tus clientes." />
                 </label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-semibold">
@@ -396,8 +394,9 @@ export function ItemFormModal({
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-slate-700">
-                  Precio promocional ($ oferta)
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                  <span>Precio promocional ($ oferta)</span>
+                  <InfoTooltip text="Monto con descuento. El precio de venta regular se mostrará tachado para resaltar la oferta." />
                 </label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-semibold">
@@ -425,14 +424,16 @@ export function ItemFormModal({
                 onChange={(e) => setShowPriceInStore(e.target.checked)}
                 className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
               />
-              <label htmlFor="showPriceInStore" className="text-xs text-slate-700 cursor-pointer font-medium select-none">
-                Mostrar el precio en la tienda
+              <label htmlFor="showPriceInStore" className="text-xs text-slate-700 cursor-pointer font-medium select-none flex items-center gap-1.5">
+                <span>Mostrar el precio en la tienda</span>
+                <InfoTooltip text="Desmárcalo si prefieres no mostrar el monto numérico y que indique 'Consultar en mostrador'." />
               </label>
             </div>
 
             <div className="space-y-1.5 pt-1">
-              <label className="block text-xs font-semibold text-slate-600">
-                Texto personalizado de precio (opcional)
+              <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+                <span>Texto personalizado de precio (opcional)</span>
+                <InfoTooltip text="Ideal para tarifas especiales (ej: '$ 15 / hora', 'Desde $ 5.00', 'En mostrador')." />
               </label>
               <input
                 type="text"
@@ -446,13 +447,11 @@ export function ItemFormModal({
 
           {/* Tarjeta 4: Tipo de producto */}
           <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
-            <div>
+            <div className="flex items-center gap-1.5">
               <h3 className="text-sm font-bold text-slate-900 tracking-tight">
                 Tipo de producto
               </h3>
-              <p className="text-xs text-slate-500">
-                Selecciona si se trata de un producto físico o un servicio en tienda.
-              </p>
+              <InfoTooltip text="Físico para productos tangibles (papelería, snacks, cables). Digital/Servicio para atención o trabajos en el cybercafé (impresiones, renta de PC)." />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -517,13 +516,11 @@ export function ItemFormModal({
           {/* Tarjeta 5: Categorías (Con opción de crear personalizada) */}
           <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
-              <div>
+              <div className="flex items-center gap-1.5">
                 <h3 className="text-sm font-bold text-slate-900 tracking-tight">
                   Categoría
                 </h3>
-                <p className="text-xs text-slate-500">
-                  Ayuda a tus clientes a encontrar más rápido tus productos.
-                </p>
+                <InfoTooltip text="Agrupa tus artículos para que los clientes los encuentren con facilidad en los filtros de la tienda." />
               </div>
 
               {!showNewCategoryInput && (
@@ -597,13 +594,11 @@ export function ItemFormModal({
 
           {/* Tarjeta 6: Etiquetas (Default + Personalizables) */}
           <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
-            <div>
+            <div className="flex items-center gap-1.5">
               <h3 className="text-sm font-bold text-slate-900 tracking-tight">
                 Etiquetas y Distintivos
               </h3>
-              <p className="text-xs text-slate-500">
-                Destaca cualidades con un clic o añade tus propias etiquetas personalizadas.
-              </p>
+              <InfoTooltip text="Insignias llamativas sobre la foto para resaltar cualidades (ej: 'Nuevo', 'Oferta', 'Gamer' o tus propias etiquetas)." />
             </div>
 
             {/* Etiquetas sugeridas con un clic */}
@@ -693,13 +688,11 @@ export function ItemFormModal({
 
           {/* Tarjeta 7: Destacar y Visibilidad */}
           <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-3">
-            <div>
+            <div className="flex items-center gap-1.5">
               <h3 className="text-sm font-bold text-slate-900 tracking-tight">
                 Destacar y Visibilidad
               </h3>
-              <p className="text-xs text-slate-500">
-                Controla dónde y cómo verán este producto tus visitantes.
-              </p>
+              <InfoTooltip text="Configura si el producto es visible de inmediato o si debe figurar en la portada de tu cybercafé." />
             </div>
 
             <div className="space-y-3 pt-1">
@@ -711,8 +704,9 @@ export function ItemFormModal({
                   className="mt-0.5 w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
                 />
                 <div>
-                  <div className="text-xs font-bold text-slate-900">
-                    Mostrar en la tienda (Activo)
+                  <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <span>Mostrar en la tienda (Activo)</span>
+                    <InfoTooltip text="Desmárcalo si quieres pausar temporalmente el producto sin borrar sus datos." />
                   </div>
                   <p className="text-[11px] text-slate-500">
                     Si está desmarcado, el producto quedará pausado y no será visible para tus clientes.
@@ -728,8 +722,9 @@ export function ItemFormModal({
                   className="mt-0.5 w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
                 />
                 <div>
-                  <div className="text-xs font-bold text-slate-900">
-                    Destacar en la página principal
+                  <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <span>Destacar en la página principal</span>
+                    <InfoTooltip text="Muestra este producto en los escaparates y carruseles principales de la página web." />
                   </div>
                   <p className="text-[11px] text-slate-500">
                     Aparecerá en los bloques destacados del inicio de tu página para captar más atención.

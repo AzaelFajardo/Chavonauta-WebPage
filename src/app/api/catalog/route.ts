@@ -74,6 +74,9 @@ export async function POST(request: NextRequest) {
         typeof body.referencePrice === "number" ? body.referencePrice : undefined,
       promotionalPrice:
         typeof body.promotionalPrice === "number" ? body.promotionalPrice : undefined,
+      stockType: body.stockType === "limited" ? "limited" : "infinite",
+      stockQuantity:
+        typeof body.stockQuantity === "number" ? body.stockQuantity : undefined,
       imageUrl:
         body.imageUrl?.trim() ||
         "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80",

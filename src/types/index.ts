@@ -101,6 +101,8 @@ export interface CatalogItem {
   priceLabel: string;
   referencePrice?: number;
   promotionalPrice?: number;
+  stockType?: "infinite" | "limited";
+  stockQuantity?: number;
   imageUrl: string;
   badges: string[];
   featured: boolean;

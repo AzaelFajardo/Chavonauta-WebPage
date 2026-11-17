@@ -60,6 +60,8 @@ export function ItemFormModal({
   const [promotionalPrice, setPromotionalPrice] = useState<string>("");
   const [customPriceText, setCustomPriceText] = useState("");
   const [showPriceInStore, setShowPriceInStore] = useState(false);
+  const [stockType, setStockType] = useState<"infinite" | "limited">("infinite");
+  const [stockQuantity, setStockQuantity] = useState<string>("");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [badges, setBadges] = useState<string[]>([]);
@@ -87,6 +89,8 @@ export function ItemFormModal({
       setPromotionalPrice(hasPromo ? String(item.promotionalPrice) : "");
       setCustomPriceText(item.priceLabel || "");
       setShowPriceInStore(Boolean(item.priceLabel && item.priceLabel !== "Consultar en mostrador"));
+      setStockType(item.stockType || "infinite");
+      setStockQuantity(item.stockQuantity !== undefined ? String(item.stockQuantity) : "");
       setDescription(item.description || item.shortDescription || "");
       setImageUrl(item.imageUrl || "");
       setBadges(item.badges || []);
@@ -101,6 +105,8 @@ export function ItemFormModal({
       setPromotionalPrice("");
       setCustomPriceText("");
       setShowPriceInStore(false);
+      setStockType("infinite");
+      setStockQuantity("");
       setDescription("");
       setImageUrl("");
       setBadges([]);
@@ -241,6 +247,8 @@ export function ItemFormModal({
       }
     }
 
+    const numStock = stockType === "limited" && stockQuantity ? parseInt(stockQuantity, 10) : undefined;
+
     const payload: Partial<CatalogItem> = {
       ...(item ? { id: item.id } : {}),
       name: name.trim(),
@@ -250,6 +258,8 @@ export function ItemFormModal({
       priceLabel: finalPriceLabel,
       referencePrice: !isNaN(Number(numRefPrice)) ? numRefPrice : undefined,
       promotionalPrice: !isNaN(Number(numPromoPrice)) ? numPromoPrice : undefined,
+      stockType,
+      stockQuantity: !isNaN(Number(numStock)) ? numStock : undefined,
       shortDescription: description.trim().slice(0, 160),
       description: description.trim(),
       imageUrl: imageUrl.trim() || "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80",
@@ -531,7 +541,92 @@ export function ItemFormModal({
             </div>
           </div>
 
-          {/* Tarjeta 5: Categorías (Con opción de crear personalizada) */}
+          {/* Tarjeta 5: Inventario y Disponibilidad (Estilo Tiendanube) */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
+            <div className="flex items-center gap-1.5">
+              <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                Inventario y Disponibilidad
+              </h3>
+              <InfoTooltip text="Define si el producto está siempre disponible de manera infinita o si cuentas con un número limitado de piezas en mostrador." />
+            </div>
+
+            <div className="space-y-3">
+              <label
+                onClick={() => setStockType("infinite")}
+                className={`flex items-start gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                  stockType === "infinite"
+                    ? "border-blue-600 bg-blue-50/40 text-blue-950"
+                    : "border-slate-200 hover:border-slate-300 bg-white text-slate-700"
+                }`}
+              >
+                <div className="mt-0.5">
+                  <input
+                    type="radio"
+                    name="stockType"
+                    checked={stockType === "infinite"}
+                    onChange={() => setStockType("infinite")}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                </div>
+                <div>
+                  <div className="font-bold text-xs">
+                    ∞ Infinito (Siempre disponible)
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    No se agota. Ideal para servicios, impresiones o artículos de surtido constante.
+                  </p>
+                </div>
+              </label>
+
+              <label
+                onClick={() => setStockType("limited")}
+                className={`flex items-start gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                  stockType === "limited"
+                    ? "border-blue-600 bg-blue-50/40 text-blue-950"
+                    : "border-slate-200 hover:border-slate-300 bg-white text-slate-700"
+                }`}
+              >
+                <div className="mt-0.5">
+                  <input
+                    type="radio"
+                    name="stockType"
+                    checked={stockType === "limited"}
+                    onChange={() => setStockType("limited")}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                </div>
+                <div className="flex-1">
+                  <div className="font-bold text-xs">
+                    Limitado (Controlar cantidad de piezas en stock)
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Especifica cuántas unidades tienes físicamente en existencia.
+                  </p>
+                </div>
+              </label>
+
+              {/* Campo numérico para stock si es limitado */}
+              {stockType === "limited" && (
+                <div className="pl-7 pt-1 animate-in fade-in duration-150 space-y-1.5">
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                    <span>Cantidad en stock (unidades disponibles):</span>
+                    <InfoTooltip text="Número de piezas disponibles en tienda. Si llega a 0, se mostrará como 'Agotado'." />
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={stockQuantity}
+                    onChange={(e) => setStockQuantity(e.target.value)}
+                    placeholder="Ej: 10"
+                    className="w-44 px-3.5 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900 placeholder:text-slate-400 bg-white"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Tarjeta 6: Categorías (Con opción de crear personalizada) */}
           <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">

@@ -539,13 +539,25 @@ export function AdminCatalogManager({
 
                       {/* Disponibilidad estilo Tiendanube */}
                       <td className="py-3.5 px-4 text-center">
-                        {item.active ? (
-                          <span className="text-[11px] text-slate-600 font-medium">
-                            ∞ Infinito
-                          </span>
-                        ) : (
+                        {!item.active ? (
                           <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200">
                             Pausado
+                          </span>
+                        ) : item.stockType === "limited" ? (
+                          <span
+                            className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                              (item.stockQuantity ?? 0) > 0
+                                ? "bg-amber-50 text-amber-700 border border-amber-200"
+                                : "bg-red-50 text-red-700 border border-red-200"
+                            }`}
+                          >
+                            {(item.stockQuantity ?? 0) > 0
+                              ? `${item.stockQuantity} disponibles`
+                              : "Agotado"}
+                          </span>
+                        ) : (
+                          <span className="text-[11px] text-slate-600 font-medium">
+                            ∞ Infinito
                           </span>
                         )}
                       </td>

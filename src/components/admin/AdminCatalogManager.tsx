@@ -709,27 +709,13 @@ export function AdminCatalogManager({
                           </div>
 
                           <div className="min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              <button
-                                type="button"
-                                onClick={() => handleEdit(item)}
-                                className="font-semibold text-blue-600 hover:text-blue-800 text-left hover:underline truncate max-w-xs sm:max-w-md block"
-                              >
-                                {item.name}
-                              </button>
-
-                              {/* Estrellita discreta al lado del nombre */}
-                              {item.featured && (
-                                <button
-                                  type="button"
-                                  onClick={() => handleToggleFeatured(item)}
-                                  className="shrink-0 p-0.5 text-amber-500 hover:text-amber-600 transition-colors"
-                                  title="Producto destacado (clic para quitar de portada)"
-                                >
-                                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
-                                </button>
-                              )}
-                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleEdit(item)}
+                              className="font-semibold text-blue-600 hover:text-blue-800 text-left hover:underline truncate max-w-xs sm:max-w-md block"
+                            >
+                              {item.name}
+                            </button>
 
                             <div className="flex flex-wrap items-center gap-1.5 mt-1">
                               {/* Chip de categoría */}
@@ -747,14 +733,6 @@ export function AdminCatalogManager({
                               >
                                 {item.type === "product" ? "Físico" : "Servicio"}
                               </span>
-
-                              {/* Badge discreto de Destacado */}
-                              {item.featured && (
-                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                                  <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-500" />
-                                  Destacado
-                                </span>
-                              )}
 
                               {/* Etiquetas personalizadas / default */}
                               {item.badges?.map((b) => (
@@ -847,30 +825,6 @@ export function AdminCatalogManager({
                             ) : (
                               <EyeOff className="w-4 h-4" />
                             )}
-                          </button>
-
-                          {/* Destacar / Quitar de destacados (1 clic) */}
-                          <button
-                            type="button"
-                            onClick={() => handleToggleFeatured(item)}
-                            className={`p-1.5 rounded-lg transition-colors ${
-                              item.featured
-                                ? "text-amber-500 hover:text-amber-600 hover:bg-amber-50"
-                                : "text-slate-400 hover:text-amber-500 hover:bg-amber-50"
-                            }`}
-                            title={
-                              item.featured
-                                ? "Quitar de destacados en portada"
-                                : "Destacar en la portada"
-                            }
-                          >
-                            <Star
-                              className={`w-4 h-4 ${
-                                item.featured
-                                  ? "fill-amber-400 text-amber-500"
-                                  : "text-slate-400"
-                              }`}
-                            />
                           </button>
 
                           {/* Editar */}

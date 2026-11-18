@@ -14,6 +14,7 @@ import {
   Phone,
   Monitor,
   FolderOpen,
+  Megaphone,
 } from "lucide-react";
 import { BusinessInfo, Category } from "@/types";
 
@@ -45,6 +46,35 @@ export function Navbar({ business, categories }: NavbarProps) {
 
   return (
     <header className="sticky top-0 z-50 shadow-md">
+      {/* 0. Cintillo / Barra Superior de Aviso (si está habilitada en la configuración) */}
+      {business.announcementEnabled && business.announcementText && business.announcementText.trim().length > 0 && (
+        <aside
+          aria-label="Aviso importante"
+          style={{
+            backgroundColor: "var(--accent, #2563eb)",
+            color: "var(--accent-foreground, #ffffff)",
+          }}
+          className="text-xs font-semibold py-1.5 px-3 transition-colors duration-200 border-b border-black/10 shadow-2xs"
+        >
+          <div className="max-w-[1500px] mx-auto flex items-center justify-center gap-2 text-center">
+            <Megaphone className="w-3.5 h-3.5 shrink-0 opacity-90" />
+            {business.whatsappNumber &&
+            business.announcementText.toLowerCase().includes("whatsapp") ? (
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline flex items-center gap-1.5 truncate sm:text-clip"
+              >
+                <span>{business.announcementText}</span>
+              </a>
+            ) : (
+              <span className="truncate sm:text-clip">{business.announcementText}</span>
+            )}
+          </div>
+        </aside>
+      )}
+
       {/* 1. Header Principal reactivo al tema */}
       <div
         style={{

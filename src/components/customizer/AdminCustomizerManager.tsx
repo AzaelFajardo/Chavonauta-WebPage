@@ -19,10 +19,12 @@ import {
   Loader2,
   X,
   Settings,
+  Store,
 } from "lucide-react";
 import { CatalogItem, Category, SectionBlock, ThemeConfig } from "@/types";
 import { SectionManager } from "./SectionManager";
 import { ColorPaletteEditor } from "./ColorPaletteEditor";
+import { BusinessInfoEditor } from "./BusinessInfoEditor";
 import { LivePreview } from "./LivePreview";
 
 interface AdminCustomizerManagerProps {
@@ -39,7 +41,7 @@ export function AdminCustomizerManager({
   const router = useRouter();
 
   const [theme, setTheme] = useState<ThemeConfig>(initialTheme);
-  const [activeTab, setActiveTab] = useState<"colors" | "sections">("colors");
+  const [activeTab, setActiveTab] = useState<"logo" | "colors" | "sections">("logo");
   const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -318,24 +320,37 @@ export function AdminCustomizerManager({
         {/* Panel de Controles / Sidebar del Editor */}
         <div className="w-full lg:w-[410px] border-b lg:border-b-0 lg:border-r border-slate-200 bg-white flex flex-col shrink-0">
           {/* Pestañas de Navegación del Editor */}
-          <div className="p-2 border-b border-slate-200 bg-slate-50/70 grid grid-cols-2 gap-1.5 shrink-0">
+          <div className="p-2 border-b border-slate-200 bg-slate-50/70 grid grid-cols-3 gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => setActiveTab("logo")}
+              className={`flex items-center justify-center gap-1.5 py-2 px-1 rounded-lg text-xs font-bold transition-all ${
+                activeTab === "logo"
+                  ? "bg-white text-blue-900 shadow-2xs border border-slate-200"
+                  : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+              }`}
+            >
+              <Store className="w-3.5 h-3.5 text-blue-600" />
+              <span>Logo & Marca</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setActiveTab("colors")}
-              className={`flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg text-xs font-bold transition-all ${
+              className={`flex items-center justify-center gap-1.5 py-2 px-1 rounded-lg text-xs font-bold transition-all ${
                 activeTab === "colors"
                   ? "bg-white text-blue-900 shadow-2xs border border-slate-200"
                   : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
               }`}
             >
               <Palette className="w-3.5 h-3.5 text-blue-600" />
-              <span>Colores & Estilo</span>
+              <span>Colores</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab("sections")}
-              className={`flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg text-xs font-bold transition-all ${
+              className={`flex items-center justify-center gap-1.5 py-2 px-1 rounded-lg text-xs font-bold transition-all ${
                 activeTab === "sections"
                   ? "bg-white text-blue-900 shadow-2xs border border-slate-200"
                   : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
@@ -348,6 +363,22 @@ export function AdminCustomizerManager({
 
           {/* Contenido de la Pestaña Activa con Scroll */}
           <div className="flex-1 overflow-y-auto p-4">
+            {activeTab === "logo" && (
+              <BusinessInfoEditor
+                business={theme.business}
+                onChange={(updates) => {
+                  setTheme((prev) => ({
+                    ...prev,
+                    business: {
+                      ...prev.business,
+                      ...updates,
+                    },
+                  }));
+                  setHasChanges(true);
+                }}
+              />
+            )}
+
             {activeTab === "colors" && (
               <ColorPaletteEditor
                 theme={theme}
@@ -366,7 +397,7 @@ export function AdminCustomizerManager({
           {/* Pie informativo para redirigir a Configuración */}
           <div className="p-3 bg-slate-50 border-t border-slate-200 text-center shrink-0">
             <p className="text-[11px] text-slate-500">
-              ¿Deseas cambiar logotipo, nombre, horarios o contacto?
+              ¿Deseas editar horarios detallados, redes sociales o mapa?
             </p>
             <Link
               href="/admin/configuracion"

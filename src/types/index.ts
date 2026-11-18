@@ -43,6 +43,7 @@ export interface BusinessInfo {
   slogan: string;
   branchName?: string;
   logoUrl?: string;
+  logoWidth?: number;
   announcementText?: string;
   announcementEnabled: boolean;
   whatsappNumber: string;

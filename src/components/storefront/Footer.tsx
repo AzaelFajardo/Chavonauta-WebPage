@@ -163,7 +163,15 @@ export function Footer({ business, categories }: FooterProps) {
           {/* Logo sin sonrisa */}
           <div className="flex items-center">
             {business.logoUrl ? (
-              <img src={business.logoUrl} alt={business.name} className="h-7 w-auto object-contain" />
+              <img
+                src={business.logoUrl}
+                alt={business.name}
+                style={{
+                  width: `${Math.min(business.logoWidth || 130, 160)}px`,
+                  maxHeight: "36px",
+                }}
+                className="h-auto max-h-9 w-auto object-contain transition-all"
+              />
             ) : (
               <span className="font-heading font-black text-xl tracking-tight uppercase">
                 {business.name}

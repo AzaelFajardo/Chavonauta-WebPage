@@ -20,6 +20,8 @@ import {
   X,
   Loader2,
   RotateCcw,
+  Maximize2,
+  Smartphone,
 } from "lucide-react";
 import { BusinessInfo, ScheduleItem, ThemeConfig } from "@/types";
 import { ImageUploader } from "@/components/ui/ImageUploader";
@@ -349,13 +351,77 @@ export function AdminSettingsManager({
             </div>
 
             {/* Subida de Logotipo Oficial en Configuración */}
-            <div className="sm:col-span-2 pt-2 border-t border-slate-100">
+            <div className="sm:col-span-2 pt-2 border-t border-slate-100 space-y-3">
               <ImageUploader
                 value={business.logoUrl || ""}
                 onChange={(url) => handleFieldChange("logoUrl", url)}
                 label="Logotipo"
                 helperText="El logotipo aparecerá en la cabecera y en el pie de página de toda la web. Si no subes ninguno, se mostrará el nombre comercial con la tipografía de la marca."
               />
+
+              {/* Tamaño del Logotipo (si hay logo) */}
+              {business.logoUrl && (
+                <div className="p-3.5 bg-slate-50/90 rounded-xl border border-slate-200/90 space-y-3 animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <Maximize2 className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Tamaño del Logotipo</span>
+                    </label>
+                    <span className="text-xs font-mono font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-md">
+                      {business.logoWidth || 130}px
+                    </span>
+                  </div>
+
+                  <div>
+                    <input
+                      type="range"
+                      min={60}
+                      max={240}
+                      step={5}
+                      value={business.logoWidth || 130}
+                      onChange={(e) => handleFieldChange("logoWidth", Number(e.target.value))}
+                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                    />
+                    <div className="flex justify-between text-[10px] text-slate-400 font-mono mt-1">
+                      <span>Chico (60px)</span>
+                      <span>Estándar (130px)</span>
+                      <span>Grande (240px)</span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {[
+                      { label: "Chico", px: 90 },
+                      { label: "Medio", px: 130 },
+                      { label: "Grande", px: 175 },
+                      { label: "Máx", px: 220 },
+                    ].map((preset) => {
+                      const isActive = (business.logoWidth || 130) === preset.px;
+                      return (
+                        <button
+                          key={preset.label}
+                          type="button"
+                          onClick={() => handleFieldChange("logoWidth", preset.px)}
+                          className={`py-1.5 px-1 text-[11px] font-semibold rounded-lg border transition-all text-center ${
+                            isActive
+                              ? "bg-slate-900 text-white border-slate-900 shadow-2xs"
+                              : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
+                          }`}
+                        >
+                          {preset.label} ({preset.px}px)
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="p-2.5 bg-blue-50/80 border border-blue-200/80 rounded-lg text-[11px] text-blue-900 leading-relaxed flex items-start gap-2">
+                    <Smartphone className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                    <span>
+                      <strong>Diseño Responsivo:</strong> En escritorio se aplicará el ancho seleccionado (hasta 240px). En pantallas de celular se adapta de forma armónica para no desbordar la cabecera.
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

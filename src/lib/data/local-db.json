@@ -4,24 +4,24 @@
     "name": "Chavonauta Minimal",
     "mode": "light",
     "palette": {
-      "background": "#f8fafc",
-      "foreground": "#0f172a",
-      "primary": "#1c38a8",
+      "background": "#fafaf9",
+      "foreground": "#1c1917",
+      "primary": "#991b1b",
       "primaryForeground": "#ffffff",
-      "secondary": "#eef6ff",
-      "secondaryForeground": "#1a2f85",
-      "accent": "#336dff",
+      "secondary": "#fef2f2",
+      "secondaryForeground": "#7f1d1d",
+      "accent": "#166534",
       "accentForeground": "#ffffff",
       "card": "#ffffff",
-      "cardForeground": "#1e293b",
-      "muted": "#f1f5f9",
-      "mutedForeground": "#64748b",
-      "border": "#e2e8f0"
+      "cardForeground": "#1c1917",
+      "muted": "#f5f5f4",
+      "mutedForeground": "#78716c",
+      "border": "#fed7aa"
     },
     "radius": "0.5rem",
     "fonts": {
-      "heading": "Inter, system-ui, sans-serif",
-      "body": "Inter, system-ui, sans-serif"
+      "heading": "'Poppins', sans-serif",
+      "body": "'Poppins', sans-serif"
     },
     "business": {
       "name": "CHAVONAUTA",
@@ -131,7 +131,7 @@
         "content": {}
       }
     ],
-    "updatedAt": "2026-11-16T16:44:54.015Z"
+    "updatedAt": "2026-11-18T00:27:07.722Z"
   },
   "categories": [
     {

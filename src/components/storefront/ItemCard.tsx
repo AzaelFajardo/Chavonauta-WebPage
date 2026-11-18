@@ -28,7 +28,7 @@ export function ItemCard({ item, whatsappNumber = "5215500000000" }: ItemCardPro
         {/* Fotografía Grande y Elegante */}
         <Link
           href={`/item/${item.slug}`}
-          className="relative block aspect-square w-full overflow-hidden bg-slate-100"
+          className="relative block aspect-square w-full overflow-hidden bg-muted/30"
         >
           <img
             src={item.imageUrl}
@@ -50,7 +50,7 @@ export function ItemCard({ item, whatsappNumber = "5215500000000" }: ItemCardPro
 
         {/* Información del Producto */}
         <div className="p-4 sm:p-5">
-          <div className="text-[11px] font-medium uppercase tracking-wider text-slate-400 mb-1.5">
+          <div className="text-[11px] font-medium uppercase tracking-wider opacity-60 mb-1.5">
             {item.categorySlug.replace(/-/g, " ")}
           </div>
 
@@ -70,7 +70,7 @@ export function ItemCard({ item, whatsappNumber = "5215500000000" }: ItemCardPro
       </div>
 
       {/* Precio y Botón de Contacto */}
-      <div className="p-4 sm:p-5 pt-0 border-t border-black/5 flex items-center justify-between gap-3 mt-2">
+      <div className="p-4 sm:p-5 pt-0 border-t border-border/60 flex items-center justify-between gap-3 mt-2">
         <div>
           <span className="text-[11px] opacity-70 block font-normal">
             {isService ? "Tarifa:" : "Precio:"}
@@ -88,12 +88,15 @@ export function ItemCard({ item, whatsappNumber = "5215500000000" }: ItemCardPro
             href={waHref}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ borderRadius: "var(--radius)" }}
-            className="p-2 border border-slate-200 text-slate-600 hover:text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 transition-colors"
+            style={{
+              borderColor: "var(--border)",
+              borderRadius: "var(--radius)",
+            }}
+            className="p-2 border hover:bg-current/10 transition-colors"
             title="Consultar por WhatsApp"
             aria-label="Consultar por WhatsApp"
           >
-            <MessageCircle className="w-4 h-4" />
+            <MessageCircle className="w-4 h-4 text-emerald-500" />
           </a>
 
           <Link

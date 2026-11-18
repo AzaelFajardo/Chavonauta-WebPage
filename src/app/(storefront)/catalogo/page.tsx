@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, Search, MessageCircle } from "lucide-react";
 import { repository } from "@/lib/data/repository";
+import { Badge } from "@/components/ui/Badge";
 
 export default async function CatalogPage({
   searchParams,
@@ -39,38 +40,75 @@ export default async function CatalogPage({
   return (
     <div className="max-w-[1440px] mx-auto px-4 py-6">
       {/* Barra superior de resultados */}
-      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2 text-slate-500">
-          <Link href="/" className="hover:text-navy-900 flex items-center gap-1 font-semibold">
+      <div
+        style={{
+          backgroundColor: "var(--card)",
+          color: "var(--card-foreground)",
+          borderColor: "var(--border)",
+          borderRadius: "var(--radius)",
+        }}
+        className="p-4 border shadow-sm mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs transition-colors"
+      >
+        <div className="flex items-center gap-2 opacity-80">
+          <Link
+            href="/"
+            style={{ color: "var(--primary)" }}
+            className="hover:underline flex items-center gap-1 font-semibold"
+          >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Inicio</span>
           </Link>
           <span>/</span>
-          <span className="text-slate-900 font-bold">
+          <span className="font-bold opacity-100" style={{ color: "var(--card-foreground)" }}>
             {currentCategory ? currentCategory.name : "Catálogo y Departamentos"}
           </span>
         </div>
 
-        <div className="text-slate-600 font-medium">
-          <strong className="text-slate-900">{filteredItems.length}</strong> resultados
+        <div className="opacity-80 font-medium">
+          <strong className="opacity-100" style={{ color: "var(--card-foreground)" }}>
+            {filteredItems.length}
+          </strong>{" "}
+          resultados
           {queryClean && <span> para "{queryClean}"</span>}
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         {/* Barra lateral de departamentos */}
-        <aside className="lg:col-span-1 bg-white p-4 rounded-lg border border-slate-200 shadow-sm h-fit">
-          <h3 className="font-bold text-sm text-slate-900 mb-3 pb-2 border-b border-slate-200">
+        <aside
+          style={{
+            backgroundColor: "var(--card)",
+            color: "var(--card-foreground)",
+            borderColor: "var(--border)",
+            borderRadius: "var(--radius)",
+          }}
+          className="lg:col-span-1 p-4 border shadow-sm h-fit transition-colors"
+        >
+          <h3
+            style={{ borderColor: "var(--border)" }}
+            className="font-bold text-sm mb-3 pb-2 border-b"
+          >
             Departamentos
           </h3>
           <ul className="space-y-1 text-xs">
             <li>
               <Link
                 href="/catalogo"
-                className={`block py-1.5 px-2 rounded hover:bg-navy-50 hover:text-navy-900 transition-colors ${
+                style={{
+                  backgroundColor:
+                    !categoria || categoria === "todas"
+                      ? "var(--primary)"
+                      : "transparent",
+                  color:
+                    !categoria || categoria === "todas"
+                      ? "var(--primary-foreground)"
+                      : "inherit",
+                  borderRadius: "var(--radius)",
+                }}
+                className={`block py-1.5 px-2.5 transition-colors ${
                   !categoria || categoria === "todas"
-                    ? "font-bold text-navy-900 bg-navy-50"
-                    : "text-slate-700"
+                    ? "font-bold shadow-2xs"
+                    : "opacity-80 hover:opacity-100 hover:bg-current/10"
                 }`}
               >
                 Todos los productos
@@ -82,10 +120,15 @@ export default async function CatalogPage({
                 <li key={cat.id}>
                   <Link
                     href={`/catalogo?categoria=${cat.slug}`}
-                    className={`block py-1.5 px-2 rounded hover:bg-navy-50 hover:text-navy-900 transition-colors ${
+                    style={{
+                      backgroundColor: active ? "var(--primary)" : "transparent",
+                      color: active ? "var(--primary-foreground)" : "inherit",
+                      borderRadius: "var(--radius)",
+                    }}
+                    className={`block py-1.5 px-2.5 transition-colors ${
                       active
-                        ? "font-bold text-navy-900 bg-navy-50"
-                        : "text-slate-700"
+                        ? "font-bold shadow-2xs"
+                        : "opacity-80 hover:opacity-100 hover:bg-current/10"
                     }`}
                   >
                     {cat.name}
@@ -108,13 +151,20 @@ export default async function CatalogPage({
                 return (
                   <div
                     key={item.id}
-                    className="bg-white border border-slate-200 rounded-lg p-4 flex flex-col justify-between hover:border-navy-300 hover:shadow-md transition-all group"
+                    style={{
+                      backgroundColor: "var(--card)",
+                      color: "var(--card-foreground)",
+                      borderColor: "var(--border)",
+                      borderRadius: "var(--radius)",
+                    }}
+                    className="border p-4 flex flex-col justify-between hover:shadow-md transition-all group overflow-hidden"
                   >
                     <div>
                       {/* Imagen */}
                       <Link
                         href={`/item/${item.slug}`}
-                        className="relative block aspect-square w-full overflow-hidden bg-slate-50 rounded-md mb-3"
+                        style={{ borderRadius: "var(--radius)" }}
+                        className="relative block aspect-square w-full overflow-hidden bg-muted/30 mb-3"
                       >
                         <img
                           src={item.imageUrl}
@@ -122,39 +172,55 @@ export default async function CatalogPage({
                           className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
                         />
                         {item.badges.length > 0 && (
-                          <span className="absolute top-2 left-2 bg-navy-100 text-navy-900 border border-navy-200 text-[10px] font-bold px-2 py-0.5 rounded">
-                            {item.badges[0]}
-                          </span>
+                          <div className="absolute top-2 left-2">
+                            <Badge variant="accent">
+                              {item.badges[0]}
+                            </Badge>
+                          </div>
                         )}
                       </Link>
 
                       {/* Categoría */}
-                      <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">
+                      <div className="text-[10px] opacity-60 uppercase tracking-wider mb-1 font-medium">
                         {item.categorySlug.replace(/-/g, " ")}
                       </div>
 
                       {/* Título */}
                       <Link href={`/item/${item.slug}`}>
-                        <h2 className="font-heading font-medium text-xs sm:text-sm text-slate-900 line-clamp-2 group-hover:text-navy-700 transition-colors leading-snug">
+                        <h2
+                          style={{ color: "var(--card-foreground)" }}
+                          className="font-heading font-medium text-xs sm:text-sm line-clamp-2 hover:underline transition-colors leading-snug"
+                        >
                           {item.name}
                         </h2>
                       </Link>
 
                       {/* Precio */}
                       <div className="mt-2 flex items-baseline gap-1">
-                        <span className="text-base sm:text-xl font-bold text-slate-900">
+                        <span
+                          style={{ color: "var(--card-foreground)" }}
+                          className="text-base sm:text-xl font-bold"
+                        >
                           {item.priceLabel}
                         </span>
                       </div>
                     </div>
 
                     {/* Botón WhatsApp */}
-                    <div className="mt-4 pt-3 border-t border-slate-100 flex flex-col gap-1.5">
+                    <div
+                      style={{ borderColor: "var(--border)" }}
+                      className="mt-4 pt-3 border-t flex flex-col gap-1.5"
+                    >
                       <a
                         href={waLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-lg bg-navy-800 hover:bg-navy-700 text-white text-xs font-semibold shadow-xs transition-colors"
+                        style={{
+                          backgroundColor: "var(--primary)",
+                          color: "var(--primary-foreground)",
+                          borderRadius: "var(--radius)",
+                        }}
+                        className="flex items-center justify-center gap-1.5 w-full py-2 px-3 text-xs font-semibold shadow-2xs transition-opacity hover:opacity-90"
                       >
                         <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
                         <span>Consultar por WhatsApp</span>
@@ -165,17 +231,26 @@ export default async function CatalogPage({
               })}
             </div>
           ) : (
-            <div className="bg-white rounded-lg p-12 text-center border border-slate-200">
-              <Search className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <h3 className="font-bold text-slate-900 text-base">
+            <div
+              style={{
+                backgroundColor: "var(--card)",
+                color: "var(--card-foreground)",
+                borderColor: "var(--border)",
+                borderRadius: "var(--radius)",
+              }}
+              className="p-12 text-center border shadow-xs"
+            >
+              <Search className="w-10 h-10 opacity-40 mx-auto mb-3" />
+              <h3 className="font-bold text-base">
                 No se encontraron resultados
               </h3>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs opacity-75 mt-1">
                 Verifica la ortografía o intenta buscar en otro departamento.
               </p>
               <Link
                 href="/catalogo"
-                className="inline-block mt-4 text-xs font-bold text-navy-800 hover:underline"
+                style={{ color: "var(--primary)" }}
+                className="inline-block mt-4 text-xs font-bold hover:underline"
               >
                 Ver todos los productos
               </Link>

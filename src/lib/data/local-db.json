@@ -2,21 +2,21 @@
   "theme": {
     "id": "default-chavonauta-theme",
     "name": "Chavonauta Minimal",
-    "mode": "light",
+    "mode": "dark",
     "palette": {
-      "background": "#fafaf9",
-      "foreground": "#1c1917",
-      "primary": "#991b1b",
+      "background": "#0b1120",
+      "foreground": "#f8fafc",
+      "primary": "#3b82f6",
       "primaryForeground": "#ffffff",
-      "secondary": "#fef2f2",
-      "secondaryForeground": "#7f1d1d",
-      "accent": "#166534",
-      "accentForeground": "#ffffff",
-      "card": "#ffffff",
-      "cardForeground": "#1c1917",
-      "muted": "#f5f5f4",
-      "mutedForeground": "#78716c",
-      "border": "#fed7aa"
+      "secondary": "#162035",
+      "secondaryForeground": "#f8fafc",
+      "accent": "#38bdf8",
+      "accentForeground": "#0b1120",
+      "card": "#111b2e",
+      "cardForeground": "#f8fafc",
+      "muted": "#1e293b",
+      "mutedForeground": "#94a3b8",
+      "border": "#1e2c45"
     },
     "radius": "0.5rem",
     "fonts": {
@@ -131,7 +131,7 @@
         "content": {}
       }
     ],
-    "updatedAt": "2026-11-18T00:27:07.722Z"
+    "updatedAt": "2026-11-18T21:44:05.874Z"
   },
   "categories": [
     {

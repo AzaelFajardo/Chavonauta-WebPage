@@ -68,6 +68,8 @@ export function LivePreview({
         <div
           style={{
             ...cssVars,
+            backgroundColor: "var(--background)",
+            color: "var(--foreground)",
             fontFamily: cssVars["--font-body"] || "var(--font-body)",
           } as React.CSSProperties}
           className="flex-1 overflow-y-auto bg-background text-foreground antialiased flex flex-col scroll-smooth select-none"

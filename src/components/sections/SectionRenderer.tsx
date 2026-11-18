@@ -39,8 +39,11 @@ export function SectionRenderer({
         <section className="relative pb-10 bg-background text-foreground transition-colors duration-200">
           {/* Banner Hero Superior: Fondo reactivo a la paleta del tema */}
           <div
-            style={{ backgroundColor: "var(--primary, #1a2f85)" }}
-            className="relative text-white pt-10 pb-36 px-4 sm:px-8 overflow-hidden shadow-inner transition-colors duration-200"
+            style={{
+              backgroundColor: "var(--primary, #1a2f85)",
+              color: "var(--primary-foreground, #ffffff)",
+            }}
+            className="relative pt-10 pb-36 px-4 sm:px-8 overflow-hidden shadow-inner transition-colors duration-200"
           >
             <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
               <div className="max-w-2xl z-10">
@@ -55,8 +58,11 @@ export function SectionRenderer({
                   Catálogo Oficial y Servicios en Sucursal
                 </span>
 
-                {/* Título en Blanco Nítido sobre Fondo Navy */}
-                <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-tight drop-shadow-xs">
+                {/* Título en Alto Contraste sobre Fondo Primario */}
+                <h1
+                  style={{ color: "var(--primary-foreground, #ffffff)" }}
+                  className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-tight drop-shadow-xs"
+                >
                   {section.title}
                 </h1>
 

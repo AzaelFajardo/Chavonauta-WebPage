@@ -46,7 +46,13 @@ export function Navbar({ business, categories }: NavbarProps) {
   return (
     <header className="sticky top-0 z-50 shadow-md">
       {/* 1. Header Principal reactivo al tema */}
-      <div style={{ backgroundColor: "var(--primary, #1a2f85)" }} className="text-white transition-colors duration-200">
+      <div
+        style={{
+          backgroundColor: "var(--primary, #1a2f85)",
+          color: "var(--primary-foreground, #ffffff)",
+        }}
+        className="transition-colors duration-200"
+      >
         <div className="max-w-[1500px] mx-auto px-3 sm:px-4 h-[60px] flex items-center justify-between gap-2 sm:gap-4">
           
           <div className="flex items-center gap-2">
@@ -54,7 +60,7 @@ export function Navbar({ business, categories }: NavbarProps) {
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
-              className="md:hidden p-2 rounded hover:bg-navy-800 text-white focus:outline-none focus:ring-1 focus:ring-navy-300"
+              className="md:hidden p-2 rounded hover:bg-current/10 focus:outline-none focus:ring-1 focus:ring-current/40"
               aria-label="Abrir menú de navegación"
             >
               <Menu className="w-5 h-5" />
@@ -63,7 +69,7 @@ export function Navbar({ business, categories }: NavbarProps) {
             {/* Logotipo Personalizado */}
             <Link
               href="/"
-              className="flex items-center px-1.5 py-1 rounded hover:ring-1 hover:ring-navy-300 transition-all shrink-0"
+              className="flex items-center px-1.5 py-1 rounded hover:ring-1 hover:ring-current/30 transition-all shrink-0"
             >
               {business.logoUrl ? (
                 <img
@@ -72,7 +78,10 @@ export function Navbar({ business, categories }: NavbarProps) {
                   className="h-8 sm:h-9 w-auto object-contain"
                 />
               ) : (
-                <span className="font-heading font-black text-xl sm:text-2xl tracking-tight text-white uppercase">
+                <span
+                  style={{ color: "var(--primary-foreground, #ffffff)" }}
+                  className="font-heading font-black text-xl sm:text-2xl tracking-tight uppercase"
+                >
                   {business.name}
                 </span>
               )}
@@ -83,7 +92,7 @@ export function Navbar({ business, categories }: NavbarProps) {
           <Link
             href="/#ubicacion"
             style={{ borderRadius: "var(--radius)" }}
-            className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-white/10 transition-all shrink-0 text-left"
+            className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 text-left"
           >
             <MapPin className="w-4 h-4 opacity-80 shrink-0 mt-1" />
             <div className="flex flex-col leading-tight">
@@ -152,7 +161,7 @@ export function Navbar({ business, categories }: NavbarProps) {
               target="_blank"
               rel="noopener noreferrer"
               style={{ borderRadius: "var(--radius)" }}
-              className="flex items-center sm:flex-col leading-tight px-2.5 py-1.5 hover:bg-white/10 transition-all text-left"
+              className="flex items-center sm:flex-col leading-tight px-2.5 py-1.5 hover:bg-current/10 transition-all text-left"
             >
               <MessageCircle className="w-5 h-5 text-emerald-400 sm:hidden" />
               <span className="hidden sm:inline text-[11px] opacity-75">Contacto</span>
@@ -166,7 +175,7 @@ export function Navbar({ business, categories }: NavbarProps) {
             <Link
               href="/#tarifas"
               style={{ borderRadius: "var(--radius)" }}
-              className="hidden lg:flex flex-col leading-tight px-2.5 py-1.5 hover:bg-white/10 transition-all text-left"
+              className="hidden lg:flex flex-col leading-tight px-2.5 py-1.5 hover:bg-current/10 transition-all text-left"
             >
               <span className="text-[11px] opacity-75">Tarifas</span>
               <span className="text-xs font-bold">Renta PC $7/hr</span>
@@ -317,7 +326,14 @@ export function Navbar({ business, categories }: NavbarProps) {
           />
 
           {/* Menú lateral */}
-          <div className="relative w-80 max-w-[85vw] bg-white h-full shadow-2xl flex flex-col z-10 text-slate-800 animate-in slide-in-from-left duration-200">
+          <div
+            style={{
+              backgroundColor: "var(--card)",
+              color: "var(--card-foreground)",
+              borderColor: "var(--border)",
+            }}
+            className="relative w-80 max-w-[85vw] h-full shadow-2xl flex flex-col z-10 border-r animate-in slide-in-from-left duration-200 transition-colors"
+          >
             {/* Encabezado del menú */}
             <div
               style={{
@@ -359,8 +375,11 @@ export function Navbar({ business, categories }: NavbarProps) {
 
               {/* Sección de Servicios del Cyber */}
               <div>
-                <div className="flex items-center gap-1.5 font-bold text-slate-900 text-sm mb-2.5 uppercase tracking-wider text-xs">
-                  <Monitor className="w-4 h-4 text-navy-800" />
+                <div
+                  style={{ color: "var(--card-foreground)" }}
+                  className="flex items-center gap-1.5 font-bold text-xs mb-2.5 uppercase tracking-wider"
+                >
+                  <Monitor className="w-4 h-4" style={{ color: "var(--primary)" }} />
                   <span>Servicios en Sucursal</span>
                 </div>
                 <ul className="space-y-1 text-xs">
@@ -368,7 +387,7 @@ export function Navbar({ business, categories }: NavbarProps) {
                     <Link
                       href="/catalogo?categoria=servicios-cyber"
                       onClick={() => setDrawerOpen(false)}
-                      className="block py-2 px-2.5 rounded hover:bg-navy-50 text-slate-700 font-semibold"
+                      className="block py-2 px-2.5 rounded hover:bg-current/10 font-semibold transition-colors"
                     >
                       Todos los Servicios del Cyber
                     </Link>
@@ -377,7 +396,7 @@ export function Navbar({ business, categories }: NavbarProps) {
                     <Link
                       href="/#tarifas"
                       onClick={() => setDrawerOpen(false)}
-                      className="block py-2 px-2.5 rounded hover:bg-navy-50 text-slate-700"
+                      className="block py-2 px-2.5 rounded hover:bg-current/10 opacity-85 hover:opacity-100 transition-colors"
                     >
                       Renta de PC ($7/hr • Media hr: $4)
                     </Link>
@@ -386,7 +405,7 @@ export function Navbar({ business, categories }: NavbarProps) {
                     <Link
                       href="/item/impresiones-blanco-negro-y-color"
                       onClick={() => setDrawerOpen(false)}
-                      className="block py-2 px-2.5 rounded hover:bg-navy-50 text-slate-700"
+                      className="block py-2 px-2.5 rounded hover:bg-current/10 opacity-85 hover:opacity-100 transition-colors"
                     >
                       Impresiones B/N y Color / Copias
                     </Link>
@@ -395,7 +414,7 @@ export function Navbar({ business, categories }: NavbarProps) {
                     <Link
                       href="/item/reparacion-y-mantenimiento-equipos-digitales"
                       onClick={() => setDrawerOpen(false)}
-                      className="block py-2 px-2.5 rounded hover:bg-navy-50 text-slate-700"
+                      className="block py-2 px-2.5 rounded hover:bg-current/10 opacity-85 hover:opacity-100 transition-colors"
                     >
                       Mantenimiento y Reparación de Equipos
                     </Link>
@@ -404,7 +423,7 @@ export function Navbar({ business, categories }: NavbarProps) {
                     <Link
                       href="/item/tramites-digitales-curp-actas-citas"
                       onClick={() => setDrawerOpen(false)}
-                      className="block py-2 px-2.5 rounded hover:bg-navy-50 text-slate-700"
+                      className="block py-2 px-2.5 rounded hover:bg-current/10 opacity-85 hover:opacity-100 transition-colors"
                     >
                       Trámites Digitales (CURP, Actas, CFE)
                     </Link>
@@ -413,9 +432,15 @@ export function Navbar({ business, categories }: NavbarProps) {
               </div>
 
               {/* Sección de Departamentos y Catálogo */}
-              <div className="border-t border-slate-200 pt-4">
-                <div className="flex items-center gap-1.5 font-bold text-slate-900 text-sm mb-2.5 uppercase tracking-wider text-xs">
-                  <FolderOpen className="w-4 h-4 text-navy-800" />
+              <div
+                style={{ borderColor: "var(--border)" }}
+                className="border-t pt-4"
+              >
+                <div
+                  style={{ color: "var(--card-foreground)" }}
+                  className="flex items-center gap-1.5 font-bold text-xs mb-2.5 uppercase tracking-wider"
+                >
+                  <FolderOpen className="w-4 h-4" style={{ color: "var(--primary)" }} />
                   <span>Catálogo de Productos</span>
                 </div>
                 <ul className="space-y-1 text-xs">
@@ -423,7 +448,12 @@ export function Navbar({ business, categories }: NavbarProps) {
                     <Link
                       href="/catalogo"
                       onClick={() => setDrawerOpen(false)}
-                      className="block py-2 px-2.5 rounded bg-navy-50 text-navy-900 font-bold"
+                      style={{
+                        backgroundColor: "var(--primary)",
+                        color: "var(--primary-foreground)",
+                        borderRadius: "var(--radius)",
+                      }}
+                      className="block py-2 px-2.5 font-bold shadow-2xs transition-opacity hover:opacity-90"
                     >
                       Ver Todo el Catálogo
                     </Link>
@@ -433,7 +463,7 @@ export function Navbar({ business, categories }: NavbarProps) {
                       <Link
                         href={`/catalogo?categoria=${c.slug}`}
                         onClick={() => setDrawerOpen(false)}
-                        className="block py-1.5 px-2.5 rounded hover:bg-navy-50 text-slate-700"
+                        className="block py-1.5 px-2.5 rounded hover:bg-current/10 opacity-85 hover:opacity-100 transition-colors"
                       >
                         {c.name}
                       </Link>
@@ -443,22 +473,35 @@ export function Navbar({ business, categories }: NavbarProps) {
               </div>
 
               {/* Información de Sucursal y Horarios */}
-              <div className="border-t border-slate-200 pt-4 text-xs text-slate-600 space-y-2">
+              <div
+                style={{ borderColor: "var(--border)" }}
+                className="border-t pt-4 text-xs space-y-2 opacity-85"
+              >
                 <div className="flex items-start gap-2">
-                  <MapPin className="w-4 h-4 text-navy-800 shrink-0 mt-0.5" />
+                  <MapPin className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "var(--primary)" }} />
                   <div>
-                    <span className="font-bold text-slate-900 block">{business.branchName}</span>
-                    <span className="text-[11px] leading-tight block text-slate-500">
+                    <span
+                      style={{ color: "var(--card-foreground)" }}
+                      className="font-bold block"
+                    >
+                      {business.branchName}
+                    </span>
+                    <span className="text-[11px] leading-tight block opacity-75">
                       {business.address}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-2 pt-1">
-                  <Clock className="w-4 h-4 text-navy-800 shrink-0 mt-0.5" />
+                  <Clock className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "var(--primary)" }} />
                   <div>
-                    <span className="font-bold text-slate-900 block">Horario Comercial:</span>
-                    <span className="text-[11px] leading-tight block text-slate-500">
+                    <span
+                      style={{ color: "var(--card-foreground)" }}
+                      className="font-bold block"
+                    >
+                      Horario Comercial:
+                    </span>
+                    <span className="text-[11px] leading-tight block opacity-75">
                       {business.schedule}
                     </span>
                   </div>

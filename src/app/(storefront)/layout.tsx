@@ -18,8 +18,12 @@ export default async function StorefrontLayout({
 
   return (
     <div
-      style={cssVars as React.CSSProperties}
-      className="min-h-screen flex flex-col bg-slate-100 text-slate-800 antialiased"
+      style={{
+        ...cssVars,
+        backgroundColor: "var(--background)",
+        color: "var(--foreground)",
+      } as React.CSSProperties}
+      className="min-h-screen flex flex-col bg-background text-foreground antialiased transition-colors duration-200"
     >
       <Navbar business={theme.business} categories={categories} />
       <main className="flex-1">{children}</main>

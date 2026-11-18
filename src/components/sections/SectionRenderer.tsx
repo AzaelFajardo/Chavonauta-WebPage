@@ -129,7 +129,7 @@ export function SectionRenderer({
                   borderColor: "var(--border)",
                   borderRadius: "var(--radius)",
                 }}
-                className="p-5 shadow-md border flex flex-col justify-between transition-colors"
+                className="p-5 shadow-md border flex flex-col justify-between transition-colors overflow-hidden"
               >
                 <div>
                   <h2 className="font-heading font-bold text-xl mb-3" style={{ color: "var(--card-foreground)" }}>
@@ -170,7 +170,7 @@ export function SectionRenderer({
                   borderColor: "var(--border)",
                   borderRadius: "var(--radius)",
                 }}
-                className="p-5 shadow-md border flex flex-col justify-between transition-colors"
+                className="p-5 shadow-md border flex flex-col justify-between transition-colors overflow-hidden"
               >
                 <div>
                   <h2 className="font-heading font-bold text-xl mb-3" style={{ color: "var(--card-foreground)" }}>
@@ -261,7 +261,7 @@ export function SectionRenderer({
                   borderColor: "var(--border)",
                   borderRadius: "var(--radius)",
                 }}
-                className="p-5 shadow-md border flex flex-col justify-between transition-colors"
+                className="p-5 shadow-md border flex flex-col justify-between transition-colors overflow-hidden"
               >
                 <div>
                   <h2 className="font-heading font-bold text-xl mb-3" style={{ color: "var(--card-foreground)" }}>
@@ -348,7 +348,7 @@ export function SectionRenderer({
                   borderColor: "var(--border)",
                   borderRadius: "var(--radius)",
                 }}
-                className="p-5 shadow-md border flex flex-col justify-between transition-colors"
+                className="p-5 shadow-md border flex flex-col justify-between transition-colors overflow-hidden"
               >
                 <div>
                   <h2 className="font-heading font-bold text-xl mb-3" style={{ color: "var(--card-foreground)" }}>
@@ -535,7 +535,7 @@ export function SectionRenderer({
                   borderColor: "var(--border)",
                   borderRadius: "var(--radius)",
                 }}
-                className="p-5 shadow-sm border flex flex-col justify-between transition-colors"
+                className="p-5 shadow-sm border flex flex-col justify-between transition-colors overflow-hidden"
               >
                 <div>
                   <h3 className="font-heading font-bold text-xl mb-2" style={{ color: "var(--card-foreground)" }}>
@@ -577,7 +577,7 @@ export function SectionRenderer({
                   borderColor: "var(--border)",
                   borderRadius: "var(--radius)",
                 }}
-                className="p-5 shadow-sm border flex flex-col justify-between transition-colors"
+                className="p-5 shadow-sm border flex flex-col justify-between transition-colors overflow-hidden"
               >
                 <div>
                   <h3 className="font-heading font-bold text-xl mb-2" style={{ color: "var(--card-foreground)" }}>
@@ -615,7 +615,7 @@ export function SectionRenderer({
                   borderColor: "var(--border)",
                   borderRadius: "var(--radius)",
                 }}
-                className="p-5 shadow-sm border flex flex-col justify-between transition-colors"
+                className="p-5 shadow-sm border flex flex-col justify-between transition-colors overflow-hidden"
               >
                 <div>
                   <h3 className="font-heading font-bold text-xl mb-2" style={{ color: "var(--card-foreground)" }}>
@@ -657,7 +657,7 @@ export function SectionRenderer({
                   borderColor: "var(--border)",
                   borderRadius: "var(--radius)",
                 }}
-                className="p-5 shadow-sm border flex flex-col justify-between transition-colors"
+                className="p-5 shadow-sm border flex flex-col justify-between transition-colors overflow-hidden"
               >
                 <div>
                   <h3 className="font-heading font-bold text-xl mb-2" style={{ color: "var(--card-foreground)" }}>
@@ -706,7 +706,7 @@ export function SectionRenderer({
               borderColor: "var(--border)",
               borderRadius: "var(--radius)",
             }}
-            className="max-w-[1440px] mx-auto p-6 sm:p-8 shadow-sm border transition-colors duration-200"
+            className="max-w-[1440px] mx-auto p-6 sm:p-8 shadow-sm border transition-colors duration-200 overflow-hidden"
           >
             <div className="max-w-2xl mb-6">
               <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--primary)" }}>
@@ -797,7 +797,7 @@ export function SectionRenderer({
               borderColor: "var(--border)",
               borderRadius: "var(--radius)",
             }}
-            className="max-w-[1440px] mx-auto p-6 sm:p-8 shadow-sm border transition-colors duration-200"
+            className="max-w-[1440px] mx-auto p-6 sm:p-8 shadow-sm border transition-colors duration-200 overflow-hidden"
           >
             <div className="mb-6">
               <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--primary)" }}>

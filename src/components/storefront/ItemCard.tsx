@@ -16,7 +16,14 @@ export function ItemCard({ item, whatsappNumber = "5215500000000" }: ItemCardPro
   )}`;
 
   return (
-    <div className="group flex flex-col justify-between rounded-xl border border-slate-200 bg-white overflow-hidden hover:border-slate-300 hover:shadow-lg transition-all duration-200">
+    <div
+      style={{
+        backgroundColor: "var(--card)",
+        borderColor: "var(--border)",
+        borderRadius: "var(--radius)",
+      }}
+      className="group flex flex-col justify-between border overflow-hidden hover:shadow-lg transition-all duration-200"
+    >
       <div>
         {/* Fotografía Grande y Elegante */}
         <Link
@@ -48,24 +55,30 @@ export function ItemCard({ item, whatsappNumber = "5215500000000" }: ItemCardPro
           </div>
 
           <Link href={`/item/${item.slug}`}>
-            <h3 className="font-heading font-semibold text-slate-900 text-sm sm:text-base leading-snug line-clamp-2 group-hover:text-navy-700 transition-colors">
+            <h3
+              className="font-heading font-semibold text-sm sm:text-base leading-snug line-clamp-2 transition-colors hover:underline"
+              style={{ color: "var(--card-foreground)" }}
+            >
               {item.name}
             </h3>
           </Link>
 
-          <p className="mt-1.5 text-xs text-slate-500 line-clamp-2 leading-relaxed">
+          <p className="mt-1.5 text-xs opacity-75 line-clamp-2 leading-relaxed">
             {item.shortDescription}
           </p>
         </div>
       </div>
 
       {/* Precio y Botón de Contacto */}
-      <div className="p-4 sm:p-5 pt-0 border-t border-slate-100/80 flex items-center justify-between gap-3 mt-2">
+      <div className="p-4 sm:p-5 pt-0 border-t border-black/5 flex items-center justify-between gap-3 mt-2">
         <div>
-          <span className="text-[11px] text-slate-400 block font-normal">
+          <span className="text-[11px] opacity-70 block font-normal">
             {isService ? "Tarifa:" : "Precio:"}
           </span>
-          <span className="font-heading font-bold text-base sm:text-lg text-slate-900">
+          <span
+            className="font-heading font-bold text-base sm:text-lg"
+            style={{ color: "var(--card-foreground)" }}
+          >
             {item.priceLabel}
           </span>
         </div>
@@ -75,7 +88,8 @@ export function ItemCard({ item, whatsappNumber = "5215500000000" }: ItemCardPro
             href={waHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 rounded-lg border border-slate-200 text-slate-600 hover:text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 transition-colors"
+            style={{ borderRadius: "var(--radius)" }}
+            className="p-2 border border-slate-200 text-slate-600 hover:text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 transition-colors"
             title="Consultar por WhatsApp"
             aria-label="Consultar por WhatsApp"
           >
@@ -84,7 +98,12 @@ export function ItemCard({ item, whatsappNumber = "5215500000000" }: ItemCardPro
 
           <Link
             href={`/item/${item.slug}`}
-            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-slate-900 hover:bg-navy-800 text-white text-xs font-semibold transition-colors"
+            style={{
+              backgroundColor: "var(--primary)",
+              color: "var(--primary-foreground)",
+              borderRadius: "var(--radius)",
+            }}
+            className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold transition-opacity hover:opacity-90"
           >
             <span>Ver</span>
             <ArrowUpRight className="w-3.5 h-3.5" />

@@ -66,8 +66,11 @@ export function LivePreview({
 
         {/* Contenido en Vivo con Variables CSS inyectadas Y ESCROLLEABLE */}
         <div
-          style={cssVars as React.CSSProperties}
-          className="flex-1 overflow-y-auto bg-background text-foreground antialiased flex flex-col font-body scroll-smooth select-none"
+          style={{
+            ...cssVars,
+            fontFamily: cssVars["--font-body"] || "var(--font-body)",
+          } as React.CSSProperties}
+          className="flex-1 overflow-y-auto bg-background text-foreground antialiased flex flex-col scroll-smooth select-none"
         >
           {/* Barra de navegación del escaparate */}
           <div className="pointer-events-none">

@@ -82,12 +82,13 @@ export function Navbar({ business, categories }: NavbarProps) {
           {/* Sucursal (visible en desktop) */}
           <Link
             href="/#ubicacion"
-            className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded hover:ring-1 hover:ring-navy-300 transition-all shrink-0 text-left"
+            style={{ borderRadius: "var(--radius)" }}
+            className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-white/10 transition-all shrink-0 text-left"
           >
-            <MapPin className="w-4 h-4 text-navy-200 shrink-0 mt-1" />
+            <MapPin className="w-4 h-4 opacity-80 shrink-0 mt-1" />
             <div className="flex flex-col leading-tight">
-              <span className="text-[11px] text-navy-100">Atención en</span>
-              <span className="text-xs font-bold text-white max-w-[160px] truncate">
+              <span className="text-[11px] opacity-75">Atención en</span>
+              <span className="text-xs font-bold max-w-[160px] truncate">
                 {business.branchName || "Sucursal"}
               </span>
             </div>
@@ -96,7 +97,8 @@ export function Navbar({ business, categories }: NavbarProps) {
           {/* Barra de Búsqueda (Desktop) */}
           <form
             onSubmit={handleSearch}
-            className="hidden sm:flex flex-1 max-w-3xl items-center h-10 rounded-lg focus-within:ring-2 focus-within:ring-navy-400 bg-white overflow-hidden shadow-inner border border-navy-700"
+            style={{ borderRadius: "var(--radius)" }}
+            className="hidden sm:flex flex-1 max-w-3xl items-center h-10 bg-white overflow-hidden shadow-inner border border-black/10 focus-within:ring-2 focus-within:ring-white/40"
           >
             {/* Dropdown de departamentos */}
             <div className="relative h-full flex items-center bg-slate-50 hover:bg-slate-100 border-r border-slate-200 transition-colors">
@@ -131,7 +133,11 @@ export function Navbar({ business, categories }: NavbarProps) {
             {/* Botón de búsqueda */}
             <button
               type="submit"
-              className="h-full bg-navy-600 hover:bg-navy-700 text-white px-4 flex items-center justify-center transition-colors shrink-0"
+              style={{
+                backgroundColor: "var(--accent)",
+                color: "var(--accent-foreground)",
+              }}
+              className="h-full px-4 flex items-center justify-center transition-opacity hover:opacity-90 shrink-0 font-bold"
               aria-label="Buscar"
             >
               <Search className="w-4 h-4" />
@@ -145,29 +151,36 @@ export function Navbar({ business, categories }: NavbarProps) {
               href={whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center sm:flex-col leading-tight px-2.5 py-1.5 rounded hover:ring-1 hover:ring-navy-300 transition-all text-left"
+              style={{ borderRadius: "var(--radius)" }}
+              className="flex items-center sm:flex-col leading-tight px-2.5 py-1.5 hover:bg-white/10 transition-all text-left"
             >
               <MessageCircle className="w-5 h-5 text-emerald-400 sm:hidden" />
-              <span className="hidden sm:inline text-[11px] text-navy-100">Contacto</span>
-              <span className="hidden sm:flex text-xs font-bold text-white items-center gap-1">
+              <span className="hidden sm:inline text-[11px] opacity-75">Contacto</span>
+              <span className="hidden sm:flex text-xs font-bold items-center gap-1">
                 <span>WhatsApp</span>
-                <ChevronDown className="w-3 h-3 text-navy-300" />
+                <ChevronDown className="w-3 h-3 opacity-60" />
               </span>
             </a>
 
             {/* Tarifas / Renta PC de 2 líneas (Desktop) */}
             <Link
               href="/#tarifas"
-              className="hidden lg:flex flex-col leading-tight px-2.5 py-1.5 rounded hover:ring-1 hover:ring-navy-300 transition-all text-left"
+              style={{ borderRadius: "var(--radius)" }}
+              className="hidden lg:flex flex-col leading-tight px-2.5 py-1.5 hover:bg-white/10 transition-all text-left"
             >
-              <span className="text-[11px] text-navy-100">Tarifas</span>
-              <span className="text-xs font-bold text-white">Renta PC $7/hr</span>
+              <span className="text-[11px] opacity-75">Tarifas</span>
+              <span className="text-xs font-bold">Renta PC $7/hr</span>
             </Link>
 
             {/* Catálogo */}
             <Link
               href="/catalogo"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-navy-800 hover:bg-navy-700 transition-all text-xs font-bold text-white border border-navy-700"
+              style={{
+                backgroundColor: "var(--accent)",
+                color: "var(--accent-foreground)",
+                borderRadius: "var(--radius)",
+              }}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 transition-all text-xs font-bold shadow-2xs hover:opacity-90"
             >
               <span>Catálogo</span>
             </Link>
@@ -178,7 +191,8 @@ export function Navbar({ business, categories }: NavbarProps) {
         <div className="sm:hidden px-3 pb-3">
           <form
             onSubmit={handleSearch}
-            className="flex items-center h-9 rounded-lg bg-white overflow-hidden shadow-inner border border-navy-700"
+            style={{ borderRadius: "var(--radius)" }}
+            className="flex items-center h-9 bg-white overflow-hidden shadow-inner border border-black/10"
           >
             <input
               type="text"
@@ -189,7 +203,11 @@ export function Navbar({ business, categories }: NavbarProps) {
             />
             <button
               type="submit"
-              className="h-full bg-navy-600 text-white px-3 flex items-center justify-center shrink-0"
+              style={{
+                backgroundColor: "var(--accent)",
+                color: "var(--accent-foreground)",
+              }}
+              className="h-full px-3 flex items-center justify-center shrink-0 font-bold"
               aria-label="Buscar"
             >
               <Search className="w-3.5 h-3.5" />
@@ -204,71 +222,85 @@ export function Navbar({ business, categories }: NavbarProps) {
           backgroundColor: "var(--secondary, #1c38a8)",
           color: "var(--secondary-foreground, #ffffff)",
         }}
-        className="hidden md:block text-xs font-medium border-t border-white/10 transition-colors duration-200"
+        className="hidden md:block text-xs font-medium border-t border-black/10 transition-colors duration-200"
       >
         <div className="max-w-[1500px] mx-auto px-3 sm:px-4 flex items-center gap-1 sm:gap-2 h-10 overflow-x-auto no-scrollbar">
           {/* Botón "Todo" con icono de menú */}
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-navy-700/80 hover:bg-navy-700 font-bold transition-all shrink-0 text-white"
+            style={{
+              backgroundColor: "var(--primary)",
+              color: "var(--primary-foreground)",
+              borderRadius: "var(--radius)",
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 font-bold transition-all shrink-0 hover:opacity-90 shadow-2xs"
           >
             <Menu className="w-4 h-4" />
             <span>Todo</span>
           </button>
 
-          {/* Enlaces directos a departamentos en Desktop */}
+          {/* Enlaces directos a departamentos en Desktop (heredan color de secondary-foreground con alta legibilidad) */}
           <Link
             href="/catalogo?categoria=servicios-cyber"
-            className="px-2.5 py-1.5 rounded hover:bg-navy-700/60 transition-all shrink-0 text-navy-100 font-bold"
+            style={{ borderRadius: "var(--radius)" }}
+            className="px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 font-bold"
           >
             Servicios del Cyber
           </Link>
           <Link
             href="/#tarifas"
-            className="px-2.5 py-1.5 rounded hover:bg-navy-700/60 transition-all shrink-0 text-slate-100"
+            style={{ borderRadius: "var(--radius)" }}
+            className="px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 opacity-85 hover:opacity-100"
           >
             Renta de PC ($7/hr)
           </Link>
           <Link
             href="/catalogo?categoria=teclados-y-mouse"
-            className="px-2.5 py-1.5 rounded hover:bg-navy-700/60 transition-all shrink-0 text-slate-100"
+            style={{ borderRadius: "var(--radius)" }}
+            className="px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 opacity-85 hover:opacity-100"
           >
             Teclados y Mouse
           </Link>
           <Link
             href="/catalogo?categoria=audifonos-y-diademas"
-            className="px-2.5 py-1.5 rounded hover:bg-navy-700/60 transition-all shrink-0 text-slate-100"
+            style={{ borderRadius: "var(--radius)" }}
+            className="px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 opacity-85 hover:opacity-100"
           >
             Audífonos
           </Link>
           <Link
             href="/catalogo?categoria=cables-y-cargadores"
-            className="px-2.5 py-1.5 rounded hover:bg-navy-700/60 transition-all shrink-0 text-slate-100"
+            style={{ borderRadius: "var(--radius)" }}
+            className="px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 opacity-85 hover:opacity-100"
           >
             Cables y Carga
           </Link>
           <Link
             href="/catalogo?categoria=memorias"
-            className="px-2.5 py-1.5 rounded hover:bg-navy-700/60 transition-all shrink-0 text-slate-100"
+            style={{ borderRadius: "var(--radius)" }}
+            className="px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 opacity-85 hover:opacity-100"
           >
             Memorias
           </Link>
           <Link
             href="/catalogo?categoria=papeleria"
-            className="hidden lg:inline-block px-2.5 py-1.5 rounded hover:bg-navy-700/60 transition-all shrink-0 text-slate-100"
+            style={{ borderRadius: "var(--radius)" }}
+            className="hidden lg:inline-block px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 opacity-85 hover:opacity-100"
           >
             Papelería
           </Link>
           <Link
             href="/catalogo?categoria=focos"
-            className="hidden lg:inline-block px-2.5 py-1.5 rounded hover:bg-navy-700/60 transition-all shrink-0 text-slate-100"
+            style={{ borderRadius: "var(--radius)" }}
+            className="hidden lg:inline-block px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 opacity-85 hover:opacity-100"
           >
             Iluminación
           </Link>
           <Link
             href="/#ubicacion"
-            className="hidden xl:inline-block px-2.5 py-1.5 rounded hover:bg-navy-700/60 transition-all shrink-0 text-navy-200"
+            style={{ borderRadius: "var(--radius)" }}
+            className="hidden xl:inline-block px-2.5 py-1.5 border border-current/25 hover:bg-current/10 transition-all shrink-0 font-medium"
           >
             Horarios y Sucursal
           </Link>
@@ -287,15 +319,21 @@ export function Navbar({ business, categories }: NavbarProps) {
           {/* Menú lateral */}
           <div className="relative w-80 max-w-[85vw] bg-white h-full shadow-2xl flex flex-col z-10 text-slate-800 animate-in slide-in-from-left duration-200">
             {/* Encabezado del menú */}
-            <div className="bg-navy-900 text-white p-4 flex items-center justify-between">
+            <div
+              style={{
+                backgroundColor: "var(--primary)",
+                color: "var(--primary-foreground)",
+              }}
+              className="p-4 flex items-center justify-between shadow-xs"
+            >
               <div className="flex items-center gap-2">
                 <span className="font-heading font-black text-lg uppercase">{business.name}</span>
-                <span className="text-xs font-bold text-navy-200">menú</span>
+                <span className="text-xs font-bold opacity-75">menú</span>
               </div>
               <button
                 type="button"
                 onClick={() => setDrawerOpen(false)}
-                className="text-white hover:text-navy-200 p-1"
+                className="hover:opacity-75 p-1 transition-opacity"
                 aria-label="Cerrar menú"
               >
                 <X className="w-5 h-5" />
@@ -311,7 +349,8 @@ export function Navbar({ business, categories }: NavbarProps) {
                   href={whatsappHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition-colors"
+                  style={{ borderRadius: "var(--radius)" }}
+                  className="flex items-center justify-center gap-2 w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition-colors"
                 >
                   <MessageCircle className="w-4 h-4" />
                   <span>WhatsApp: 449 402 2163</span>

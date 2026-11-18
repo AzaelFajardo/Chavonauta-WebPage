@@ -30,11 +30,21 @@ const RADIUS_OPTIONS: { label: string; value: ThemeConfig["radius"] }[] = [
 ];
 
 const FONT_OPTIONS = [
-  { label: "Inter (Moderna y Limpia)", value: "Inter, system-ui, sans-serif" },
-  { label: "Space Grotesk (Tech / Espacial)", value: "'Space Grotesk', system-ui, sans-serif" },
-  { label: "Roboto (Industrial y Clara)", value: "Roboto, system-ui, sans-serif" },
-  { label: "Poppins (Amigable y Geométrica)", value: "Poppins, system-ui, sans-serif" },
+  { label: "Inter (Moderna y Limpia)", value: "'Inter', sans-serif" },
+  { label: "Space Grotesk (Tech / Espacial)", value: "'Space Grotesk', sans-serif" },
+  { label: "Roboto (Industrial y Clara)", value: "'Roboto', sans-serif" },
+  { label: "Poppins (Amigable y Geométrica)", value: "'Poppins', sans-serif" },
 ];
+
+function getContrastForeground(hexColor: string): string {
+  const hex = hexColor.replace("#", "");
+  if (hex.length < 6) return "#ffffff";
+  const r = parseInt(hex.substring(0, 2), 16) || 0;
+  const g = parseInt(hex.substring(2, 4), 16) || 0;
+  const b = parseInt(hex.substring(4, 6), 16) || 0;
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.55 ? "#0f172a" : "#ffffff";
+}
 
 export function ColorPaletteEditor({
   theme,
@@ -52,11 +62,26 @@ export function ColorPaletteEditor({
   const [newPresetMode, setNewPresetMode] = useState<"light" | "dark">(theme.mode || "light");
 
   const handlePaletteField = (field: keyof ThemePalette, value: string) => {
+    const updatedPalette = {
+      ...currentPalette,
+      [field]: value,
+    };
+
+    // Ajuste automático de contraste inteligente para legibilidad óptima
+    if (field === "primary") {
+      updatedPalette.primaryForeground = getContrastForeground(value);
+    } else if (field === "secondary") {
+      updatedPalette.secondaryForeground = getContrastForeground(value);
+    } else if (field === "accent") {
+      updatedPalette.accentForeground = getContrastForeground(value);
+    } else if (field === "card") {
+      updatedPalette.cardForeground = getContrastForeground(value);
+    } else if (field === "background") {
+      updatedPalette.foreground = getContrastForeground(value);
+    }
+
     onChange({
-      palette: {
-        ...currentPalette,
-        [field]: value,
-      },
+      palette: updatedPalette,
     });
   };
 
@@ -431,10 +456,28 @@ export function ColorPaletteEditor({
             </div>
           </div>
 
+          {/* Color Secundario (Sub-Navbar) */}
+          <div className="p-2.5 rounded-xl border border-slate-200 bg-white space-y-1.5 shadow-2xs">
+            <span className="block text-[11px] font-semibold text-slate-700">
+              Color Secundario (Sub-Navbar y Bloques)
+            </span>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={currentPalette.secondary}
+                onChange={(e) => handlePaletteField("secondary", e.target.value)}
+                className="w-8 h-8 rounded-lg border border-slate-300 cursor-pointer p-0.5 bg-transparent"
+              />
+              <span className="text-[11px] font-mono text-slate-600 uppercase font-semibold">
+                {currentPalette.secondary}
+              </span>
+            </div>
+          </div>
+
           {/* Color Acento */}
           <div className="p-2.5 rounded-xl border border-slate-200 bg-white space-y-1.5 shadow-2xs">
             <span className="block text-[11px] font-semibold text-slate-700">
-              Color Acento (Destacados y Ofertas)
+              Color Acento (Destacados y Búsqueda)
             </span>
             <div className="flex items-center gap-2">
               <input
@@ -467,24 +510,6 @@ export function ColorPaletteEditor({
             </div>
           </div>
 
-          {/* Color de Texto */}
-          <div className="p-2.5 rounded-xl border border-slate-200 bg-white space-y-1.5 shadow-2xs">
-            <span className="block text-[11px] font-semibold text-slate-700">
-              Texto Principal
-            </span>
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={currentPalette.foreground}
-                onChange={(e) => handlePaletteField("foreground", e.target.value)}
-                className="w-8 h-8 rounded-lg border border-slate-300 cursor-pointer p-0.5 bg-transparent"
-              />
-              <span className="text-[11px] font-mono text-slate-600 uppercase font-semibold">
-                {currentPalette.foreground}
-              </span>
-            </div>
-          </div>
-
           {/* Fondo de Tarjetas */}
           <div className="p-2.5 rounded-xl border border-slate-200 bg-white space-y-1.5 shadow-2xs">
             <span className="block text-[11px] font-semibold text-slate-700">
@@ -503,8 +528,26 @@ export function ColorPaletteEditor({
             </div>
           </div>
 
-          {/* Bordes y Líneas */}
+          {/* Color de Texto */}
           <div className="p-2.5 rounded-xl border border-slate-200 bg-white space-y-1.5 shadow-2xs">
+            <span className="block text-[11px] font-semibold text-slate-700">
+              Texto Principal
+            </span>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={currentPalette.foreground}
+                onChange={(e) => handlePaletteField("foreground", e.target.value)}
+                className="w-8 h-8 rounded-lg border border-slate-300 cursor-pointer p-0.5 bg-transparent"
+              />
+              <span className="text-[11px] font-mono text-slate-600 uppercase font-semibold">
+                {currentPalette.foreground}
+              </span>
+            </div>
+          </div>
+
+          {/* Bordes y Líneas */}
+          <div className="col-span-2 p-2.5 rounded-xl border border-slate-200 bg-white space-y-1.5 shadow-2xs">
             <span className="block text-[11px] font-semibold text-slate-700">
               Bordes y Divisiones
             </span>
@@ -547,30 +590,47 @@ export function ColorPaletteEditor({
         </div>
       </div>
 
-      {/* 4. Tipografía de Títulos */}
+      {/* 4. Tipografía Global y Títulos */}
       <div className="pt-4 border-t border-slate-200">
         <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 mb-2 flex items-center gap-1.5">
           <Type className="w-4 h-4 text-blue-600" />
-          <span>Tipografía de Títulos y Encabezados</span>
+          <span>Familia Tipográfica (En Vivo)</span>
         </label>
-        <select
-          value={theme.fonts?.heading || FONT_OPTIONS[0].value}
-          onChange={(e) =>
-            onChange({
-              fonts: {
-                ...theme.fonts,
-                heading: e.target.value,
-              },
-            })
-          }
-          className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-800"
-        >
-          {FONT_OPTIONS.map((font) => (
-            <option key={font.value} value={font.value}>
-              {font.label}
-            </option>
-          ))}
-        </select>
+        <div className="grid grid-cols-2 gap-2">
+          {FONT_OPTIONS.map((font) => {
+            const isSelected =
+              theme.fonts?.heading === font.value ||
+              (!theme.fonts?.heading && font.value.includes("Inter"));
+
+            return (
+              <button
+                key={font.value}
+                type="button"
+                onClick={() =>
+                  onChange({
+                    fonts: {
+                      heading: font.value,
+                      body: font.value,
+                    },
+                  })
+                }
+                style={{ fontFamily: font.value }}
+                className={`p-3 rounded-xl border text-left transition-all ${
+                  isSelected
+                    ? "bg-slate-900 text-white border-slate-900 shadow-xs"
+                    : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                <span className="block text-xs font-bold leading-tight">
+                  {font.label.split(" (")[0]}
+                </span>
+                <span className="block text-[10px] opacity-75 mt-0.5">
+                  {font.label.split(" (")[1]?.replace(")", "") || ""}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

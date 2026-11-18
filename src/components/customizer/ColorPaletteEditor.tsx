@@ -71,9 +71,34 @@ export function ColorPaletteEditor({
   const currentPalette = theme.palette;
   const customPresets = theme.customPresets || [];
 
-  // Filtros de categoría: todas, claras, oscuras, festivas, custom
-  const [filterMode, setFilterMode] = useState<"all" | "light" | "dark" | "temporada" | "custom">("all");
+  // Filtros de categoría: populares, estilos, temporada, custom, all
+  const [filterMode, setFilterMode] = useState<
+    "populares" | "estilos" | "temporada" | "custom" | "all"
+  >("populares");
   const [searchQuery, setSearchQuery] = useState("");
+
+  const POPULAR_KEYS = ["chavonauta_navy", "chavonauta_dark", "cyberpunk", "oceano"];
+
+  // Detección automática del preset activo para sincronizar el selector desplegable
+  const activePresetKey = useMemo(() => {
+    for (const [key, preset] of Object.entries(PRESET_PALETTES)) {
+      if (
+        preset.palette.primary === currentPalette.primary &&
+        preset.palette.background === currentPalette.background
+      ) {
+        return key;
+      }
+    }
+    for (const cp of customPresets) {
+      if (
+        cp.palette.primary === currentPalette.primary &&
+        cp.palette.background === currentPalette.background
+      ) {
+        return `custom:${cp.id}`;
+      }
+    }
+    return "";
+  }, [currentPalette, customPresets]);
 
   // Estado del creador de preset personalizado
   const [isCreatingPreset, setIsCreatingPreset] = useState(false);
@@ -157,26 +182,24 @@ export function ColorPaletteEditor({
   // Filtrado reactivo de presets oficiales
   const filteredOfficialEntries = useMemo(() => {
     return Object.entries(PRESET_PALETTES).filter(([key, p]) => {
-      // Filtro de búsqueda
+      // Si el usuario escribe una búsqueda, busca en todo el catálogo
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
-        const matchesName = p.label.toLowerCase().includes(q) || key.toLowerCase().includes(q);
-        if (!matchesName) return false;
+        return p.label.toLowerCase().includes(q) || key.toLowerCase().includes(q);
       }
 
-      // Filtro por categoría o modo
-      if (filterMode === "all") return true;
-      if (filterMode === "light") return p.mode === "light";
-      if (filterMode === "dark") return p.mode === "dark";
+      // Filtro por categoría seleccionada
+      if (filterMode === "populares") return POPULAR_KEYS.includes(key);
+      if (filterMode === "estilos") return p.category === "estilos" && !POPULAR_KEYS.includes(key);
       if (filterMode === "temporada") return p.category === "temporada";
       if (filterMode === "custom") return false;
-      return true;
+      return true; // "all"
     });
   }, [filterMode, searchQuery]);
 
   // Filtrado de presets personalizados
   const filteredCustomPresets = useMemo(() => {
-    if (filterMode !== "all" && filterMode !== "custom") return [];
+    if (filterMode !== "all" && filterMode !== "custom" && filterMode !== "populares") return [];
     if (!searchQuery.trim()) return customPresets;
     return customPresets.filter((p) =>
       p.label.toLowerCase().includes(searchQuery.toLowerCase().trim())
@@ -203,6 +226,76 @@ export function ColorPaletteEditor({
           </button>
         </div>
 
+        {/* Selector Desplegable Rápido (1 Clic, Sin Scroll) */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-[11px] font-medium text-slate-500">
+            <span>Tema activo:</span>
+            <span className="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+              {activePresetKey && !activePresetKey.startsWith("custom:")
+                ? PRESET_PALETTES[activePresetKey]?.label || "Personalizado"
+                : activePresetKey
+                ? customPresets.find((c) => `custom:${c.id}` === activePresetKey)?.label || "Personalizado"
+                : "Personalizado (manual)"}
+            </span>
+          </div>
+
+          <div className="relative">
+            <select
+              value={activePresetKey}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (!val) return;
+                if (val.startsWith("custom:")) {
+                  const id = val.replace("custom:", "");
+                  const p = customPresets.find((cp) => cp.id === id);
+                  if (p) applyCustomPreset(p);
+                } else {
+                  applyOfficialPreset(val);
+                }
+              }}
+              className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-slate-300 bg-white text-slate-900 shadow-2xs hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer transition-colors"
+            >
+              <option value="" disabled>
+                {activePresetKey ? "Cambiar de tema..." : "🎨 Personalizado (ajuste manual)"}
+              </option>
+              <optgroup label="⭐ Populares & Oficiales">
+                <option value="chavonauta_navy">Oficial — Azul Marino</option>
+                <option value="chavonauta_dark">Espacial — Modo Oscuro</option>
+                <option value="cyberpunk">Cyber — Neón Gamer</option>
+                <option value="oceano">Océano — Azul Celeste</option>
+              </optgroup>
+              <optgroup label="🎨 Estilos & Tendencias">
+                <option value="esmeralda">Esmeralda — Verde Fresco</option>
+                <option value="lavanda">Lavanda — Violeta Suave</option>
+                <option value="atardecer">Atardecer — Naranja Cálido</option>
+                <option value="titanio">Titanio — Gris Oscuro Pro</option>
+                <option value="minimalista">Minimal — Monocromático</option>
+                <option value="cafe">Moca — Café y Ámbar</option>
+                <option value="neon">Neón — Negro y Verde Esmeralda</option>
+                <option value="dorado">Dorado — Negro y Oro</option>
+                <option value="glaciar">Glaciar — Azul Hielo</option>
+              </optgroup>
+              <optgroup label="🎉 Temporadas & Festivos">
+                <option value="navidad">Navidad — Rojo y Verde Pino</option>
+                <option value="halloween">Halloween — Negro y Naranja</option>
+                <option value="patrio">Patrio — Verde y Rojo</option>
+                <option value="otono">Otoño — Ámbar y Canela</option>
+                <option value="febrero">Romance — Rosa y Carmesí</option>
+                <option value="primavera">Primavera — Verde Menta</option>
+              </optgroup>
+              {customPresets.length > 0 && (
+                <optgroup label="✨ Mis Paletas Guardadas">
+                  {customPresets.map((cp) => (
+                    <option key={cp.id} value={`custom:${cp.id}`}>
+                      {cp.label}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+            </select>
+          </div>
+        </div>
+
         {/* Buscador + Píldoras compactas de categoría */}
         <div className="space-y-2">
           {/* Buscador rápido */}
@@ -212,7 +305,7 @@ export function ColorPaletteEditor({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar paleta (ej. Océano, Cyber, Oficial)..."
+              placeholder="Buscar paleta por nombre..."
               className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-slate-50/70 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
             />
             {searchQuery && (
@@ -230,47 +323,33 @@ export function ColorPaletteEditor({
           <div className="flex items-center gap-1 overflow-x-auto pb-1 text-xs scrollbar-none">
             <button
               type="button"
-              onClick={() => setFilterMode("all")}
+              onClick={() => setFilterMode("populares")}
               className={`px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${
-                filterMode === "all"
+                filterMode === "populares" && !searchQuery
                   ? "bg-slate-900 text-white font-bold"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
-              Todas ({Object.keys(PRESET_PALETTES).length + customPresets.length})
+              ⭐ Populares
             </button>
 
             <button
               type="button"
-              onClick={() => setFilterMode("light")}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${
-                filterMode === "light"
+              onClick={() => setFilterMode("estilos")}
+              className={`px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${
+                filterMode === "estilos" && !searchQuery
                   ? "bg-slate-900 text-white font-bold"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
-              <Sun className="w-3 h-3 text-amber-500" />
-              <span>Claras</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setFilterMode("dark")}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${
-                filterMode === "dark"
-                  ? "bg-slate-900 text-white font-bold"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
-            >
-              <Moon className="w-3 h-3 text-indigo-400" />
-              <span>Oscuras</span>
+              🎨 Estilos
             </button>
 
             <button
               type="button"
               onClick={() => setFilterMode("temporada")}
               className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${
-                filterMode === "temporada"
+                filterMode === "temporada" && !searchQuery
                   ? "bg-slate-900 text-white font-bold"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
@@ -284,7 +363,7 @@ export function ColorPaletteEditor({
                 type="button"
                 onClick={() => setFilterMode("custom")}
                 className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${
-                  filterMode === "custom"
+                  filterMode === "custom" && !searchQuery
                     ? "bg-blue-600 text-white font-bold"
                     : "bg-blue-50 text-blue-700 hover:bg-blue-100"
                 }`}
@@ -293,6 +372,18 @@ export function ColorPaletteEditor({
                 <span>Mis Paletas ({customPresets.length})</span>
               </button>
             )}
+
+            <button
+              type="button"
+              onClick={() => setFilterMode("all")}
+              className={`px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${
+                filterMode === "all" && !searchQuery
+                  ? "bg-slate-900 text-white font-bold"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              }`}
+            >
+              Todas (19)
+            </button>
           </div>
         </div>
 
@@ -374,8 +465,8 @@ export function ColorPaletteEditor({
           </form>
         )}
 
-        {/* Cuadrícula Compacta y Ergonómica de Presets (Diseño Swatch-Chip) */}
-        <div className="grid grid-cols-2 gap-2 max-h-[290px] overflow-y-auto pr-1">
+        {/* Cuadrícula Ergonómica de Presets en Flujo Natural (Sin scroll anidado) */}
+        <div className="grid grid-cols-2 gap-2">
           {/* Presets Personalizados */}
           {filteredCustomPresets.map((preset) => {
             const isSelected =

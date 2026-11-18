@@ -45,8 +45,8 @@ export function Navbar({ business, categories }: NavbarProps) {
 
   return (
     <header className="sticky top-0 z-50 shadow-md">
-      {/* 1. Header Principal (navy-900: #1a2f85) */}
-      <div className="bg-navy-900 text-white">
+      {/* 1. Header Principal reactivo al tema */}
+      <div style={{ backgroundColor: "var(--primary, #1a2f85)" }} className="text-white transition-colors duration-200">
         <div className="max-w-[1500px] mx-auto px-3 sm:px-4 h-[60px] flex items-center justify-between gap-2 sm:gap-4">
           
           <div className="flex items-center gap-2">
@@ -198,8 +198,14 @@ export function Navbar({ business, categories }: NavbarProps) {
         </div>
       </div>
 
-      {/* 2. Sub-Navbar para Computadora y Tablet (Oculta en celular para no amontonar) */}
-      <div className="hidden md:block bg-navy-800 text-white text-xs font-medium border-t border-navy-700/70">
+      {/* 2. Sub-Navbar reactivo al tema secundario */}
+      <div
+        style={{
+          backgroundColor: "var(--secondary, #1c38a8)",
+          color: "var(--secondary-foreground, #ffffff)",
+        }}
+        className="hidden md:block text-xs font-medium border-t border-white/10 transition-colors duration-200"
+      >
         <div className="max-w-[1500px] mx-auto px-3 sm:px-4 flex items-center gap-1 sm:gap-2 h-10 overflow-x-auto no-scrollbar">
           {/* Botón "Todo" con icono de menú */}
           <button

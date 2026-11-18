@@ -58,6 +58,14 @@ export interface BusinessInfo {
   };
 }
 
+export interface CustomPreset {
+  id: string;
+  label: string;
+  mode: "dark" | "light";
+  palette: ThemePalette;
+  createdAt?: string;
+}
+
 export interface ThemeConfig {
   id: string;
   name: string;
@@ -70,6 +78,7 @@ export interface ThemeConfig {
   };
   business: BusinessInfo;
   sections: SectionBlock[];
+  customPresets?: CustomPreset[];
   updatedAt: string;
 }
 

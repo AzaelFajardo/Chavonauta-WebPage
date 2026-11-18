@@ -34,7 +34,7 @@ export function AdminCustomizerManager({
   categories,
 }: AdminCustomizerManagerProps) {
   const [theme, setTheme] = useState<ThemeConfig>(initialTheme);
-  const [activeTab, setActiveTab] = useState<"sections" | "colors">("sections");
+  const [activeTab, setActiveTab] = useState<"colors" | "sections">("colors");
   const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -98,7 +98,7 @@ export function AdminCustomizerManager({
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-6rem)] sm:h-[calc(100vh-7rem)] bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-4.5rem)] sm:h-[calc(100vh-5rem)] bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
       {/* Toast Flotante */}
       {toastMessage && (
         <div
@@ -215,50 +215,50 @@ export function AdminCustomizerManager({
 
       {/* Cuerpo Principal Dividido: Controles a la Izquierda / Preview a la Derecha */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        {/* Panel de Controles / Sidebar del Editor */}
-        <div className="w-full lg:w-96 border-b lg:border-b-0 lg:border-r border-slate-200 bg-white flex flex-col shrink-0">
-          {/* Pestañas de Navegación del Editor Visual */}
-          <div className="p-2 border-b border-slate-200 bg-slate-50/70 grid grid-cols-2 gap-1">
-            <button
-              type="button"
-              onClick={() => setActiveTab("sections")}
-              className={`flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg text-xs font-bold transition-all ${
-                activeTab === "sections"
-                  ? "bg-white text-navy-900 shadow-2xs border border-slate-200"
-                  : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span>Secciones</span>
-            </button>
-
+        {/* Panel de Controles / Sidebar del Editor (Amplio y cómodo) */}
+        <div className="w-full lg:w-[440px] border-b lg:border-b-0 lg:border-r border-slate-200 bg-white flex flex-col shrink-0">
+          {/* Pestañas de Navegación del Editor Visual: Colores es la sección principal */}
+          <div className="p-2 border-b border-slate-200 bg-slate-50/70 grid grid-cols-2 gap-1.5">
             <button
               type="button"
               onClick={() => setActiveTab("colors")}
               className={`flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg text-xs font-bold transition-all ${
                 activeTab === "colors"
-                  ? "bg-white text-navy-900 shadow-2xs border border-slate-200"
+                  ? "bg-white text-blue-900 shadow-2xs border border-slate-200"
                   : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
               }`}
             >
-              <Palette className="w-3.5 h-3.5" />
+              <Palette className="w-3.5 h-3.5 text-blue-600" />
               <span>Colores</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("sections")}
+              className={`flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg text-xs font-bold transition-all ${
+                activeTab === "sections"
+                  ? "bg-white text-blue-900 shadow-2xs border border-slate-200"
+                  : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5 text-slate-500" />
+              <span>Secciones</span>
             </button>
           </div>
 
           {/* Contenido de la Pestaña Activa con Scroll */}
           <div className="flex-1 overflow-y-auto p-4">
-            {activeTab === "sections" && (
-              <SectionManager
-                sections={theme.sections}
-                onChange={handleSectionsChange}
-              />
-            )}
-
             {activeTab === "colors" && (
               <ColorPaletteEditor
                 theme={theme}
                 onChange={handleUpdateTheme}
+              />
+            )}
+
+            {activeTab === "sections" && (
+              <SectionManager
+                sections={theme.sections}
+                onChange={handleSectionsChange}
               />
             )}
           </div>

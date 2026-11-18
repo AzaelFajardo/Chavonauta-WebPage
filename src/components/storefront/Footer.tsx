@@ -19,12 +19,19 @@ export function Footer({ business, categories }: FooterProps) {
   const whatsappHref = `https://wa.me/${business.whatsappNumber}`;
 
   return (
-    <footer className="bg-navy-900 text-white text-xs">
-      {/* Botón Volver Arriba en navy-800 */}
+    <footer
+      style={{ backgroundColor: "var(--primary, #1a2f85)" }}
+      className="text-white text-xs transition-colors duration-200"
+    >
+      {/* Botón Volver Arriba reactivo al tema secundario */}
       <button
         type="button"
         onClick={scrollToTop}
-        className="w-full bg-navy-800 hover:bg-navy-700 text-white py-3.5 text-center text-xs font-semibold transition-colors block border-t border-navy-700"
+        style={{
+          backgroundColor: "var(--secondary, #1c38a8)",
+          color: "var(--secondary-foreground, #ffffff)",
+        }}
+        className="w-full hover:opacity-90 py-3.5 text-center text-xs font-semibold transition-opacity block border-t border-white/10"
       >
         Inicio de página
       </button>

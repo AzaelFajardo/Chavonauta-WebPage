@@ -36,11 +36,11 @@ export function SectionRenderer({
       )}`;
 
       return (
-        <section className="relative pb-10 bg-slate-100">
-          {/* Banner Hero Superior: Fondo Navy Sólido (#1a2f85) para garantizar legibilidad del texto blanco */}
+        <section className="relative pb-10 bg-background text-foreground transition-colors duration-200">
+          {/* Banner Hero Superior: Fondo reactivo a la paleta del tema */}
           <div
-            style={{ backgroundColor: "#1a2f85" }}
-            className="relative text-white pt-10 pb-36 px-4 sm:px-8 overflow-hidden shadow-inner"
+            style={{ backgroundColor: "var(--primary, #1a2f85)" }}
+            className="relative text-white pt-10 pb-36 px-4 sm:px-8 overflow-hidden shadow-inner transition-colors duration-200"
           >
             <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
               <div className="max-w-2xl z-10">
@@ -309,8 +309,8 @@ export function SectionRenderer({
       const products = items.filter((item) => item.type === "product");
 
       return (
-        <section className="bg-slate-100 py-6 px-4">
-          <div className="max-w-[1440px] mx-auto bg-white p-5 sm:p-6 rounded-lg shadow-sm border border-slate-200">
+        <section className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
+          <div className="max-w-[1440px] mx-auto bg-card text-card-foreground p-5 sm:p-6 rounded-lg shadow-sm border border-border transition-colors duration-200">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-heading font-bold text-xl sm:text-2xl text-slate-900">
                 {section.title}
@@ -395,7 +395,7 @@ export function SectionRenderer({
     // ----------------------------------------------------
     case "services": {
       return (
-        <section className="bg-slate-100 py-6 px-4">
+        <section className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
           <div className="max-w-[1440px] mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
 
@@ -522,8 +522,8 @@ export function SectionRenderer({
     // ----------------------------------------------------
     case "rates": {
       return (
-        <section id="tarifas" className="bg-slate-100 py-6 px-4">
-          <div className="max-w-[1440px] mx-auto bg-white p-6 sm:p-8 rounded-lg shadow-sm border border-slate-200">
+        <section id="tarifas" className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
+          <div className="max-w-[1440px] mx-auto bg-card text-card-foreground p-6 sm:p-8 rounded-lg shadow-sm border border-border transition-colors duration-200">
             <div className="max-w-2xl mb-6">
               <span className="text-xs font-bold text-navy-800 uppercase tracking-wider">
                 Tarifas de Renta de Equipos
@@ -591,8 +591,8 @@ export function SectionRenderer({
     // ----------------------------------------------------
     case "location": {
       return (
-        <section id="ubicacion" className="bg-slate-100 py-6 px-4">
-          <div className="max-w-[1440px] mx-auto bg-white p-6 sm:p-8 rounded-lg shadow-sm border border-slate-200">
+        <section id="ubicacion" className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
+          <div className="max-w-[1440px] mx-auto bg-card text-card-foreground p-6 sm:p-8 rounded-lg shadow-sm border border-border transition-colors duration-200">
             <div className="mb-6">
               <span className="text-xs font-bold text-navy-800 uppercase tracking-wider">
                 Atención en Sucursal

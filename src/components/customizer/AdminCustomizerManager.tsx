@@ -331,7 +331,7 @@ export function AdminCustomizerManager({
               }`}
             >
               <Store className="w-3.5 h-3.5 text-blue-600" />
-              <span>Logo & Marca</span>
+              <span>Identidad</span>
             </button>
 
             <button

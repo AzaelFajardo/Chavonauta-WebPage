@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { BusinessInfo } from "@/types";
-import { Store, Megaphone } from "lucide-react";
-import { ImageUploader } from "@/components/ui/ImageUploader";
+import { Store, Megaphone, ArrowUpRight } from "lucide-react";
 
 interface BusinessInfoEditorProps {
   business: BusinessInfo;
@@ -16,24 +16,25 @@ export function BusinessInfoEditor({
 }: BusinessInfoEditorProps) {
   return (
     <div className="space-y-5">
-      {/* 1. Logotipo Oficial */}
-      <div className="space-y-3">
-        <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-          <Store className="w-4 h-4 text-blue-600" />
-          <span>Logotipo Oficial de la Tienda</span>
-        </label>
-
-        {/* Componente Uploader de Imagen */}
-        <ImageUploader
-          value={business.logoUrl || ""}
-          onChange={(url) => onChange({ logoUrl: url })}
-          label="Archivo del Logotipo"
-          helperText="Sube tu imagen (PNG transparente, SVG, JPG o WEBP). Se mostrará a 175px en escritorio con escalado responsivo automático en dispositivos móviles."
-        />
+      {/* Aviso informativo de Logotipo */}
+      <div className="p-3 bg-blue-50/70 border border-blue-200/80 rounded-xl text-xs text-blue-900 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Store className="w-4 h-4 text-blue-600 shrink-0" />
+          <span className="text-[11px] font-medium leading-relaxed">
+            El logotipo oficial se administra desde <strong>Configuración</strong>.
+          </span>
+        </div>
+        <Link
+          href="/admin/configuracion"
+          className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 transition-colors shadow-2xs"
+        >
+          <span>Ir</span>
+          <ArrowUpRight className="w-3 h-3" />
+        </Link>
       </div>
 
-      {/* 2. Identidad del Negocio */}
-      <div className="pt-4 border-t border-slate-200 space-y-3">
+      {/* 1. Identidad del Negocio */}
+      <div className="space-y-3">
         <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
           <Store className="w-4 h-4 text-blue-600" />
           <span>Datos de la Marca</span>
@@ -77,7 +78,7 @@ export function BusinessInfoEditor({
         </div>
       </div>
 
-      {/* 3. Barra Superior de Anuncios */}
+      {/* 2. Barra Superior de Anuncios */}
       <div className="pt-4 border-t border-slate-200 space-y-3">
         <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
           <Megaphone className="w-4 h-4 text-blue-600" />

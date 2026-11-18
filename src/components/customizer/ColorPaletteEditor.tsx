@@ -33,11 +33,25 @@ const RADIUS_OPTIONS: { label: string; desc: string; value: ThemeConfig["radius"
   { label: "Píldora", desc: "Cápsula", value: "9999px" },
 ];
 
-const FONT_OPTIONS = [
-  { label: "Inter (Moderna y Limpia)", value: "'Inter', sans-serif" },
-  { label: "Space Grotesk (Tech / Espacial)", value: "'Space Grotesk', sans-serif" },
-  { label: "Roboto (Industrial y Clara)", value: "'Roboto', sans-serif" },
-  { label: "Poppins (Amigable y Geométrica)", value: "'Poppins', sans-serif" },
+interface FontOption {
+  name: string;
+  desc: string;
+  value: string;
+}
+
+const FONT_OPTIONS: FontOption[] = [
+  { name: "Inter", desc: "Moderna y Versátil", value: "'Inter', sans-serif" },
+  { name: "Space Grotesk", desc: "Tech y Futurista", value: "'Space Grotesk', sans-serif" },
+  { name: "Outfit", desc: "Comercial y Limpia", value: "'Outfit', sans-serif" },
+  { name: "Poppins", desc: "Geométrica y Redonda", value: "'Poppins', sans-serif" },
+  { name: "Montserrat", desc: "Urbana y Elegante", value: "'Montserrat', sans-serif" },
+  { name: "Plus Jakarta", desc: "Corporativa y Nítida", value: "'Plus Jakarta Sans', sans-serif" },
+  { name: "Orbitron", desc: "Espacial y Cyber", value: "'Orbitron', sans-serif" },
+  { name: "Chakra Petch", desc: "Arcade y Gaming", value: "'Chakra Petch', sans-serif" },
+  { name: "Syne", desc: "Creativa y Expresiva", value: "'Syne', sans-serif" },
+  { name: "DM Sans", desc: "Minimalista y Clara", value: "'DM Sans', sans-serif" },
+  { name: "Roboto", desc: "Industrial y Neutra", value: "'Roboto', sans-serif" },
+  { name: "Playfair", desc: "Editorial y Clásica", value: "'Playfair Display', serif" },
 ];
 
 function getContrastForeground(hexColor: string): string {
@@ -659,13 +673,15 @@ export function ColorPaletteEditor({
       <div className="pt-4 border-t border-slate-200">
         <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 mb-2 flex items-center gap-1.5">
           <Type className="w-4 h-4 text-blue-600" />
-          <span>Familia Tipográfica (En Vivo)</span>
+          <span>Familia Tipográfica</span>
         </label>
         <div className="grid grid-cols-2 gap-2">
           {FONT_OPTIONS.map((font) => {
             const isSelected =
               theme.fonts?.heading === font.value ||
-              (!theme.fonts?.heading && font.value.includes("Inter"));
+              (theme.fonts?.heading &&
+                theme.fonts.heading.toLowerCase().includes(font.name.toLowerCase())) ||
+              (!theme.fonts?.heading && font.name === "Inter");
 
             return (
               <button
@@ -679,19 +695,37 @@ export function ColorPaletteEditor({
                     },
                   })
                 }
-                style={{ fontFamily: font.value }}
-                className={`p-3 rounded-xl border text-left transition-all ${
+                className={`p-2.5 rounded-xl border text-left transition-all relative flex flex-col justify-between ${
                   isSelected
-                    ? "bg-slate-900 text-white border-slate-900 shadow-xs"
-                    : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"
+                    ? "bg-slate-900 text-white border-slate-900 shadow-xs ring-1 ring-slate-900"
+                    : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
                 }`}
               >
-                <span className="block text-xs font-bold leading-tight">
-                  {font.label.split(" (")[0]}
-                </span>
-                <span className="block text-[10px] opacity-75 mt-0.5">
-                  {font.label.split(" (")[1]?.replace(")", "") || ""}
-                </span>
+                <div className="flex items-start justify-between gap-1 w-full">
+                  <div>
+                    <span
+                      style={{ fontFamily: font.value }}
+                      className="block text-xs font-bold leading-tight"
+                    >
+                      {font.name}
+                    </span>
+                    <span className="block text-[10px] opacity-70 mt-0.5 leading-snug">
+                      {font.desc}
+                    </span>
+                  </div>
+                  {isSelected && (
+                    <span className="w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center shrink-0">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </span>
+                  )}
+                </div>
+
+                <div
+                  style={{ fontFamily: font.value }}
+                  className="mt-2 pt-1.5 border-t border-current/10 text-xs font-semibold opacity-90 truncate tracking-wide"
+                >
+                  Aa Bb 123
+                </div>
               </button>
             );
           })}

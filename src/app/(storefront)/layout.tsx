@@ -22,6 +22,7 @@ export default async function StorefrontLayout({
         ...cssVars,
         backgroundColor: "var(--background)",
         color: "var(--foreground)",
+        fontFamily: cssVars["--font-body"] || "var(--font-body)",
       } as React.CSSProperties}
       className="min-h-screen flex flex-col bg-background text-foreground antialiased transition-colors duration-200"
     >

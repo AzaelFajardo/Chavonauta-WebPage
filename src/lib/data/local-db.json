@@ -20,8 +20,8 @@
     },
     "radius": "0.5rem",
     "fonts": {
-      "heading": "'Poppins', sans-serif",
-      "body": "'Poppins', sans-serif"
+      "heading": "'Inter', sans-serif",
+      "body": "'Inter', sans-serif"
     },
     "business": {
       "name": "CHAVONAUTA",
@@ -131,7 +131,7 @@
         "content": {}
       }
     ],
-    "updatedAt": "2026-11-18T21:57:49.402Z"
+    "updatedAt": "2026-11-18T22:06:00.004Z"
   },
   "categories": [
     {

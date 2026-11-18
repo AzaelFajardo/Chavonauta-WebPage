@@ -120,6 +120,9 @@ export function AdminCustomizerManager({
       const anchor = target?.closest("a");
       if (!anchor) return;
 
+      // Si el enlace abre en una nueva pestaña (ej. Ver Tienda), no interceptar
+      if (anchor.getAttribute("target") === "_blank") return;
+
       const href = anchor.getAttribute("href");
       if (href && !href.startsWith("#") && !href.startsWith("javascript:")) {
         e.preventDefault();

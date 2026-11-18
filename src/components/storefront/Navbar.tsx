@@ -76,10 +76,9 @@ export function Navbar({ business, categories }: NavbarProps) {
                   src={business.logoUrl}
                   alt={business.name}
                   style={{
-                    width: `${business.logoWidth || 130}px`,
                     maxHeight: "46px",
                   }}
-                  className="h-auto max-h-8 sm:max-h-11 max-w-[110px] xs:max-w-[130px] sm:max-w-none object-contain transition-all duration-200"
+                  className="w-[125px] sm:w-[175px] h-auto max-h-8 sm:max-h-11 object-contain transition-all duration-200"
                 />
               ) : (
                 <span

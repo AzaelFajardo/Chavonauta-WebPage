@@ -28,7 +28,6 @@
       "slogan": "Tecnología, accesorios y soluciones digitales",
       "branchName": "Haciendas de Aguascalientes",
       "logoUrl": "/uploads/chavologosinfondo-1795041125647.png",
-      "logoWidth": 130,
       "announcementText": "Atención directa por WhatsApp al 449 402 2163 • Impresiones, trámites, soporte y renta de PC.",
       "announcementEnabled": true,
       "whatsappNumber": "5214494022163",
@@ -70,7 +69,8 @@
         "facebook": "https://facebook.com",
         "instagram": "https://instagram.com",
         "tiktok": "https://tiktok.com"
-      }
+      },
+      "logoWidth": 175
     },
     "sections": [
       {
@@ -132,7 +132,7 @@
         "content": {}
       }
     ],
-    "updatedAt": "2026-11-18T22:32:06.888Z"
+    "updatedAt": "2026-11-18T22:59:05.644Z"
   },
   "categories": [
     {

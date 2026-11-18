@@ -167,10 +167,9 @@ export function Footer({ business, categories }: FooterProps) {
                 src={business.logoUrl}
                 alt={business.name}
                 style={{
-                  width: `${Math.min(business.logoWidth || 130, 160)}px`,
                   maxHeight: "36px",
                 }}
-                className="h-auto max-h-9 w-auto object-contain transition-all"
+                className="w-[140px] sm:w-[175px] h-auto max-h-9 object-contain transition-all"
               />
             ) : (
               <span className="font-heading font-black text-xl tracking-tight uppercase">

@@ -1,5 +1,8 @@
+"use client";
+
 import { MessageCircle } from "lucide-react";
 import { BusinessInfo } from "@/types";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 
 interface ContactFloatingButtonProps {
   business: BusinessInfo;
@@ -17,6 +20,12 @@ export function ContactFloatingButton({ business }: ContactFloatingButtonProps) 
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Contactar por WhatsApp"
+        onClick={() => {
+          trackAnalyticsEvent({
+            type: "whatsapp_click",
+            location: "floating_button",
+          });
+        }}
         className="flex items-center gap-2.5 px-4 py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs sm:text-sm shadow-md transition-all hover:shadow-lg focus:outline-none"
       >
         <MessageCircle className="w-4 h-4 fill-white" />

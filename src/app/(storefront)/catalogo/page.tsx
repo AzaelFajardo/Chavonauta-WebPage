@@ -33,6 +33,19 @@ export default async function CatalogPage({
         item.description.toLowerCase().includes(queryClean) ||
         item.categorySlug.toLowerCase().includes(queryClean)
     );
+    repository
+      .recordAnalyticsEvent({
+        type: "search",
+        query: queryClean,
+        resultsCount: filteredItems.length,
+      })
+      .catch(() => {});
+  } else {
+    repository
+      .recordAnalyticsEvent({
+        type: "catalog_view",
+      })
+      .catch(() => {});
   }
 
   const currentCategory = categories.find((c) => c.slug === categoria);

@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { MessageCircle, ArrowUpRight } from "lucide-react";
 import { CatalogItem } from "@/types";
 import { Badge } from "@/components/ui/Badge";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 
 interface ItemCardProps {
   item: CatalogItem;
@@ -88,6 +91,16 @@ export function ItemCard({ item, whatsappNumber = "5215500000000" }: ItemCardPro
             href={waHref}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => {
+              trackAnalyticsEvent({
+                type: "whatsapp_click",
+                location: "catalog_card",
+                itemId: item.id,
+                itemTitle: item.name,
+                itemType: item.type,
+                categorySlug: item.categorySlug,
+              });
+            }}
             style={{
               borderColor: "var(--border)",
               borderRadius: "var(--radius)",

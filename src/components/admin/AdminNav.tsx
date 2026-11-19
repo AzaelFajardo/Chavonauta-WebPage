@@ -12,9 +12,16 @@ import {
   X,
   Store,
   ChevronRight,
+  BarChart3,
 } from "lucide-react";
 
 const NAV_ITEMS = [
+  {
+    label: "ESTADÍSTICAS",
+    href: "/admin/estadisticas",
+    icon: BarChart3,
+    description: "Métricas de interés, WhatsApp y búsquedas",
+  },
   {
     label: "CATÁLOGO",
     href: "/admin/catalogo",

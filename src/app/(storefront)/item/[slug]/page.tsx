@@ -18,6 +18,16 @@ export default async function ItemDetailPage({
     notFound();
   }
 
+  repository
+    .recordAnalyticsEvent({
+      type: "item_view",
+      itemId: item.id,
+      itemTitle: item.name,
+      itemType: item.type,
+      categorySlug: item.categorySlug,
+    })
+    .catch(() => {});
+
   const isService = item.type === "service";
 
   const whatsappMessage = encodeURIComponent(

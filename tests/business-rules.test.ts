@@ -332,7 +332,10 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     expect(rendererContent).toContain("<HeroFallingIcons");
     expect(rendererContent).toMatch(/overflow-hidden.*shadow-inner/);
 
-    // 5. Verificar que SortableSectionItem expone el switch de activación y el selector de paquetes
+    // 5. Verificar que la cascada sea opcional (solo se renderiza cuando enabled === true)
+    expect(componentContent).toContain("config?.enabled === true");
+
+    // 6. Verificar que SortableSectionItem expone el checkbox (check) de activación opcional y selector de paquetes
     const sortablePath = path.join(
       process.cwd(),
       "src",
@@ -341,9 +344,22 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
       "SortableSectionItem.tsx"
     );
     const sortableContent = fs.readFileSync(sortablePath, "utf-8");
-    expect(sortableContent).toContain("Cascada de Iconos Animados");
+    expect(sortableContent).toContain('type="checkbox"');
+    expect(sortableContent).toContain("Activar cascada de iconos animados (Opcional)");
     expect(sortableContent).toContain("Paquete de Iconos Alegóricos");
     expect(sortableContent).toContain("christmas");
     expect(sortableContent).toContain("halloween");
+
+    // 7. Verificar que ColorPaletteEditor incluye también el check opcional accesible desde la pestaña de temas
+    const paletteEditorPath = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "customizer",
+      "ColorPaletteEditor.tsx"
+    );
+    const paletteEditorContent = fs.readFileSync(paletteEditorPath, "utf-8");
+    expect(paletteEditorContent).toContain('type="checkbox"');
+    expect(paletteEditorContent).toContain("Activar cascada de iconos en el Hero (Opcional)");
   });
 });

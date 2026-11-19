@@ -362,8 +362,8 @@ export function HeroFallingIcons({
   themeName,
   themePalette,
 }: HeroFallingIconsProps) {
-  // Si la configuración deshabilita explícitamente los iconos, no renderizar
-  const isEnabled = config?.enabled !== false;
+  // La cascada es opcional: solo se renderiza si está explícitamente habilitada (enabled: true)
+  const isEnabled = config?.enabled === true;
 
   // Resolver el paquete de iconos activo
   const resolvedPackKey: HeroIconPackKey = useMemo(() => {

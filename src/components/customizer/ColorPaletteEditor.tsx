@@ -180,6 +180,37 @@ export function ColorPaletteEditor({
     });
   };
 
+  // Estado y toggle para la cascada opcional de iconos en el Hero
+  const heroSection = theme.sections.find((s) => s.type === "hero");
+  const isHeroFallingIconsEnabled =
+    ((heroSection?.content?.fallingIcons as { enabled?: boolean } | undefined)?.enabled) === true;
+
+  const handleToggleHeroFallingIcons = (enabled: boolean) => {
+    const updatedSections = theme.sections.map((s) => {
+      if (s.type === "hero") {
+        const currentContent = s.content || {};
+        const currentFalling =
+          (currentContent.fallingIcons as Record<string, unknown> | undefined) || {
+            pack: "auto",
+            density: "balanced",
+            speed: "normal",
+          };
+        return {
+          ...s,
+          content: {
+            ...currentContent,
+            fallingIcons: {
+              ...currentFalling,
+              enabled,
+            },
+          },
+        };
+      }
+      return s;
+    });
+    onChange({ sections: updatedSections });
+  };
+
   // Filtrado reactivo de presets oficiales
   const filteredOfficialEntries = useMemo(() => {
     return Object.entries(PRESET_PALETTES).filter(([key, p]) => {
@@ -605,6 +636,27 @@ export function ColorPaletteEditor({
               No se encontraron paletas con el filtro aplicado.
             </div>
           )}
+        </div>
+
+        {/* Casilla de Verificación (Check) Opcional para la Cascada de Iconos en el Hero */}
+        <div className="p-3 bg-blue-50/70 rounded-xl border border-blue-200/80 shadow-2xs">
+          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={isHeroFallingIconsEnabled}
+              onChange={(e) => handleToggleHeroFallingIcons(e.target.checked)}
+              className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
+            />
+            <div className="min-w-0 flex-1">
+              <span className="block text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <span>Activar cascada de iconos en el Hero (Opcional)</span>
+              </span>
+              <span className="block text-[11px] text-slate-500 mt-0.5 truncate">
+                Lluvia de figuras alegóricas al tema sobre el fondo del Hero
+              </span>
+            </div>
+          </label>
         </div>
       </div>
 

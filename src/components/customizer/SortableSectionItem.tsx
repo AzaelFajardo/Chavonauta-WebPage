@@ -236,38 +236,28 @@ export function SortableSectionItem({
 
             return (
               <div className="pt-3 border-t border-slate-200/80 space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <span className="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                      <span>Cascada de Iconos Animados</span>
-                    </span>
-                    <span className="block text-[11px] text-slate-500 mt-0.5">
-                      Figuras minimalistas en caída continua sobre el fondo del Hero
-                    </span>
-                  </div>
-
-                  {/* Switch Toggle Activar/Desactivar */}
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={fallingIcons.enabled !== false}
-                    onClick={() => {
-                      updateFallingIcons({ enabled: fallingIcons.enabled === false ? true : false });
-                    }}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-                      fallingIcons.enabled !== false ? "bg-blue-600" : "bg-slate-300"
-                    }`}
-                  >
-                    <span
-                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
-                        fallingIcons.enabled !== false ? "translate-x-5" : "translate-x-0"
-                      }`}
+                {/* Casilla de verificación (Check) para activar la cascada de forma opcional */}
+                <div className="p-3 bg-slate-100/70 rounded-xl border border-slate-200">
+                  <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={fallingIcons.enabled === true}
+                      onChange={(e) => updateFallingIcons({ enabled: e.target.checked })}
+                      className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                     />
-                  </button>
+                    <div>
+                      <span className="block text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Activar cascada de iconos animados (Opcional)</span>
+                      </span>
+                      <span className="block text-[11px] text-slate-500 mt-0.5">
+                        Lluvia suave de figuras minimalistas alusivas al tema sobre el fondo del Hero
+                      </span>
+                    </div>
+                  </label>
                 </div>
 
-                {fallingIcons.enabled !== false && (
+                {fallingIcons.enabled === true && (
                   <div className="space-y-3 pt-2 bg-slate-100/70 p-3 rounded-xl border border-slate-200 animate-in fade-in duration-150">
                     {/* Selector de Paquete de Iconos */}
                     <div>

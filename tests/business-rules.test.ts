@@ -232,9 +232,8 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
       expect(stat.size, `Archivo public/${file} no debe estar vacío`).toBeGreaterThan(100);
     }
 
-    // App Router standard icon discovery
-    expect(fs.existsSync(path.join(process.cwd(), "src", "app", "icon.png"))).toBe(true);
-    expect(fs.existsSync(path.join(process.cwd(), "src", "app", "apple-icon.png"))).toBe(true);
+    // Verificar que NO exista src/app/favicon.ico para evitar conflicto de rutas estáticas con public/favicon.ico
+    expect(fs.existsSync(path.join(process.cwd(), "src", "app", "favicon.ico"))).toBe(false);
 
     // Root layout metadata declaration
     const layoutPath = path.join(process.cwd(), "src", "app", "layout.tsx");

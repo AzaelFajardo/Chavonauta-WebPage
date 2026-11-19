@@ -146,13 +146,7 @@ describe("API Routes - Automated Tests", () => {
     expect(resetData.topItems.length).toBe(0);
 
     // Restaurar datos semilla
-    const { SEED_ANALYTICS } = await import("@/lib/data/seed");
-    Object.assign(resetData, JSON.parse(JSON.stringify(SEED_ANALYTICS)));
-    await postAnalytics(
-      new NextRequest("http://localhost:3000/api/analytics", {
-        method: "POST",
-        body: JSON.stringify({ type: "catalog_view" }),
-      })
-    );
+    const { repository } = await import("@/lib/data/repository");
+    await repository.seedAnalytics();
   });
 });

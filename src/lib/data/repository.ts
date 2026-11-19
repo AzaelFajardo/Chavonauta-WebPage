@@ -36,6 +36,7 @@ export interface StorefrontRepository {
   getAnalytics(): Promise<AnalyticsSummary>;
   recordAnalyticsEvent(event: AnalyticsEvent): Promise<AnalyticsSummary>;
   resetAnalytics(): Promise<AnalyticsSummary>;
+  seedAnalytics(): Promise<AnalyticsSummary>;
 }
 
 // Cache en memoria para rendimiento instantáneo
@@ -403,6 +404,13 @@ export const repository: StorefrontRepository = {
       lastUpdated: new Date().toISOString(),
     };
 
+    await persistDatabase();
+    return db.analytics;
+  },
+
+  async seedAnalytics(): Promise<AnalyticsSummary> {
+    const db = await loadDatabase();
+    db.analytics = JSON.parse(JSON.stringify(SEED_ANALYTICS));
     await persistDatabase();
     return db.analytics;
   },

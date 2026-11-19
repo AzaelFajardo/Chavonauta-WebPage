@@ -193,8 +193,6 @@ describe("Data Repository - Automated Tests", () => {
     expect(resetStats.topSearches.length).toBe(0);
 
     // Restaurar datos semilla para pruebas y demo
-    const { SEED_ANALYTICS } = await import("@/lib/data/seed");
-    Object.assign(resetStats, JSON.parse(JSON.stringify(SEED_ANALYTICS)));
-    await repository.recordAnalyticsEvent({ type: "catalog_view" });
+    await repository.seedAnalytics();
   });
 });

@@ -148,3 +148,77 @@ export interface CatalogItem {
   active: boolean;
   specs?: { label: string; value: string }[];
 }
+
+// ----------------------------------------------------
+// Métricas y Estadísticas del Escaparate
+// ----------------------------------------------------
+export interface SearchQueryStat {
+  query: string;
+  count: number;
+  resultsCount: number;
+  lastSearchedAt: string;
+}
+
+export interface ItemClickStat {
+  itemId: string;
+  title: string;
+  type: "product" | "service";
+  categorySlug: string;
+  whatsappClicks: number;
+  views: number;
+}
+
+export interface CategoryStat {
+  categorySlug: string;
+  label: string;
+  clicks: number;
+  percentage: number;
+}
+
+export interface CtaClickStat {
+  location: "hero" | "floating_button" | "catalog_card" | "item_detail" | "footer" | "navbar";
+  label: string;
+  clicks: number;
+  percentage: number;
+}
+
+export interface DailyActivityStat {
+  date: string;
+  dayLabel: string;
+  whatsappClicks: number;
+  searches: number;
+  views: number;
+}
+
+export interface AnalyticsSummary {
+  period: "7d" | "30d" | "all";
+  totalWhatsappClicks: number;
+  totalSearches: number;
+  totalLocationClicks: number;
+  totalCatalogViews: number;
+  topItems: ItemClickStat[];
+  topSearches: SearchQueryStat[];
+  categoryInterest: CategoryStat[];
+  ctaBreakdown: CtaClickStat[];
+  dailyActivity: DailyActivityStat[];
+  lastUpdated: string;
+}
+
+export type AnalyticsEventType =
+  | "whatsapp_click"
+  | "search"
+  | "location_click"
+  | "catalog_view"
+  | "item_view";
+
+export interface AnalyticsEvent {
+  type: AnalyticsEventType;
+  itemId?: string;
+  itemTitle?: string;
+  itemType?: "product" | "service";
+  categorySlug?: string;
+  location?: "hero" | "floating_button" | "catalog_card" | "item_detail" | "footer" | "navbar";
+  query?: string;
+  resultsCount?: number;
+  timestamp?: string;
+}

@@ -1,4 +1,4 @@
-import { CatalogItem, Category, ThemeConfig } from "@/types";
+import { AnalyticsSummary, CatalogItem, Category, ThemeConfig } from "@/types";
 import { PRESET_PALETTES } from "@/lib/theme-engine";
 
 export const DEFAULT_THEME_CONFIG: ThemeConfig = {
@@ -449,3 +449,235 @@ export const SEED_CATALOG_ITEMS: CatalogItem[] = [
     active: true,
   },
 ];
+
+export const SEED_ANALYTICS: AnalyticsSummary = {
+  period: "all",
+  totalWhatsappClicks: 148,
+  totalSearches: 234,
+  totalLocationClicks: 67,
+  totalCatalogViews: 1420,
+  topItems: [
+    {
+      itemId: "serv-impresiones-copias",
+      title: "Centro de Impresiones y Copias (B/N y Color)",
+      type: "service",
+      categorySlug: "servicios-cyber",
+      whatsappClicks: 42,
+      views: 310,
+    },
+    {
+      itemId: "serv-renta-computadoras",
+      title: "Renta de Computadoras e Internet",
+      type: "service",
+      categorySlug: "servicios-cyber",
+      whatsappClicks: 28,
+      views: 245,
+    },
+    {
+      itemId: "serv-tramites-digitales",
+      title: "Trámites Digitales por Internet (CURP, Actas, Citas)",
+      type: "service",
+      categorySlug: "servicios-cyber",
+      whatsappClicks: 22,
+      views: 180,
+    },
+    {
+      itemId: "prod-usb-kingston-64gb",
+      title: "Memoria USB Kingston 64GB DataTraveler Exodia USB 3.2",
+      type: "product",
+      categorySlug: "memorias-almacenamiento",
+      whatsappClicks: 19,
+      views: 155,
+    },
+    {
+      itemId: "prod-mouse-gamer-rgb",
+      title: "Mouse Gamer Óptico RGB 3200 DPI",
+      type: "product",
+      categorySlug: "teclados-mouse",
+      whatsappClicks: 15,
+      views: 130,
+    },
+    {
+      itemId: "prod-cable-tipo-c-reforzado",
+      title: "Cable USB-C de Carga Rápida Reforzado (2 Metros)",
+      type: "product",
+      categorySlug: "cables-carga",
+      whatsappClicks: 12,
+      views: 110,
+    },
+    {
+      itemId: "serv-mantenimiento-pc",
+      title: "Mantenimiento y Reparación de Equipos",
+      type: "service",
+      categorySlug: "servicios-cyber",
+      whatsappClicks: 10,
+      views: 90,
+    },
+  ],
+  topSearches: [
+    {
+      query: "impresiones",
+      count: 48,
+      resultsCount: 12,
+      lastSearchedAt: new Date().toISOString(),
+    },
+    {
+      query: "usb",
+      count: 35,
+      resultsCount: 6,
+      lastSearchedAt: new Date().toISOString(),
+    },
+    {
+      query: "curp",
+      count: 28,
+      resultsCount: 2,
+      lastSearchedAt: new Date().toISOString(),
+    },
+    {
+      query: "papel fotografico",
+      count: 21,
+      resultsCount: 0,
+      lastSearchedAt: new Date().toISOString(),
+    },
+    {
+      query: "audifonos",
+      count: 19,
+      resultsCount: 5,
+      lastSearchedAt: new Date().toISOString(),
+    },
+    {
+      query: "xbox",
+      count: 16,
+      resultsCount: 1,
+      lastSearchedAt: new Date().toISOString(),
+    },
+    {
+      query: "engargolado",
+      count: 14,
+      resultsCount: 2,
+      lastSearchedAt: new Date().toISOString(),
+    },
+    {
+      query: "mouse gamer",
+      count: 11,
+      resultsCount: 3,
+      lastSearchedAt: new Date().toISOString(),
+    },
+  ],
+  categoryInterest: [
+    {
+      categorySlug: "servicios-cyber",
+      label: "Servicios del Cyber",
+      clicks: 56,
+      percentage: 38,
+    },
+    {
+      categorySlug: "memorias-almacenamiento",
+      label: "Memorias y Almacenamiento",
+      clicks: 33,
+      percentage: 22,
+    },
+    {
+      categorySlug: "cables-carga",
+      label: "Cables y Carga",
+      clicks: 24,
+      percentage: 16,
+    },
+    {
+      categorySlug: "teclados-mouse",
+      label: "Teclados y Mouse",
+      clicks: 21,
+      percentage: 14,
+    },
+    {
+      categorySlug: "papeleria",
+      label: "Papelería y Oficina",
+      clicks: 14,
+      percentage: 10,
+    },
+  ],
+  ctaBreakdown: [
+    {
+      location: "catalog_card",
+      label: "Botón de Tarjeta en Catálogo",
+      clicks: 65,
+      percentage: 44,
+    },
+    {
+      location: "floating_button",
+      label: "Botón Flotante de WhatsApp",
+      clicks: 46,
+      percentage: 31,
+    },
+    {
+      location: "hero",
+      label: "Hero Banner Principal",
+      clicks: 22,
+      percentage: 15,
+    },
+    {
+      location: "item_detail",
+      label: "Ficha de Detalle de Producto",
+      clicks: 11,
+      percentage: 7,
+    },
+    {
+      location: "navbar",
+      label: "Barra Superior / Menú",
+      clicks: 4,
+      percentage: 3,
+    },
+  ],
+  dailyActivity: [
+    {
+      date: new Date(Date.now() - 86400000 * 6).toISOString().split("T")[0],
+      dayLabel: "Jue",
+      whatsappClicks: 18,
+      searches: 28,
+      views: 180,
+    },
+    {
+      date: new Date(Date.now() - 86400000 * 5).toISOString().split("T")[0],
+      dayLabel: "Vie",
+      whatsappClicks: 29,
+      searches: 45,
+      views: 290,
+    },
+    {
+      date: new Date(Date.now() - 86400000 * 4).toISOString().split("T")[0],
+      dayLabel: "Sáb",
+      whatsappClicks: 19,
+      searches: 32,
+      views: 170,
+    },
+    {
+      date: new Date(Date.now() - 86400000 * 3).toISOString().split("T")[0],
+      dayLabel: "Dom",
+      whatsappClicks: 15,
+      searches: 22,
+      views: 115,
+    },
+    {
+      date: new Date(Date.now() - 86400000 * 2).toISOString().split("T")[0],
+      dayLabel: "Lun",
+      whatsappClicks: 21,
+      searches: 34,
+      views: 220,
+    },
+    {
+      date: new Date(Date.now() - 86400000 * 1).toISOString().split("T")[0],
+      dayLabel: "Mar",
+      whatsappClicks: 24,
+      searches: 39,
+      views: 240,
+    },
+    {
+      date: new Date().toISOString().split("T")[0],
+      dayLabel: "Hoy",
+      whatsappClicks: 22,
+      searches: 34,
+      views: 205,
+    },
+  ],
+  lastUpdated: new Date().toISOString(),
+};

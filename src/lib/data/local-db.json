@@ -560,5 +560,68 @@
       "featured": false,
       "active": true
     }
-  ]
+  ],
+  "analytics": {
+    "period": "all",
+    "totalWhatsappClicks": 0,
+    "totalSearches": 0,
+    "totalLocationClicks": 0,
+    "totalCatalogViews": 1,
+    "topItems": [],
+    "topSearches": [],
+    "categoryInterest": [],
+    "ctaBreakdown": [],
+    "dailyActivity": [
+      {
+        "date": "2026-11-13",
+        "dayLabel": "Jue",
+        "whatsappClicks": 0,
+        "searches": 0,
+        "views": 0
+      },
+      {
+        "date": "2026-11-14",
+        "dayLabel": "Vie",
+        "whatsappClicks": 0,
+        "searches": 0,
+        "views": 0
+      },
+      {
+        "date": "2026-11-15",
+        "dayLabel": "Sáb",
+        "whatsappClicks": 0,
+        "searches": 0,
+        "views": 0
+      },
+      {
+        "date": "2026-11-16",
+        "dayLabel": "Dom",
+        "whatsappClicks": 0,
+        "searches": 0,
+        "views": 0
+      },
+      {
+        "date": "2026-11-17",
+        "dayLabel": "Lun",
+        "whatsappClicks": 0,
+        "searches": 0,
+        "views": 0
+      },
+      {
+        "date": "2026-11-18",
+        "dayLabel": "Mar",
+        "whatsappClicks": 0,
+        "searches": 0,
+        "views": 0
+      },
+      {
+        "date": "2026-11-19",
+        "dayLabel": "Hoy",
+        "whatsappClicks": 0,
+        "searches": 0,
+        "views": 1
+      }
+    ],
+    "lastUpdated": "2026-11-19T01:56:40.769Z"
+  }
 }

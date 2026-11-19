@@ -109,21 +109,21 @@ export function Navbar({ business, categories }: NavbarProps) {
             </div>
           </Link>
 
-          {/* Barra de Búsqueda (Desktop) */}
+          {/* Barra de Búsqueda (Desktop & Tablet) */}
           <form
             onSubmit={handleSearch}
             style={{ borderRadius: "var(--radius)" }}
-            className="hidden sm:flex flex-1 max-w-3xl items-center h-10 bg-white overflow-hidden shadow-inner border border-black/10 focus-within:ring-2 focus-within:ring-white/40"
+            className="hidden md:flex flex-1 max-w-3xl items-center h-10 bg-white overflow-hidden shadow-inner border border-black/10 focus-within:ring-2 focus-within:ring-white/40"
           >
             {/* Dropdown de departamentos */}
-            <div className="relative h-full flex items-center bg-slate-50 hover:bg-slate-100 border-r border-slate-200 transition-colors">
+            <div className="relative h-full flex items-center bg-slate-50 hover:bg-slate-100 border-r border-slate-200 transition-colors shrink-0 w-[120px] lg:w-[160px] xl:w-[190px]">
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="appearance-none h-full bg-transparent text-slate-800 text-xs font-medium pl-3 pr-7 cursor-pointer focus:outline-none"
+                className="appearance-none w-full h-full bg-transparent text-slate-800 text-xs font-medium pl-2.5 sm:pl-3 pr-6 sm:pr-7 cursor-pointer focus:outline-none truncate"
                 aria-label="Seleccionar categoría"
               >
-                <option value="todas">Todos los departamentos</option>
+                <option value="todas">Departamentos</option>
                 <option value="servicios-cyber">Servicios del Cyber</option>
                 {categories
                   .filter((c) => c.slug !== "servicios-cyber")
@@ -133,7 +133,7 @@ export function Navbar({ business, categories }: NavbarProps) {
                     </option>
                   ))}
               </select>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-500 absolute right-2 pointer-events-none" />
+              <ChevronDown className="w-3.5 h-3.5 text-slate-500 absolute right-1.5 sm:right-2 pointer-events-none shrink-0" />
             </div>
 
             {/* Input de texto */}
@@ -142,7 +142,7 @@ export function Navbar({ business, categories }: NavbarProps) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar en Chavonauta..."
-              className="flex-1 h-full px-3 text-sm text-slate-900 placeholder-slate-400 bg-white focus:outline-none"
+              className="flex-1 min-w-0 h-full px-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 bg-white focus:outline-none"
             />
 
             {/* Botón de búsqueda */}
@@ -152,7 +152,7 @@ export function Navbar({ business, categories }: NavbarProps) {
                 backgroundColor: "var(--accent)",
                 color: "var(--accent-foreground)",
               }}
-              className="h-full px-4 flex items-center justify-center transition-opacity hover:opacity-90 shrink-0 font-bold"
+              className="h-full px-3.5 sm:px-4 flex items-center justify-center transition-opacity hover:opacity-90 shrink-0 font-bold"
               aria-label="Buscar"
             >
               <Search className="w-4 h-4" />
@@ -203,7 +203,7 @@ export function Navbar({ business, categories }: NavbarProps) {
         </div>
 
         {/* Buscador en versión Móvil (debajo de la barra principal) */}
-        <div className="sm:hidden px-3 pb-3">
+        <div className="md:hidden px-3 pb-3">
           <form
             onSubmit={handleSearch}
             style={{ borderRadius: "var(--radius)" }}
@@ -214,7 +214,7 @@ export function Navbar({ business, categories }: NavbarProps) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar productos o servicios..."
-              className="flex-1 h-full px-3 text-xs text-slate-900 placeholder-slate-400 bg-white focus:outline-none"
+              className="flex-1 min-w-0 h-full px-3 text-xs text-slate-900 placeholder-slate-400 bg-white focus:outline-none"
             />
             <button
               type="submit"

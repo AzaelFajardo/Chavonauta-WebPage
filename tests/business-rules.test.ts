@@ -133,4 +133,29 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     // La tarifa de 1 hora debe ser mayor que la de media hora
     expect(computerRates!.oneHour).toBeGreaterThan(computerRates!.halfHour!);
   });
+
+  it("enforces rule 6: Navbar search bar has responsive department filter constraint and min-w-0", () => {
+    const navbarFile = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "storefront",
+      "Navbar.tsx"
+    );
+    expect(fs.existsSync(navbarFile)).toBe(true);
+
+    const content = fs.readFileSync(navbarFile, "utf-8");
+
+    // Verificar que el contenedor del filtro de departamentos tenga ancho controlado y shrink-0
+    expect(content).toContain("shrink-0");
+    expect(content).toMatch(/w-\[\d+px\]/);
+    expect(content).toContain("truncate");
+
+    // Verificar que el input tenga min-w-0 para evitar desbordes y cortes en tablets
+    expect(content).toContain("min-w-0");
+
+    // Verificar que el buscador use breakpoint consistente md:
+    expect(content).toContain("hidden md:flex");
+    expect(content).toContain("md:hidden");
+  });
 });

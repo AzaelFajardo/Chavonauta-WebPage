@@ -241,4 +241,28 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     expect(layoutContent).toContain("icons:");
     expect(layoutContent).toContain("manifest:");
   });
+
+  it("enforces rule 9: Social media links in Footer render dynamically only when configured", () => {
+    const footerPath = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "storefront",
+      "Footer.tsx"
+    );
+    expect(fs.existsSync(footerPath)).toBe(true);
+    const content = fs.readFileSync(footerPath, "utf-8");
+
+    // Verificar que Footer verifique condicionalmente socialLinks
+    expect(content).toContain("business.socialLinks?.facebook");
+    expect(content).toContain("business.socialLinks?.instagram");
+    expect(content).toContain("business.socialLinks?.tiktok");
+
+    // Verificar atributos de seguridad y accesibilidad
+    expect(content).toContain('target="_blank"');
+    expect(content).toContain('rel="noopener noreferrer"');
+    expect(content).toContain('aria-label="Facebook de Chavonauta"');
+    expect(content).toContain('aria-label="Instagram de Chavonauta"');
+    expect(content).toContain('aria-label="TikTok de Chavonauta"');
+  });
 });

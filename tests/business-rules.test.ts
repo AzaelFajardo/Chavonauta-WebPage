@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { repository } from "@/lib/data/repository";
 import { SectionType } from "@/types";
+import { resolveHeroIconPack, THEME_DEFAULT_ICON_PACK, PRESET_PALETTES } from "@/lib/theme-engine";
 import fs from "fs";
 import path from "path";
 
@@ -286,5 +287,63 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
 
     // Verificar que las categorías de filtros activas usen bg-blue-600
     expect(content).toContain("bg-blue-600 text-white font-bold shadow-2xs");
+  });
+
+  it("enforces rule 11: Hero falling icons feature is modular, minimal, clipped to hero, and configurable", () => {
+    // 1. Verificar resolución alegórica automática según paletas oficiales
+    expect(resolveHeroIconPack("auto", PRESET_PALETTES.navidad.palette, "Navidad")).toBe("christmas");
+    expect(resolveHeroIconPack("auto", PRESET_PALETTES.halloween.palette, "Halloween")).toBe("halloween");
+    expect(resolveHeroIconPack("auto", PRESET_PALETTES.chavonauta_dark.palette, "Espacial")).toBe("space");
+    expect(resolveHeroIconPack("auto", PRESET_PALETTES.cyberpunk.palette, "Cyber")).toBe("gaming");
+    expect(resolveHeroIconPack("auto", PRESET_PALETTES.oceano.palette, "Océano")).toBe("ocean");
+    expect(resolveHeroIconPack("auto", PRESET_PALETTES.cafe.palette, "Moca")).toBe("coffee");
+    expect(resolveHeroIconPack("auto", PRESET_PALETTES.glaciar.palette, "Glaciar")).toBe("winter");
+    expect(resolveHeroIconPack("auto", PRESET_PALETTES.febrero.palette, "Romance")).toBe("romance");
+
+    // 2. Verificar que selección manual tenga precedencia sobre automático
+    expect(resolveHeroIconPack("space", PRESET_PALETTES.navidad.palette, "Navidad")).toBe("space");
+    expect(resolveHeroIconPack("christmas", PRESET_PALETTES.chavonauta_navy.palette, "Oficial")).toBe("christmas");
+
+    // 3. Verificar que el componente HeroFallingIcons existe y tiene estilos de contorno minimalistas
+    const componentPath = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "sections",
+      "HeroFallingIcons.tsx"
+    );
+    expect(fs.existsSync(componentPath)).toBe(true);
+    const componentContent = fs.readFileSync(componentPath, "utf-8");
+
+    // SVG solo contorno y stroke minimalista
+    expect(componentContent).toContain('fill: "none"');
+    expect(componentContent).toContain('stroke: "currentColor"');
+    expect(componentContent).toContain("overflow-hidden");
+
+    // 4. Verificar que SectionRenderer contiene HeroFallingIcons y tiene overflow-hidden para cortar la cascada
+    const sectionRendererPath = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "sections",
+      "SectionRenderer.tsx"
+    );
+    const rendererContent = fs.readFileSync(sectionRendererPath, "utf-8");
+    expect(rendererContent).toContain("<HeroFallingIcons");
+    expect(rendererContent).toMatch(/overflow-hidden.*shadow-inner/);
+
+    // 5. Verificar que SortableSectionItem expone el switch de activación y el selector de paquetes
+    const sortablePath = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "customizer",
+      "SortableSectionItem.tsx"
+    );
+    const sortableContent = fs.readFileSync(sortablePath, "utf-8");
+    expect(sortableContent).toContain("Cascada de Iconos Animados");
+    expect(sortableContent).toContain("Paquete de Iconos Alegóricos");
+    expect(sortableContent).toContain("christmas");
+    expect(sortableContent).toContain("halloween");
   });
 });

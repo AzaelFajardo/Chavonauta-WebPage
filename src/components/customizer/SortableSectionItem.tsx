@@ -16,8 +16,9 @@ import {
   MapPin,
   HelpCircle,
   Megaphone,
+  Sparkles,
 } from "lucide-react";
-import { SectionBlock, SectionType } from "@/types";
+import { HeroFallingIconsConfig, HeroIconPackKey, SectionBlock, SectionType } from "@/types";
 
 interface SortableSectionItemProps {
   section: SectionBlock;
@@ -211,6 +212,163 @@ export function SortableSectionItem({
               className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-navy-600 text-slate-800 resize-none"
             />
           </div>
+
+          {/* Configuración de Cascada de Iconos Animados para el Hero Banner */}
+          {section.type === "hero" && (() => {
+            const fallingIcons = (section.content?.fallingIcons as HeroFallingIconsConfig | undefined) || {
+              enabled: true,
+              pack: "auto",
+              density: "balanced",
+              speed: "normal",
+            };
+
+            const updateFallingIcons = (updates: Partial<HeroFallingIconsConfig>) => {
+              onUpdateContent(section.id, {
+                content: {
+                  ...section.content,
+                  fallingIcons: {
+                    ...fallingIcons,
+                    ...updates,
+                  },
+                },
+              });
+            };
+
+            return (
+              <div className="pt-3 border-t border-slate-200/80 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <span className="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Cascada de Iconos Animados</span>
+                    </span>
+                    <span className="block text-[11px] text-slate-500 mt-0.5">
+                      Figuras minimalistas en caída continua sobre el fondo del Hero
+                    </span>
+                  </div>
+
+                  {/* Switch Toggle Activar/Desactivar */}
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={fallingIcons.enabled !== false}
+                    onClick={() => {
+                      updateFallingIcons({ enabled: fallingIcons.enabled === false ? true : false });
+                    }}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 ${
+                      fallingIcons.enabled !== false ? "bg-blue-600" : "bg-slate-300"
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                        fallingIcons.enabled !== false ? "translate-x-5" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {fallingIcons.enabled !== false && (
+                  <div className="space-y-3 pt-2 bg-slate-100/70 p-3 rounded-xl border border-slate-200 animate-in fade-in duration-150">
+                    {/* Selector de Paquete de Iconos */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                        Paquete de Iconos Alegóricos
+                      </label>
+                      <select
+                        value={fallingIcons.pack || "auto"}
+                        onChange={(e) =>
+                          updateFallingIcons({
+                            pack: e.target.value as HeroIconPackKey,
+                          })
+                        }
+                        className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-900 cursor-pointer shadow-2xs"
+                      >
+                        <option value="auto">✨ Automático (Según el tema activo)</option>
+                        <option value="christmas">🎄 Navidad (Árboles de navidad, Copos, Regalos, Campanas)</option>
+                        <option value="halloween">🎃 Halloween (Calabazas, Fantasmas, Murciélagos, Calaveras)</option>
+                        <option value="space">🚀 Espacial & Chavonauta (Cohetes, Planetas, Satélites, Estrellas)</option>
+                        <option value="tech">💻 Cómputo & Tech (Laptops, Chips, Wi-Fi, Monitores, Rayos)</option>
+                        <option value="gaming">🎮 Gaming & Arcade (Mandos, Joysticks, Trofeos, Cartuchos)</option>
+                        <option value="romance">💖 Romance & Amor (Corazones, Rosas, Cartas)</option>
+                        <option value="autumn">🍂 Otoño (Hojas secas, Bellotas, Viento)</option>
+                        <option value="spring">🌸 Primavera (Flores, Mariposas, Brotes)</option>
+                        <option value="winter">❄️ Invierno & Hielo (Copos de nieve cristalinos)</option>
+                        <option value="ocean">🌊 Océano & Gotas (Olas, Gotas, Anclas)</option>
+                        <option value="coffee">☕ Café & Relax (Tazas de café, Granos, Tetera)</option>
+                        <option value="sparkles">✨ Destellos Minimalistas (Estrellas de 4 y 8 puntas)</option>
+                        <option value="patrio">🇲🇽 Fiestas Patrias (Sombreros, Campanas, Destellos)</option>
+                      </select>
+                    </div>
+
+                    {/* Densidad y Velocidad en 2 columnas */}
+                    <div className="grid grid-cols-2 gap-2.5">
+                      {/* Densidad */}
+                      <div>
+                        <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                          Cantidad de Iconos
+                        </label>
+                        <div className="grid grid-cols-3 gap-1">
+                          {[
+                            { key: "subtle", label: "Suave" },
+                            { key: "balanced", label: "Media" },
+                            { key: "lively", label: "Viva" },
+                          ].map((d) => (
+                            <button
+                              key={d.key}
+                              type="button"
+                              onClick={() =>
+                                updateFallingIcons({
+                                  density: d.key as "subtle" | "balanced" | "lively",
+                                })
+                              }
+                              className={`py-1 text-[10px] font-semibold rounded-md border text-center transition-all ${
+                                (fallingIcons.density || "balanced") === d.key
+                                  ? "border-blue-600 bg-blue-50 text-blue-900 font-bold shadow-2xs"
+                                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                              }`}
+                            >
+                              {d.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Velocidad */}
+                      <div>
+                        <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                          Velocidad de Caída
+                        </label>
+                        <div className="grid grid-cols-3 gap-1">
+                          {[
+                            { key: "slow", label: "Serena" },
+                            { key: "normal", label: "Normal" },
+                            { key: "fast", label: "Rápida" },
+                          ].map((s) => (
+                            <button
+                              key={s.key}
+                              type="button"
+                              onClick={() =>
+                                updateFallingIcons({
+                                  speed: s.key as "slow" | "normal" | "fast",
+                                })
+                              }
+                              className={`py-1 text-[10px] font-semibold rounded-md border text-center transition-all ${
+                                (fallingIcons.speed || "normal") === s.key
+                                  ? "border-blue-600 bg-blue-50 text-blue-900 font-bold shadow-2xs"
+                                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                              }`}
+                            >
+                              {s.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Configuración específica para tarifas de renta de computadoras */}
           {section.type === "rates" && (

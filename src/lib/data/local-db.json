@@ -89,7 +89,13 @@
           "primaryCtaText": "Ver Catálogo",
           "primaryCtaHref": "/catalogo",
           "secondaryCtaText": "Consultar por WhatsApp",
-          "secondaryCtaHref": "https://wa.me/5215500000000"
+          "secondaryCtaHref": "https://wa.me/5215500000000",
+          "fallingIcons": {
+            "enabled": true,
+            "pack": "auto",
+            "density": "balanced",
+            "speed": "normal"
+          }
         }
       },
       {

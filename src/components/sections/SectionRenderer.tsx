@@ -9,13 +9,16 @@ import {
   Mail,
   ChevronRight,
 } from "lucide-react";
-import { BusinessInfo, CatalogItem, Category, SectionBlock } from "@/types";
+import { BusinessInfo, CatalogItem, Category, HeroFallingIconsConfig, SectionBlock, ThemePalette } from "@/types";
+import { HeroFallingIcons } from "./HeroFallingIcons";
 
 interface SectionRendererProps {
   section: SectionBlock;
   items: CatalogItem[];
   categories: Category[];
   business: BusinessInfo;
+  themeName?: string;
+  themePalette?: ThemePalette;
 }
 
 export function SectionRenderer({
@@ -23,6 +26,8 @@ export function SectionRenderer({
   items,
   categories,
   business,
+  themeName,
+  themePalette,
 }: SectionRendererProps) {
   if (!section.enabled) return null;
 
@@ -45,7 +50,14 @@ export function SectionRenderer({
             }}
             className="relative pt-10 pb-36 px-4 sm:px-8 overflow-hidden shadow-inner transition-colors duration-200"
           >
-            <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+            {/* Cascada de Iconos Animados en el Hero */}
+            <HeroFallingIcons
+              config={section.content?.fallingIcons as HeroFallingIconsConfig | undefined}
+              themeName={themeName}
+              themePalette={themePalette}
+            />
+
+            <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
               <div className="max-w-2xl z-10">
                 <span
                   style={{

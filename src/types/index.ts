@@ -7,6 +7,29 @@ export type SectionType =
   | "location"
   | "faq";
 
+export type HeroIconPackKey =
+  | "auto"
+  | "space"
+  | "tech"
+  | "gaming"
+  | "christmas"
+  | "halloween"
+  | "romance"
+  | "autumn"
+  | "spring"
+  | "winter"
+  | "ocean"
+  | "coffee"
+  | "sparkles"
+  | "patrio";
+
+export interface HeroFallingIconsConfig {
+  enabled: boolean;
+  pack: HeroIconPackKey;
+  density?: "subtle" | "balanced" | "lively";
+  speed?: "slow" | "normal" | "fast";
+}
+
 export interface SectionBlock {
   id: string;
   type: SectionType;

@@ -1,4 +1,4 @@
-import { ThemeConfig, ThemePalette } from "@/types";
+import { HeroIconPackKey, ThemeConfig, ThemePalette } from "@/types";
 
 export const PRESET_PALETTES: Record<
   string,
@@ -419,4 +419,79 @@ export function themeToCssVars(theme: ThemeConfig): Record<string, string> {
     "--font-heading": fonts.heading,
     "--font-body": fonts.body,
   };
+}
+
+export const THEME_DEFAULT_ICON_PACK: Record<string, HeroIconPackKey> = {
+  chavonauta_navy: "tech",
+  chavonauta_dark: "space",
+  cyberpunk: "gaming",
+  oceano: "ocean",
+  esmeralda: "spring",
+  lavanda: "sparkles",
+  atardecer: "sparkles",
+  titanio: "tech",
+  minimalista: "sparkles",
+  cafe: "coffee",
+  neon: "gaming",
+  dorado: "sparkles",
+  glaciar: "winter",
+  navidad: "christmas",
+  halloween: "halloween",
+  patrio: "patrio",
+  otono: "autumn",
+  febrero: "romance",
+  primavera: "spring",
+};
+
+/**
+ * Determina la clave de preset oficial según los colores primario y fondo
+ */
+export function getThemePresetKey(palette?: ThemePalette): string {
+  if (!palette) return "chavonauta_navy";
+  for (const [key, p] of Object.entries(PRESET_PALETTES)) {
+    if (
+      p.palette.primary.toLowerCase() === palette.primary?.toLowerCase() &&
+      p.palette.background.toLowerCase() === palette.background?.toLowerCase()
+    ) {
+      return key;
+    }
+  }
+  return "";
+}
+
+/**
+ * Obtiene el paquete de iconos de cascada correspondiente según el tema
+ */
+export function resolveHeroIconPack(
+  packKey?: HeroIconPackKey,
+  palette?: ThemePalette,
+  themeName?: string
+): HeroIconPackKey {
+  if (packKey && packKey !== "auto") {
+    return packKey;
+  }
+
+  // 1. Intento por clave de preset exacto
+  const presetKey = getThemePresetKey(palette);
+  if (presetKey && THEME_DEFAULT_ICON_PACK[presetKey]) {
+    return THEME_DEFAULT_ICON_PACK[presetKey];
+  }
+
+  // 2. Intento por nombre del tema (ej. "Navidad", "Halloween")
+  if (themeName) {
+    const lowerName = themeName.toLowerCase();
+    if (lowerName.includes("navidad")) return "christmas";
+    if (lowerName.includes("halloween")) return "halloween";
+    if (lowerName.includes("espacial") || lowerName.includes("space")) return "space";
+    if (lowerName.includes("cyber") || lowerName.includes("gaming")) return "gaming";
+    if (lowerName.includes("oceano") || lowerName.includes("mar")) return "ocean";
+    if (lowerName.includes("otoño") || lowerName.includes("otono")) return "autumn";
+    if (lowerName.includes("primavera")) return "spring";
+    if (lowerName.includes("romance") || lowerName.includes("febrero") || lowerName.includes("amor")) return "romance";
+    if (lowerName.includes("glaciar") || lowerName.includes("hielo") || lowerName.includes("invierno")) return "winter";
+    if (lowerName.includes("café") || lowerName.includes("cafe") || lowerName.includes("moca")) return "coffee";
+    if (lowerName.includes("patrio") || lowerName.includes("méxico") || lowerName.includes("mexico")) return "patrio";
+  }
+
+  return "tech";
 }

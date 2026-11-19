@@ -272,6 +272,8 @@ export function LivePreview({
                   items={items}
                   categories={categories}
                   business={theme.business}
+                  themeName={theme.name}
+                  themePalette={theme.palette}
                 />
               ))}
             </main>

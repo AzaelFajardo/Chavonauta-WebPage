@@ -133,6 +133,7 @@ export function ColorPaletteEditor({
     const preset = PRESET_PALETTES[presetKey];
     if (preset) {
       onChange({
+        name: preset.label,
         mode: preset.mode,
         palette: { ...preset.palette },
       });

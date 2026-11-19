@@ -19,6 +19,8 @@ export default async function StorefrontHomePage() {
           items={items}
           categories={categories}
           business={theme.business}
+          themeName={theme.name}
+          themePalette={theme.palette}
         />
       ))}
     </div>

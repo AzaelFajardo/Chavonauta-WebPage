@@ -213,4 +213,33 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     const settingsContent = fs.readFileSync(settingsFile, "utf-8");
     expect(settingsContent).toMatch(/sticky top-\[\d+px\]/);
   });
+
+  it("enforces rule 8: Favicon assets exist across all standard sizes and are declared in root metadata", () => {
+    const requiredPublicFiles = [
+      "favicon.ico",
+      "favicon-16x16.png",
+      "favicon-32x32.png",
+      "apple-touch-icon.png",
+      "android-chrome-192x192.png",
+      "android-chrome-512x512.png",
+      "site.webmanifest",
+    ];
+
+    for (const file of requiredPublicFiles) {
+      const filePath = path.join(process.cwd(), "public", file);
+      expect(fs.existsSync(filePath), `Archivo public/${file} debe existir`).toBe(true);
+      const stat = fs.statSync(filePath);
+      expect(stat.size, `Archivo public/${file} no debe estar vacío`).toBeGreaterThan(100);
+    }
+
+    // App Router standard icon discovery
+    expect(fs.existsSync(path.join(process.cwd(), "src", "app", "icon.png"))).toBe(true);
+    expect(fs.existsSync(path.join(process.cwd(), "src", "app", "apple-icon.png"))).toBe(true);
+
+    // Root layout metadata declaration
+    const layoutPath = path.join(process.cwd(), "src", "app", "layout.tsx");
+    const layoutContent = fs.readFileSync(layoutPath, "utf-8");
+    expect(layoutContent).toContain("icons:");
+    expect(layoutContent).toContain("manifest:");
+  });
 });

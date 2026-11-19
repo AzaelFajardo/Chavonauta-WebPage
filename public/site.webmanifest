@@ -1,0 +1,20 @@
+{
+  "name": "Chavonauta Cybercafé",
+  "short_name": "Chavonauta",
+  "description": "Escaparate digital y catálogo de productos, servicios, impresiones y renta de PC.",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#1c38a8",
+  "background_color": "#0b1120",
+  "display": "standalone"
+}

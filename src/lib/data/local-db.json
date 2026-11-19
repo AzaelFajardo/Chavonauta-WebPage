@@ -4,19 +4,19 @@
     "name": "Chavonauta Minimal",
     "mode": "light",
     "palette": {
-      "background": "#fafaf9",
-      "foreground": "#1c1917",
-      "primary": "#991b1b",
+      "background": "#f8fafc",
+      "foreground": "#0f172a",
+      "primary": "#1c38a8",
       "primaryForeground": "#ffffff",
-      "secondary": "#fef2f2",
-      "secondaryForeground": "#7f1d1d",
-      "accent": "#166534",
+      "secondary": "#eef6ff",
+      "secondaryForeground": "#1a2f85",
+      "accent": "#336dff",
       "accentForeground": "#ffffff",
       "card": "#ffffff",
-      "cardForeground": "#1c1917",
-      "muted": "#f5f5f4",
-      "mutedForeground": "#78716c",
-      "border": "#fed7aa"
+      "cardForeground": "#1e293b",
+      "muted": "#f1f5f9",
+      "mutedForeground": "#64748b",
+      "border": "#e2e8f0"
     },
     "radius": "0.5rem",
     "fonts": {
@@ -136,7 +136,7 @@
         "content": {}
       }
     ],
-    "updatedAt": "2026-11-19T00:33:49.369Z"
+    "updatedAt": "2026-11-19T00:40:07.750Z"
   },
   "categories": [
     {

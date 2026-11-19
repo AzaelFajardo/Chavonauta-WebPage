@@ -265,4 +265,26 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     expect(content).toContain('aria-label="Instagram de Chavonauta"');
     expect(content).toContain('aria-label="TikTok de Chavonauta"');
   });
+
+  it("enforces rule 10: Customizer active selections use consistent blue styling instead of dark", () => {
+    const paletteEditorPath = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "customizer",
+      "ColorPaletteEditor.tsx"
+    );
+    expect(fs.existsSync(paletteEditorPath)).toBe(true);
+    const content = fs.readFileSync(paletteEditorPath, "utf-8");
+
+    // Verificar que la selección de radio/bordes use borde y fondo azul en lugar de bg-slate-900
+    expect(content).toContain("border-blue-600 bg-blue-50/70 text-blue-950 ring-2 ring-blue-600/20 shadow-xs");
+
+    // Verificar que la selección de tipografía use borde y fondo azul con check azul
+    expect(content).toContain("border-blue-600 bg-blue-50/60 ring-2 ring-blue-600/20 shadow-xs");
+    expect(content).toContain("rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0");
+
+    // Verificar que las categorías de filtros activas usen bg-blue-600
+    expect(content).toContain("bg-blue-600 text-white font-bold shadow-2xs");
+  });
 });

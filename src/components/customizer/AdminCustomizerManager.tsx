@@ -269,36 +269,36 @@ export function AdminCustomizerManager({
             onClick={() => setViewport("desktop")}
             className={`p-1.5 rounded-lg text-xs font-medium transition-colors ${
               viewport === "desktop"
-                ? "bg-white text-navy-900 shadow-2xs font-semibold"
+                ? "bg-white text-blue-900 shadow-2xs font-semibold"
                 : "text-slate-500 hover:text-slate-800"
             }`}
             title="Vista de Computadora"
           >
-            <Monitor className="w-4 h-4" />
+            <Monitor className={`w-4 h-4 ${viewport === "desktop" ? "text-blue-600" : ""}`} />
           </button>
           <button
             type="button"
             onClick={() => setViewport("tablet")}
             className={`p-1.5 rounded-lg text-xs font-medium transition-colors ${
               viewport === "tablet"
-                ? "bg-white text-navy-900 shadow-2xs font-semibold"
+                ? "bg-white text-blue-900 shadow-2xs font-semibold"
                 : "text-slate-500 hover:text-slate-800"
             }`}
             title="Vista de Tablet"
           >
-            <Tablet className="w-4 h-4" />
+            <Tablet className={`w-4 h-4 ${viewport === "tablet" ? "text-blue-600" : ""}`} />
           </button>
           <button
             type="button"
             onClick={() => setViewport("mobile")}
             className={`p-1.5 rounded-lg text-xs font-medium transition-colors ${
               viewport === "mobile"
-                ? "bg-white text-navy-900 shadow-2xs font-semibold"
+                ? "bg-white text-blue-900 shadow-2xs font-semibold"
                 : "text-slate-500 hover:text-slate-800"
             }`}
             title="Vista de Celular"
           >
-            <Smartphone className="w-4 h-4" />
+            <Smartphone className={`w-4 h-4 ${viewport === "mobile" ? "text-blue-600" : ""}`} />
           </button>
         </div>
 
@@ -376,7 +376,7 @@ export function AdminCustomizerManager({
                   : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
               }`}
             >
-              <Layers className="w-3.5 h-3.5 text-slate-500" />
+              <Layers className={`w-3.5 h-3.5 ${activeTab === "sections" ? "text-blue-600" : "text-slate-500"}`} />
               <span>Secciones</span>
             </button>
           </div>

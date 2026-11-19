@@ -326,7 +326,7 @@ export function ColorPaletteEditor({
               onClick={() => setFilterMode("populares")}
               className={`px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${
                 filterMode === "populares" && !searchQuery
-                  ? "bg-slate-900 text-white font-bold"
+                  ? "bg-blue-600 text-white font-bold shadow-2xs"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
@@ -338,7 +338,7 @@ export function ColorPaletteEditor({
               onClick={() => setFilterMode("estilos")}
               className={`px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${
                 filterMode === "estilos" && !searchQuery
-                  ? "bg-slate-900 text-white font-bold"
+                  ? "bg-blue-600 text-white font-bold shadow-2xs"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
@@ -350,7 +350,7 @@ export function ColorPaletteEditor({
               onClick={() => setFilterMode("temporada")}
               className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${
                 filterMode === "temporada" && !searchQuery
-                  ? "bg-slate-900 text-white font-bold"
+                  ? "bg-blue-600 text-white font-bold shadow-2xs"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
@@ -364,7 +364,7 @@ export function ColorPaletteEditor({
                 onClick={() => setFilterMode("custom")}
                 className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${
                   filterMode === "custom" && !searchQuery
-                    ? "bg-blue-600 text-white font-bold"
+                    ? "bg-blue-600 text-white font-bold shadow-2xs"
                     : "bg-blue-50 text-blue-700 hover:bg-blue-100"
                 }`}
               >
@@ -378,7 +378,7 @@ export function ColorPaletteEditor({
               onClick={() => setFilterMode("all")}
               className={`px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${
                 filterMode === "all" && !searchQuery
-                  ? "bg-slate-900 text-white font-bold"
+                  ? "bg-blue-600 text-white font-bold shadow-2xs"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
@@ -733,21 +733,32 @@ export function ColorPaletteEditor({
         </label>
 
         <div className="grid grid-cols-5 gap-1.5">
-          {RADIUS_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => onChange({ radius: opt.value })}
-              className={`p-2 text-xs font-semibold rounded-xl border transition-all text-center ${
-                theme.radius === opt.value
-                  ? "bg-slate-900 text-white border-slate-900 shadow-xs"
-                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-              }`}
-            >
-              <span className="block text-xs font-bold">{opt.label}</span>
-              <span className="block text-[10px] opacity-70 mt-0.5 font-mono">{opt.desc}</span>
-            </button>
-          ))}
+          {RADIUS_OPTIONS.map((opt) => {
+            const isSelected = theme.radius === opt.value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => onChange({ radius: opt.value })}
+                className={`p-2 text-xs font-semibold rounded-xl border transition-all text-center relative ${
+                  isSelected
+                    ? "border-blue-600 bg-blue-50/70 text-blue-950 ring-2 ring-blue-600/20 shadow-xs"
+                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
+                }`}
+              >
+                <span className={`block text-xs font-bold ${isSelected ? "text-blue-950" : "text-slate-800"}`}>
+                  {opt.label}
+                </span>
+                <span
+                  className={`block text-[10px] mt-0.5 font-mono ${
+                    isSelected ? "text-blue-700 font-semibold" : "opacity-70 text-slate-500"
+                  }`}
+                >
+                  {opt.desc}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-2 text-[11px] text-slate-500">
@@ -788,24 +799,30 @@ export function ColorPaletteEditor({
                 }
                 className={`p-2.5 rounded-xl border text-left transition-all relative flex flex-col justify-between ${
                   isSelected
-                    ? "bg-slate-900 text-white border-slate-900 shadow-xs ring-1 ring-slate-900"
-                    : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
+                    ? "border-blue-600 bg-blue-50/60 ring-2 ring-blue-600/20 shadow-xs"
+                    : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
                 }`}
               >
                 <div className="flex items-start justify-between gap-1 w-full">
                   <div>
                     <span
                       style={{ fontFamily: font.value }}
-                      className="block text-xs font-bold leading-tight"
+                      className={`block text-xs font-bold leading-tight ${
+                        isSelected ? "text-blue-950" : "text-slate-900"
+                      }`}
                     >
                       {font.name}
                     </span>
-                    <span className="block text-[10px] opacity-70 mt-0.5 leading-snug">
+                    <span
+                      className={`block text-[10px] mt-0.5 leading-snug ${
+                        isSelected ? "text-blue-700 font-medium" : "text-slate-500 opacity-70"
+                      }`}
+                    >
                       {font.desc}
                     </span>
                   </div>
                   {isSelected && (
-                    <span className="w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center shrink-0">
+                    <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0">
                       <Check className="w-2.5 h-2.5 stroke-[3]" />
                     </span>
                   )}
@@ -813,7 +830,9 @@ export function ColorPaletteEditor({
 
                 <div
                   style={{ fontFamily: font.value }}
-                  className="mt-2 pt-1.5 border-t border-current/10 text-xs font-semibold opacity-90 truncate tracking-wide"
+                  className={`mt-2 pt-1.5 border-t text-xs font-semibold truncate tracking-wide ${
+                    isSelected ? "border-blue-200 text-blue-900" : "border-slate-100 text-slate-600"
+                  }`}
                 >
                   Aa Bb 123
                 </div>

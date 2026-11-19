@@ -266,8 +266,8 @@ export function ColorPaletteEditor({
               {activePresetKey && !activePresetKey.startsWith("custom:")
                 ? PRESET_PALETTES[activePresetKey]?.label || "Personalizado"
                 : activePresetKey
-                ? customPresets.find((c) => `custom:${c.id}` === activePresetKey)?.label || "Personalizado"
-                : "Personalizado (manual)"}
+                  ? customPresets.find((c) => `custom:${c.id}` === activePresetKey)?.label || "Personalizado"
+                  : "Personalizado (manual)"}
             </span>
           </div>
 
@@ -356,11 +356,10 @@ export function ColorPaletteEditor({
             <button
               type="button"
               onClick={() => setFilterMode("populares")}
-              className={`px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${
-                filterMode === "populares" && !searchQuery
-                  ? "bg-blue-600 text-white font-bold shadow-2xs"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
+              className={`px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${filterMode === "populares" && !searchQuery
+                ? "bg-blue-600 text-white font-bold shadow-2xs"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
             >
               ⭐ Populares
             </button>
@@ -368,11 +367,10 @@ export function ColorPaletteEditor({
             <button
               type="button"
               onClick={() => setFilterMode("estilos")}
-              className={`px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${
-                filterMode === "estilos" && !searchQuery
-                  ? "bg-blue-600 text-white font-bold shadow-2xs"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
+              className={`px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${filterMode === "estilos" && !searchQuery
+                ? "bg-blue-600 text-white font-bold shadow-2xs"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
             >
               🎨 Estilos
             </button>
@@ -380,11 +378,10 @@ export function ColorPaletteEditor({
             <button
               type="button"
               onClick={() => setFilterMode("temporada")}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${
-                filterMode === "temporada" && !searchQuery
-                  ? "bg-blue-600 text-white font-bold shadow-2xs"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${filterMode === "temporada" && !searchQuery
+                ? "bg-blue-600 text-white font-bold shadow-2xs"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
             >
               <Gift className="w-3 h-3 text-emerald-500" />
               <span>Festivas</span>
@@ -394,11 +391,10 @@ export function ColorPaletteEditor({
               <button
                 type="button"
                 onClick={() => setFilterMode("custom")}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${
-                  filterMode === "custom" && !searchQuery
-                    ? "bg-blue-600 text-white font-bold shadow-2xs"
-                    : "bg-blue-50 text-blue-700 hover:bg-blue-100"
-                }`}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${filterMode === "custom" && !searchQuery
+                  ? "bg-blue-600 text-white font-bold shadow-2xs"
+                  : "bg-blue-50 text-blue-700 hover:bg-blue-100"
+                  }`}
               >
                 <Star className="w-3 h-3 text-amber-400" />
                 <span>Mis Paletas ({customPresets.length})</span>
@@ -408,11 +404,10 @@ export function ColorPaletteEditor({
             <button
               type="button"
               onClick={() => setFilterMode("all")}
-              className={`px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${
-                filterMode === "all" && !searchQuery
-                  ? "bg-blue-600 text-white font-bold shadow-2xs"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
+              className={`px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap text-[11px] ${filterMode === "all" && !searchQuery
+                ? "bg-blue-600 text-white font-bold shadow-2xs"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
             >
               Todas (19)
             </button>
@@ -509,11 +504,10 @@ export function ColorPaletteEditor({
               <div
                 key={preset.id}
                 onClick={() => applyCustomPreset(preset)}
-                className={`p-2.5 rounded-xl border text-left transition-all relative cursor-pointer group flex flex-col justify-between ${
-                  isSelected
-                    ? "border-blue-600 bg-blue-50/60 ring-2 ring-blue-600/20 shadow-xs"
-                    : "border-slate-200 bg-white hover:border-slate-300 shadow-2xs"
-                }`}
+                className={`p-2.5 rounded-xl border text-left transition-all relative cursor-pointer group flex flex-col justify-between ${isSelected
+                  ? "border-blue-600 bg-blue-50/60 ring-2 ring-blue-600/20 shadow-xs"
+                  : "border-slate-200 bg-white hover:border-slate-300 shadow-2xs"
+                  }`}
               >
                 <div className="flex items-center justify-between gap-1 mb-1.5">
                   <div className="flex items-center gap-1 min-w-0">
@@ -575,11 +569,10 @@ export function ColorPaletteEditor({
                 key={key}
                 type="button"
                 onClick={() => applyOfficialPreset(key)}
-                className={`p-2.5 rounded-xl border text-left transition-all relative flex flex-col justify-between ${
-                  isSelected
-                    ? "border-blue-600 bg-blue-50/60 ring-2 ring-blue-600/20 shadow-xs"
-                    : "border-slate-200 bg-white hover:border-slate-300 shadow-2xs"
-                }`}
+                className={`p-2.5 rounded-xl border text-left transition-all relative flex flex-col justify-between ${isSelected
+                  ? "border-blue-600 bg-blue-50/60 ring-2 ring-blue-600/20 shadow-xs"
+                  : "border-slate-200 bg-white hover:border-slate-300 shadow-2xs"
+                  }`}
               >
                 <div className="flex items-center justify-between gap-1 w-full mb-1.5">
                   <div className="flex items-center gap-1 min-w-0">
@@ -639,23 +632,17 @@ export function ColorPaletteEditor({
         </div>
 
         {/* Casilla de Verificación (Check) Opcional para la Cascada de Iconos en el Hero */}
-        <div className="p-3 bg-blue-50/70 rounded-xl border border-blue-200/80 shadow-2xs">
-          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+        <div className="p-2.5 bg-blue-50/70 rounded-xl border border-blue-200/80 shadow-2xs">
+          <label className="flex items-center gap-2 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={isHeroFallingIconsEnabled}
               onChange={(e) => handleToggleHeroFallingIcons(e.target.checked)}
               className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
             />
-            <div className="min-w-0 flex-1">
-              <span className="block text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                <span>Activar Cascada</span>
-              </span>
-              <span className="block text-[11px] text-slate-500 mt-0.5 truncate">
-                Lluvia de figuras alegóricas al tema sobre el fondo del Hero
-              </span>
-            </div>
+            <span className="text-xs font-bold text-slate-800">
+              Activar Cascada
+            </span>
           </label>
         </div>
       </div>
@@ -793,19 +780,17 @@ export function ColorPaletteEditor({
                 key={opt.value}
                 type="button"
                 onClick={() => onChange({ radius: opt.value })}
-                className={`p-2 text-xs font-semibold rounded-xl border transition-all text-center relative ${
-                  isSelected
-                    ? "border-blue-600 bg-blue-50/70 text-blue-950 ring-2 ring-blue-600/20 shadow-xs"
-                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
-                }`}
+                className={`p-2 text-xs font-semibold rounded-xl border transition-all text-center relative ${isSelected
+                  ? "border-blue-600 bg-blue-50/70 text-blue-950 ring-2 ring-blue-600/20 shadow-xs"
+                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
+                  }`}
               >
                 <span className={`block text-xs font-bold ${isSelected ? "text-blue-950" : "text-slate-800"}`}>
                   {opt.label}
                 </span>
                 <span
-                  className={`block text-[10px] mt-0.5 font-mono ${
-                    isSelected ? "text-blue-700 font-semibold" : "opacity-70 text-slate-500"
-                  }`}
+                  className={`block text-[10px] mt-0.5 font-mono ${isSelected ? "text-blue-700 font-semibold" : "opacity-70 text-slate-500"
+                    }`}
                 >
                   {opt.desc}
                 </span>
@@ -850,26 +835,23 @@ export function ColorPaletteEditor({
                     },
                   })
                 }
-                className={`p-2.5 rounded-xl border text-left transition-all relative flex flex-col justify-between ${
-                  isSelected
-                    ? "border-blue-600 bg-blue-50/60 ring-2 ring-blue-600/20 shadow-xs"
-                    : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
-                }`}
+                className={`p-2.5 rounded-xl border text-left transition-all relative flex flex-col justify-between ${isSelected
+                  ? "border-blue-600 bg-blue-50/60 ring-2 ring-blue-600/20 shadow-xs"
+                  : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
+                  }`}
               >
                 <div className="flex items-start justify-between gap-1 w-full">
                   <div>
                     <span
                       style={{ fontFamily: font.value }}
-                      className={`block text-xs font-bold leading-tight ${
-                        isSelected ? "text-blue-950" : "text-slate-900"
-                      }`}
+                      className={`block text-xs font-bold leading-tight ${isSelected ? "text-blue-950" : "text-slate-900"
+                        }`}
                     >
                       {font.name}
                     </span>
                     <span
-                      className={`block text-[10px] mt-0.5 leading-snug ${
-                        isSelected ? "text-blue-700 font-medium" : "text-slate-500 opacity-70"
-                      }`}
+                      className={`block text-[10px] mt-0.5 leading-snug ${isSelected ? "text-blue-700 font-medium" : "text-slate-500 opacity-70"
+                        }`}
                     >
                       {font.desc}
                     </span>
@@ -883,9 +865,8 @@ export function ColorPaletteEditor({
 
                 <div
                   style={{ fontFamily: font.value }}
-                  className={`mt-2 pt-1.5 border-t text-xs font-semibold truncate tracking-wide ${
-                    isSelected ? "border-blue-200 text-blue-900" : "border-slate-100 text-slate-600"
-                  }`}
+                  className={`mt-2 pt-1.5 border-t text-xs font-semibold truncate tracking-wide ${isSelected ? "border-blue-200 text-blue-900" : "border-slate-100 text-slate-600"
+                    }`}
                 >
                   Aa Bb 123
                 </div>

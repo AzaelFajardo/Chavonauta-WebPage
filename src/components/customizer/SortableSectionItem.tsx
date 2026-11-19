@@ -237,23 +237,17 @@ export function SortableSectionItem({
             return (
               <div className="pt-3 border-t border-slate-200/80 space-y-3">
                 {/* Casilla de verificación (Check) para activar la cascada de forma opcional */}
-                <div className="p-3 bg-slate-100/70 rounded-xl border border-slate-200">
-                  <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                <div className="p-2.5 bg-slate-100/70 rounded-xl border border-slate-200">
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={fallingIcons.enabled === true}
                       onChange={(e) => updateFallingIcons({ enabled: e.target.checked })}
                       className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                     />
-                    <div>
-                      <span className="block text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                        <span>Activar Cascada</span>
-                      </span>
-                      <span className="block text-[11px] text-slate-500 mt-0.5">
-                        Lluvia suave de figuras minimalistas alusivas al tema sobre el fondo del Hero
-                      </span>
-                    </div>
+                    <span className="text-xs font-bold text-slate-800">
+                      Activar Cascada
+                    </span>
                   </label>
                 </div>
 

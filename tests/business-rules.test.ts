@@ -9,7 +9,7 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
   it("enforces rule 1: No shopping cart, checkout, orders or quotation systems exist", () => {
     // Escaneo dinámico de rutas en src/app para asegurar que no se introduzcan rutas de ecommerce transaccional
     const appDir = path.join(process.cwd(), "src", "app");
-    
+
     function findRoutes(dir: string): string[] {
       let results: string[] = [];
       if (!fs.existsSync(dir)) return results;

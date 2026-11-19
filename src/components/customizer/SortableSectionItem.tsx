@@ -248,7 +248,7 @@ export function SortableSectionItem({
                     <div>
                       <span className="block text-xs font-bold text-slate-900 flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                        <span>Activar cascada de iconos animados (Opcional)</span>
+                        <span>Activar Cascada</span>
                       </span>
                       <span className="block text-[11px] text-slate-500 mt-0.5">
                         Lluvia suave de figuras minimalistas alusivas al tema sobre el fondo del Hero

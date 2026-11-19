@@ -650,7 +650,7 @@ export function ColorPaletteEditor({
             <div className="min-w-0 flex-1">
               <span className="block text-xs font-bold text-slate-900 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                <span>Activar cascada de iconos en el Hero (Opcional)</span>
+                <span>Activar Cascada</span>
               </span>
               <span className="block text-[11px] text-slate-500 mt-0.5 truncate">
                 Lluvia de figuras alegóricas al tema sobre el fondo del Hero

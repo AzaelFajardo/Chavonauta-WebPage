@@ -345,7 +345,7 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     );
     const sortableContent = fs.readFileSync(sortablePath, "utf-8");
     expect(sortableContent).toContain('type="checkbox"');
-    expect(sortableContent).toContain("Activar cascada de iconos animados (Opcional)");
+    expect(sortableContent).toContain("Activar Cascada");
     expect(sortableContent).toContain("Paquete de Iconos Alegóricos");
     expect(sortableContent).toContain("christmas");
     expect(sortableContent).toContain("halloween");
@@ -360,6 +360,6 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     );
     const paletteEditorContent = fs.readFileSync(paletteEditorPath, "utf-8");
     expect(paletteEditorContent).toContain('type="checkbox"');
-    expect(paletteEditorContent).toContain("Activar cascada de iconos en el Hero (Opcional)");
+    expect(paletteEditorContent).toContain("Activar Cascada");
   });
 });

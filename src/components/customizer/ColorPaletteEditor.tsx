@@ -1,7 +1,13 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { CustomPreset, ThemeConfig, ThemePalette } from "@/types";
+import {
+  CustomPreset,
+  HeroFallingIconsConfig,
+  HeroIconPackKey,
+  ThemeConfig,
+  ThemePalette,
+} from "@/types";
 import { PRESET_PALETTES } from "@/lib/theme-engine";
 import {
   Palette,
@@ -31,6 +37,23 @@ const RADIUS_OPTIONS: { label: string; desc: string; value: ThemeConfig["radius"
   { label: "Redondo", desc: "12px", value: "0.75rem" },
   { label: "Curvo", desc: "16px", value: "1rem" },
   { label: "Píldora", desc: "Cápsula", value: "9999px" },
+];
+
+const HERO_ICON_PACK_OPTIONS: { value: HeroIconPackKey; label: string; desc: string }[] = [
+  { value: "auto", label: "Automático", desc: "Según el tema activo" },
+  { value: "space", label: "Espacial & Chavonauta", desc: "Cohetes, Planetas, Satélites, Estrellas" },
+  { value: "tech", label: "Cómputo & Tech", desc: "Laptops, Chips, Wi-Fi, Monitores, Rayos" },
+  { value: "gaming", label: "Gaming & Arcade", desc: "Mandos, Joysticks, Trofeos, Cartuchos" },
+  { value: "christmas", label: "Navidad", desc: "Árboles de navidad, Copos, Regalos, Campanas" },
+  { value: "halloween", label: "Halloween", desc: "Calabazas, Fantasmas, Murciélagos, Calaveras" },
+  { value: "ocean", label: "Océano & Gotas", desc: "Olas, Gotas, Anclas" },
+  { value: "sparkles", label: "Destellos Minimalistas", desc: "Estrellas geométricas y destellos" },
+  { value: "winter", label: "Invierno & Hielo", desc: "Copos de nieve cristalinos" },
+  { value: "autumn", label: "Otoño", desc: "Hojas secas, Bellotas, Viento" },
+  { value: "spring", label: "Primavera", desc: "Flores, Mariposas, Brotes" },
+  { value: "coffee", label: "Café & Relax", desc: "Tazas de café, Granos, Tetera" },
+  { value: "romance", label: "Romance & Amor", desc: "Corazones, Rosas, Cartas" },
+  { value: "patrio", label: "Fiestas Patrias", desc: "Sombreros, Campanas, Destellos" },
 ];
 
 interface FontOption {
@@ -105,6 +128,50 @@ export function ColorPaletteEditor({
   const [newPresetName, setNewPresetName] = useState("");
   const [newPresetMode, setNewPresetMode] = useState<"light" | "dark">(theme.mode || "light");
 
+  // Estado y actualización reactiva para la cascada de iconos en el Hero
+  const heroSection = theme.sections.find((s) => s.type === "hero");
+  const heroFallingIcons: HeroFallingIconsConfig =
+    (heroSection?.content?.fallingIcons as HeroFallingIconsConfig | undefined) || {
+      enabled: false,
+      pack: "auto",
+      density: "balanced",
+      speed: "normal",
+    };
+
+  const [newPresetFallingPack, setNewPresetFallingPack] = useState<HeroIconPackKey>(
+    heroFallingIcons.pack || "auto"
+  );
+  const [newPresetFallingEnabled, setNewPresetFallingEnabled] = useState<boolean>(
+    heroFallingIcons.enabled === true
+  );
+
+  const updateHeroFallingIcons = (updates: Partial<HeroFallingIconsConfig>) => {
+    const updatedSections = theme.sections.map((s) => {
+      if (s.type === "hero") {
+        const currentContent = s.content || {};
+        const currentFalling =
+          (currentContent.fallingIcons as HeroFallingIconsConfig | undefined) || {
+            enabled: true,
+            pack: "auto",
+            density: "balanced",
+            speed: "normal",
+          };
+        return {
+          ...s,
+          content: {
+            ...currentContent,
+            fallingIcons: {
+              ...currentFalling,
+              ...updates,
+            },
+          },
+        };
+      }
+      return s;
+    });
+    onChange({ sections: updatedSections });
+  };
+
   const handlePaletteField = (field: keyof ThemePalette, value: string) => {
     const updatedPalette = {
       ...currentPalette,
@@ -141,9 +208,42 @@ export function ColorPaletteEditor({
   };
 
   const applyCustomPreset = (preset: CustomPreset) => {
+    let updatedSections = theme.sections;
+    if (preset.fallingIconsEnabled !== undefined || preset.fallingIconsPack !== undefined) {
+      updatedSections = theme.sections.map((s) => {
+        if (s.type === "hero") {
+          const currentContent = s.content || {};
+          const currentFalling =
+            (currentContent.fallingIcons as HeroFallingIconsConfig | undefined) || {
+              enabled: true,
+              pack: "auto",
+              density: "balanced",
+              speed: "normal",
+            };
+          return {
+            ...s,
+            content: {
+              ...currentContent,
+              fallingIcons: {
+                ...currentFalling,
+                ...(preset.fallingIconsEnabled !== undefined
+                  ? { enabled: preset.fallingIconsEnabled }
+                  : {}),
+                ...(preset.fallingIconsPack !== undefined
+                  ? { pack: preset.fallingIconsPack }
+                  : {}),
+              },
+            },
+          };
+        }
+        return s;
+      });
+    }
+
     onChange({
       mode: preset.mode,
       palette: { ...preset.palette },
+      sections: updatedSections,
     });
   };
 
@@ -159,6 +259,8 @@ export function ColorPaletteEditor({
       label: cleanName,
       mode: newPresetMode,
       palette: { ...currentPalette },
+      fallingIconsPack: newPresetFallingPack,
+      fallingIconsEnabled: newPresetFallingEnabled,
       createdAt: new Date().toISOString(),
     };
 
@@ -178,37 +280,6 @@ export function ColorPaletteEditor({
     onChange({
       customPresets: updated,
     });
-  };
-
-  // Estado y toggle para la cascada opcional de iconos en el Hero
-  const heroSection = theme.sections.find((s) => s.type === "hero");
-  const isHeroFallingIconsEnabled =
-    ((heroSection?.content?.fallingIcons as { enabled?: boolean } | undefined)?.enabled) === true;
-
-  const handleToggleHeroFallingIcons = (enabled: boolean) => {
-    const updatedSections = theme.sections.map((s) => {
-      if (s.type === "hero") {
-        const currentContent = s.content || {};
-        const currentFalling =
-          (currentContent.fallingIcons as Record<string, unknown> | undefined) || {
-            pack: "auto",
-            density: "balanced",
-            speed: "normal",
-          };
-        return {
-          ...s,
-          content: {
-            ...currentContent,
-            fallingIcons: {
-              ...currentFalling,
-              enabled,
-            },
-          },
-        };
-      }
-      return s;
-    });
-    onChange({ sections: updatedSections });
   };
 
   // Filtrado reactivo de presets oficiales
@@ -288,15 +359,15 @@ export function ColorPaletteEditor({
               className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-slate-300 bg-white text-slate-900 shadow-2xs hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer transition-colors"
             >
               <option value="" disabled>
-                {activePresetKey ? "Cambiar de tema..." : "🎨 Personalizado (ajuste manual)"}
+                {activePresetKey ? "Cambiar de tema..." : "Personalizado (ajuste manual)"}
               </option>
-              <optgroup label="⭐ Populares & Oficiales">
+              <optgroup label="Populares & Oficiales">
                 <option value="chavonauta_navy">Oficial — Azul Marino</option>
                 <option value="chavonauta_dark">Espacial — Modo Oscuro</option>
                 <option value="cyberpunk">Cyber — Neón Gamer</option>
                 <option value="oceano">Océano — Azul Celeste</option>
               </optgroup>
-              <optgroup label="🎨 Estilos & Tendencias">
+              <optgroup label="Estilos & Tendencias">
                 <option value="esmeralda">Esmeralda — Verde Fresco</option>
                 <option value="lavanda">Lavanda — Violeta Suave</option>
                 <option value="atardecer">Atardecer — Naranja Cálido</option>
@@ -307,7 +378,7 @@ export function ColorPaletteEditor({
                 <option value="dorado">Dorado — Negro y Oro</option>
                 <option value="glaciar">Glaciar — Azul Hielo</option>
               </optgroup>
-              <optgroup label="🎉 Temporadas & Festivos">
+              <optgroup label="Temporadas & Festivos">
                 <option value="navidad">Navidad — Rojo y Verde Pino</option>
                 <option value="halloween">Halloween — Negro y Naranja</option>
                 <option value="patrio">Patrio — Verde y Rojo</option>
@@ -316,7 +387,7 @@ export function ColorPaletteEditor({
                 <option value="primavera">Primavera — Verde Menta</option>
               </optgroup>
               {customPresets.length > 0 && (
-                <optgroup label="✨ Mis Paletas Guardadas">
+                <optgroup label="Mis Paletas Guardadas">
                   {customPresets.map((cp) => (
                     <option key={cp.id} value={`custom:${cp.id}`}>
                       {cp.label}
@@ -361,7 +432,7 @@ export function ColorPaletteEditor({
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                 }`}
             >
-              ⭐ Populares
+              Populares
             </button>
 
             <button
@@ -372,7 +443,7 @@ export function ColorPaletteEditor({
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                 }`}
             >
-              🎨 Estilos
+              Estilos
             </button>
 
             <button
@@ -446,6 +517,48 @@ export function ColorPaletteEditor({
                 required
                 className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-900"
               />
+            </div>
+
+            {/* Cascada de Iconos para el nuevo tema */}
+            <div className="pt-2 border-t border-blue-200/80 space-y-2">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={newPresetFallingEnabled}
+                  onChange={(e) => {
+                    const enabled = e.target.checked;
+                    setNewPresetFallingEnabled(enabled);
+                    updateHeroFallingIcons({ enabled });
+                  }}
+                  className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                />
+                <span className="text-[11px] font-bold text-slate-800">
+                  Activar Cascada para este tema
+                </span>
+              </label>
+
+              {newPresetFallingEnabled && (
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                    Tipo de Cascada:
+                  </label>
+                  <select
+                    value={newPresetFallingPack}
+                    onChange={(e) => {
+                      const pack = e.target.value as HeroIconPackKey;
+                      setNewPresetFallingPack(pack);
+                      updateHeroFallingIcons({ pack, enabled: true });
+                    }}
+                    className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-900 cursor-pointer shadow-2xs"
+                  >
+                    {HERO_ICON_PACK_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label} ({opt.desc})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center justify-between gap-3 pt-1">
@@ -631,19 +744,110 @@ export function ColorPaletteEditor({
           )}
         </div>
 
-        {/* Casilla de Verificación (Check) Opcional para la Cascada de Iconos en el Hero */}
-        <div className="p-2.5 bg-blue-50/70 rounded-xl border border-blue-200/80 shadow-2xs">
+        {/* Casilla de Verificación y Opciones de Personalización para la Cascada de Iconos en el Hero */}
+        <div className="p-3 bg-blue-50/70 rounded-xl border border-blue-200/80 shadow-2xs space-y-3">
           <label className="flex items-center gap-2 cursor-pointer select-none">
             <input
               type="checkbox"
-              checked={isHeroFallingIconsEnabled}
-              onChange={(e) => handleToggleHeroFallingIcons(e.target.checked)}
+              checked={heroFallingIcons.enabled === true}
+              onChange={(e) => updateHeroFallingIcons({ enabled: e.target.checked })}
               className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
             />
             <span className="text-xs font-bold text-slate-800">
               Activar Cascada
             </span>
           </label>
+
+          {heroFallingIcons.enabled === true && (
+            <div className="space-y-3 pt-2 border-t border-blue-200/70 animate-in fade-in duration-150">
+              {/* Selector de Paquete de Iconos */}
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                  Paquete de Iconos Alegóricos
+                </label>
+                <select
+                  value={heroFallingIcons.pack || "auto"}
+                  onChange={(e) =>
+                    updateHeroFallingIcons({
+                      pack: e.target.value as HeroIconPackKey,
+                    })
+                  }
+                  className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-900 cursor-pointer shadow-2xs"
+                >
+                  {HERO_ICON_PACK_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label} ({opt.desc})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Densidad y Velocidad en 2 columnas */}
+              <div className="grid grid-cols-2 gap-2.5">
+                {/* Densidad */}
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                    Cantidad de Iconos
+                  </label>
+                  <div className="grid grid-cols-3 gap-1">
+                    {[
+                      { key: "subtle", label: "Suave" },
+                      { key: "balanced", label: "Media" },
+                      { key: "lively", label: "Viva" },
+                    ].map((d) => (
+                      <button
+                        key={d.key}
+                        type="button"
+                        onClick={() =>
+                          updateHeroFallingIcons({
+                            density: d.key as "subtle" | "balanced" | "lively",
+                          })
+                        }
+                        className={`py-1 text-[10px] font-semibold rounded-md border text-center transition-all ${
+                          (heroFallingIcons.density || "balanced") === d.key
+                            ? "border-blue-600 bg-blue-600 text-white font-bold shadow-2xs"
+                            : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                        }`}
+                      >
+                        {d.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Velocidad */}
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                    Velocidad de Caída
+                  </label>
+                  <div className="grid grid-cols-3 gap-1">
+                    {[
+                      { key: "slow", label: "Serena" },
+                      { key: "normal", label: "Normal" },
+                      { key: "fast", label: "Rápida" },
+                    ].map((s) => (
+                      <button
+                        key={s.key}
+                        type="button"
+                        onClick={() =>
+                          updateHeroFallingIcons({
+                            speed: s.key as "slow" | "normal" | "fast",
+                          })
+                        }
+                        className={`py-1 text-[10px] font-semibold rounded-md border text-center transition-all ${
+                          (heroFallingIcons.speed || "normal") === s.key
+                            ? "border-blue-600 bg-blue-600 text-white font-bold shadow-2xs"
+                            : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                        }`}
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

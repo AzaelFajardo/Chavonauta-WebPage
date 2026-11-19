@@ -93,6 +93,8 @@ export interface CustomPreset {
   label: string;
   mode: "dark" | "light";
   palette: ThemePalette;
+  fallingIconsPack?: HeroIconPackKey;
+  fallingIconsEnabled?: boolean;
   createdAt?: string;
 }
 

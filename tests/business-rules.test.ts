@@ -350,7 +350,7 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     expect(sortableContent).toContain("christmas");
     expect(sortableContent).toContain("halloween");
 
-    // 7. Verificar que ColorPaletteEditor incluye también el check opcional accesible desde la pestaña de temas
+    // 7. Verificar que ColorPaletteEditor incluye el check opcional y selector completo de cascada
     const paletteEditorPath = path.join(
       process.cwd(),
       "src",
@@ -361,5 +361,30 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     const paletteEditorContent = fs.readFileSync(paletteEditorPath, "utf-8");
     expect(paletteEditorContent).toContain('type="checkbox"');
     expect(paletteEditorContent).toContain("Activar Cascada");
+    expect(paletteEditorContent).toContain("Paquete de Iconos Alegóricos");
+    expect(paletteEditorContent).toContain("Activar Cascada para este tema");
+  });
+
+  it("enforces rule 12: No emoji symbols in customizer/storefront UI, and custom theme presets support cascade packs", () => {
+    // 1. Verificar que no existan emojis en componentes del personalizador
+    const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
+
+    const customizerFiles = [
+      "src/components/customizer/ColorPaletteEditor.tsx",
+      "src/components/customizer/SortableSectionItem.tsx",
+      "src/components/customizer/AdminCustomizerManager.tsx",
+    ];
+
+    for (const relPath of customizerFiles) {
+      const fullPath = path.join(process.cwd(), relPath);
+      const content = fs.readFileSync(fullPath, "utf-8");
+      expect(emojiRegex.test(content), `El archivo ${relPath} no debe contener emojis`).toBe(false);
+    }
+
+    // 2. Verificar que CustomPreset en types soporte fallingIconsPack y fallingIconsEnabled
+    const typesPath = path.join(process.cwd(), "src", "types", "index.ts");
+    const typesContent = fs.readFileSync(typesPath, "utf-8");
+    expect(typesContent).toContain("fallingIconsPack?: HeroIconPackKey;");
+    expect(typesContent).toContain("fallingIconsEnabled?: boolean;");
   });
 });

@@ -41,6 +41,7 @@ export function AdminCustomizerManager({
   const [theme, setTheme] = useState<ThemeConfig>(initialTheme);
   const [activeTab, setActiveTab] = useState<"colors" | "sections">("colors");
   const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [mobileViewMode, setMobileViewMode] = useState<"editor" | "preview">("editor");
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
@@ -209,30 +210,60 @@ export function AdminCustomizerManager({
       )}
 
       {/* Barra Superior del Personalizador */}
-      <header className="px-4 py-3 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
-        <div className="flex items-center gap-3">
+      <header className="px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-heading font-black text-sm sm:text-base text-slate-900 tracking-tight">
+              <h1 className="font-heading font-black text-xs sm:text-base text-slate-900 tracking-tight">
                 Personalizador Visual
               </h1>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-navy-100 text-navy-800 uppercase tracking-wider">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-navy-100 text-navy-800 uppercase tracking-wider hidden xs:inline-block">
                 En vivo
               </span>
               {hasChanges && (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
-                  Cambios pendientes
+                  Pendiente
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-slate-400 hidden sm:block">
+            <p className="text-[11px] text-slate-400 hidden md:block">
               Edita paletas de color, estilo de bordes, tipografías y orden de bloques
             </p>
           </div>
         </div>
 
+        {/* Switcher Móvil y Tablet entre Editor y Vista Previa (visible en < lg) */}
+        <div className="flex lg:hidden items-center bg-slate-100 p-0.5 sm:p-1 rounded-xl border border-slate-200 order-last sm:order-none w-full sm:w-auto justify-center">
+          <button
+            type="button"
+            onClick={() => setMobileViewMode("editor")}
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              mobileViewMode === "editor"
+                ? "bg-white text-navy-900 shadow-2xs font-bold"
+                : "text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            <Palette className="w-3.5 h-3.5 text-blue-600" />
+            <span>Editor</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileViewMode("preview")}
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              mobileViewMode === "preview"
+                ? "bg-white text-navy-900 shadow-2xs font-bold"
+                : "text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            <Monitor className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Vista Previa</span>
+          </button>
+        </div>
+
         {/* Selector de Dispositivo (Desktop / Tablet / Mobile) */}
-        <div className="hidden md:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+        <div className={`items-center bg-slate-100 p-1 rounded-xl border border-slate-200 ${
+          mobileViewMode === "preview" ? "flex" : "hidden lg:flex"
+        }`}>
           <button
             type="button"
             onClick={() => setViewport("desktop")}
@@ -272,13 +303,13 @@ export function AdminCustomizerManager({
         </div>
 
         {/* Acciones: Descartar, Guardar y Ver Escaparate */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {hasChanges && (
             <button
               type="button"
               onClick={handleDiscard}
               disabled={isSaving}
-              className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
+              className="px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
             >
               Descartar
             </button>
@@ -297,26 +328,30 @@ export function AdminCustomizerManager({
             type="button"
             onClick={() => handleSave()}
             disabled={isSaving || !hasChanges}
-            className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition-all shadow-xs ${
+            className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-bold rounded-xl transition-all shadow-xs ${
               hasChanges
-                ? "bg-navy-900 hover:bg-navy-800 text-white shadow-navy-900/20"
+                ? "bg-navy-900 hover:bg-navy-800 text-white shadow-navy-900/20 active:scale-95"
                 : "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
             }`}
           >
             {isSaving ? (
-              <Loader2 className="w-4 h-4 animate-spin text-white" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
             ) : (
-              <Save className="w-4 h-4 text-sky-300" />
+              <Save className="w-3.5 h-3.5 text-sky-300" />
             )}
-            <span>{isSaving ? "Guardando..." : "Guardar Cambios"}</span>
+            <span>{isSaving ? "Guardando..." : "Guardar"}</span>
           </button>
         </div>
       </header>
 
       {/* Cuerpo Principal Dividido: Controles a la Izquierda / Preview a la Derecha */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         {/* Panel de Controles / Sidebar del Editor */}
-        <div className="w-full lg:w-[410px] border-b lg:border-b-0 lg:border-r border-slate-200 bg-white flex flex-col shrink-0">
+        <div
+          className={`w-full lg:w-[410px] border-b lg:border-b-0 lg:border-r border-slate-200 bg-white flex flex-col shrink-0 h-full overflow-hidden ${
+            mobileViewMode === "editor" ? "flex" : "hidden lg:flex"
+          }`}
+        >
           {/* Pestañas de Navegación del Editor */}
           <div className="p-2 border-b border-slate-200 bg-slate-50/70 grid grid-cols-2 gap-1.5 shrink-0">
             <button
@@ -347,7 +382,7 @@ export function AdminCustomizerManager({
           </div>
 
           {/* Contenido de la Pestaña Activa con Scroll */}
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4">
             {activeTab === "colors" && (
               <ColorPaletteEditor
                 theme={theme}
@@ -379,12 +414,18 @@ export function AdminCustomizerManager({
         </div>
 
         {/* Vista Previa en Vivo (Live Preview) */}
-        <LivePreview
-          theme={theme}
-          items={items}
-          categories={categories}
-          viewport={viewport}
-        />
+        <div
+          className={`flex-1 h-full overflow-hidden flex flex-col ${
+            mobileViewMode === "preview" ? "flex" : "hidden lg:flex"
+          }`}
+        >
+          <LivePreview
+            theme={theme}
+            items={items}
+            categories={categories}
+            viewport={viewport}
+          />
+        </div>
       </div>
 
       {/* Diálogo Personalizado de Confirmación para Salir sin Guardar */}

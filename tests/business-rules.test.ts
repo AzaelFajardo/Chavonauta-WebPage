@@ -158,4 +158,47 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     expect(content).toContain("hidden md:flex");
     expect(content).toContain("md:hidden");
   });
+
+  it("enforces rule 7: Admin navigation places hamburger menu on the left and provides mobile view modes", () => {
+    const adminNavFile = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "admin",
+      "AdminNav.tsx"
+    );
+    expect(fs.existsSync(adminNavFile)).toBe(true);
+    const navContent = fs.readFileSync(adminNavFile, "utf-8");
+
+    // Verificar que el botón hamburguesa esté colocado antes de la marca/título en el header móvil
+    const buttonIndex = navContent.indexOf("aria-label={mobileMenuOpen ? \"Cerrar menú\" : \"Abrir menú\"}");
+    const titleIndex = navContent.indexOf("Panel de Control");
+    expect(buttonIndex).toBeGreaterThan(-1);
+    expect(titleIndex).toBeGreaterThan(-1);
+    expect(buttonIndex).toBeLessThan(titleIndex);
+
+    // Verificar que el Personalizador soporte vista móvil dedicada (Editor vs Preview)
+    const customizerFile = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "customizer",
+      "AdminCustomizerManager.tsx"
+    );
+    expect(fs.existsSync(customizerFile)).toBe(true);
+    const customizerContent = fs.readFileSync(customizerFile, "utf-8");
+    expect(customizerContent).toContain("mobileViewMode");
+
+    // Verificar que el Catálogo proporcione representación de tarjetas móviles
+    const catalogFile = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "admin",
+      "AdminCatalogManager.tsx"
+    );
+    expect(fs.existsSync(catalogFile)).toBe(true);
+    const catalogContent = fs.readFileSync(catalogFile, "utf-8");
+    expect(catalogContent).toContain("md:hidden divide-y");
+  });
 });

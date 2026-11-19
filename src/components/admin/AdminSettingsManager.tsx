@@ -265,10 +265,10 @@ export function AdminSettingsManager({
       )}
 
       {/* Cabecera Principal Sticky: Un único botón de guardado siempre accesible */}
-      <div className="sticky top-0 z-30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/95 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs transition-shadow">
+      <div className="sticky top-0 z-30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white/95 backdrop-blur-md p-3.5 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs transition-shadow">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">
               Configuración
             </h1>
             {hasChanges && (
@@ -277,19 +277,19 @@ export function AdminSettingsManager({
               </span>
             )}
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5 hidden xs:block">
             Administra los datos de sucursal, logotipo, números de contacto, horarios y redes sociales.
           </p>
         </div>
 
         {/* Único botón de guardado en la página */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
           {hasChanges && (
             <button
               type="button"
               onClick={handleDiscard}
               disabled={isSaving}
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors active:scale-95"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Descartar</span>
@@ -300,7 +300,7 @@ export function AdminSettingsManager({
             type="button"
             onClick={() => handleSave()}
             disabled={isSaving || !hasChanges}
-            className={`inline-flex items-center gap-2 px-5 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all shadow-xs ${
+            className={`inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all shadow-xs ${
               hasChanges
                 ? "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20 active:scale-95 cursor-pointer"
                 : "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
@@ -316,9 +316,9 @@ export function AdminSettingsManager({
         </div>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-6">
+      <form onSubmit={handleSave} className="space-y-4 sm:space-y-6">
         {/* Bloque 1: Identidad y Sucursal */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
             <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
               <Building2 className="w-4 h-4" />
@@ -386,7 +386,7 @@ export function AdminSettingsManager({
         </div>
 
         {/* Bloque 2: Contacto y Ubicación */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
             <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
               <Phone className="w-4 h-4" />
@@ -472,7 +472,7 @@ export function AdminSettingsManager({
         </div>
 
         {/* Bloque 3: Horarios de Atención */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
             <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
               <Clock className="w-4 h-4" />
@@ -534,7 +534,7 @@ export function AdminSettingsManager({
         </div>
 
         {/* Bloque 4: Redes Sociales */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
             <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
               <Share2 className="w-4 h-4" />
@@ -592,7 +592,7 @@ export function AdminSettingsManager({
         </div>
 
         {/* Bloque 5: Tarifas de Renta de Equipos */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
             <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
               <Monitor className="w-4 h-4" />

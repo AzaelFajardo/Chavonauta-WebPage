@@ -100,30 +100,44 @@ export function AdminNav() {
         <ChevronRight className="w-3.5 h-3.5 text-navy-400 group-hover:translate-x-0.5 transition-transform" />
       </div>
 
-      {/* Barra superior para móvil */}
-      <header className="lg:hidden sticky top-0 z-40 bg-navy-950 text-white border-b border-navy-800 px-4 py-3 flex items-center justify-between shadow-sm">
+      {/* Barra superior para móvil y tablet */}
+      <header className="lg:hidden sticky top-0 z-40 bg-navy-950 text-white border-b border-navy-800 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-navy-800 border border-navy-700 flex items-center justify-center text-accent">
-            <Store className="w-4 h-4 text-sky-400" />
-          </div>
-          <div>
-            <span className="font-heading font-black text-sm tracking-tight text-white block uppercase">
-              Chavonauta
-            </span>
-            <span className="text-[10px] text-navy-300 font-medium tracking-wide uppercase">
-              Panel de Control
-            </span>
+          {/* Botón de Menú Hamburguesa a la IZQUIERDA para celulares y tablets */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 rounded-lg bg-navy-900 border border-navy-800 text-slate-200 hover:text-white hover:bg-navy-850 active:scale-95 transition-all focus:outline-none"
+            aria-label={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5 text-sky-400" /> : <Menu className="w-5 h-5 text-sky-400" />}
+          </button>
+
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-navy-800 border border-navy-700 flex items-center justify-center text-accent shrink-0">
+              <Store className="w-4 h-4 text-sky-400" />
+            </div>
+            <div>
+              <span className="font-heading font-black text-sm tracking-tight text-white block uppercase leading-tight">
+                Chavonauta
+              </span>
+              <span className="text-[10px] text-navy-300 font-medium tracking-wide uppercase leading-none">
+                Panel de Control
+              </span>
+            </div>
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 rounded-lg bg-navy-900 border border-navy-800 text-slate-200 hover:text-white"
-          aria-label={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
+        {/* Acceso directo a Ver Tienda en el extremo derecho */}
+        <Link
+          href="/"
+          target="_blank"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-navy-900 hover:bg-navy-850 border border-navy-800 text-sky-400 hover:text-white text-xs font-semibold transition-all shrink-0 active:scale-95"
+          title="Ver tienda pública en una pestaña nueva"
         >
-          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+          <ExternalLink className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Ver Tienda</span>
+        </Link>
       </header>
 
       {/* Backdrop móvil */}

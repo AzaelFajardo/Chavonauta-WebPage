@@ -200,5 +200,17 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     expect(fs.existsSync(catalogFile)).toBe(true);
     const catalogContent = fs.readFileSync(catalogFile, "utf-8");
     expect(catalogContent).toContain("md:hidden divide-y");
+
+    // Verificar que Configuración tenga offset responsivo en su barra sticky para evitar colisión con AdminNav
+    const settingsFile = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "admin",
+      "AdminSettingsManager.tsx"
+    );
+    expect(fs.existsSync(settingsFile)).toBe(true);
+    const settingsContent = fs.readFileSync(settingsFile, "utf-8");
+    expect(settingsContent).toMatch(/sticky top-\[\d+px\]/);
   });
 });

@@ -264,35 +264,35 @@ export function AdminSettingsManager({
         </div>
       )}
 
-      {/* Cabecera Principal Sticky: Un único botón de guardado siempre accesible */}
-      <div className="sticky top-0 z-30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white/95 backdrop-blur-md p-3.5 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs transition-shadow">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">
+      {/* Cabecera Principal Sticky: Un único botón de guardado siempre accesible y con offset responsivo para no colisionar con la barra de navegación */}
+      <div className="sticky top-[60px] sm:top-[66px] lg:top-3 z-30 flex flex-row items-center justify-between gap-3 bg-white/95 backdrop-blur-md px-3.5 py-2.5 sm:px-5 sm:py-3.5 rounded-2xl border border-slate-200/90 shadow-md transition-all">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <h1 className="text-base sm:text-2xl font-bold text-slate-900 tracking-tight truncate">
               Configuración
             </h1>
             {hasChanges && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 animate-pulse">
-                Cambios pendientes
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 animate-pulse shrink-0">
+                Pendiente
               </span>
             )}
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5 hidden xs:block">
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5 hidden md:block">
             Administra los datos de sucursal, logotipo, números de contacto, horarios y redes sociales.
           </p>
         </div>
 
-        {/* Único botón de guardado en la página */}
-        <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
+        {/* Botones de acción siempre visibles y compactos */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {hasChanges && (
             <button
               type="button"
               onClick={handleDiscard}
               disabled={isSaving}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors active:scale-95"
+              className="inline-flex items-center justify-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors active:scale-95"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Descartar</span>
+              <span className="hidden xs:inline">Descartar</span>
             </button>
           )}
 
@@ -300,16 +300,16 @@ export function AdminSettingsManager({
             type="button"
             onClick={() => handleSave()}
             disabled={isSaving || !hasChanges}
-            className={`inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all shadow-xs ${
+            className={`inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all shadow-xs ${
               hasChanges
                 ? "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20 active:scale-95 cursor-pointer"
                 : "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
             }`}
           >
             {isSaving ? (
-              <Loader2 className="w-4 h-4 animate-spin text-white" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
             ) : (
-              <Save className="w-4 h-4" />
+              <Save className="w-3.5 h-3.5" />
             )}
             <span>{isSaving ? "Guardando..." : "Guardar cambios"}</span>
           </button>

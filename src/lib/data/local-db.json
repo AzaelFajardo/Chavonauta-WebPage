@@ -91,7 +91,7 @@
           "secondaryCtaText": "Consultar por WhatsApp",
           "secondaryCtaHref": "https://wa.me/5215500000000",
           "fallingIcons": {
-            "enabled": false,
+            "enabled": true,
             "pack": "auto",
             "density": "balanced",
             "speed": "normal"
@@ -142,7 +142,7 @@
         "content": {}
       }
     ],
-    "updatedAt": "2026-11-19T00:40:07.750Z"
+    "updatedAt": "2026-11-19T01:40:51.278Z"
   },
   "categories": [
     {

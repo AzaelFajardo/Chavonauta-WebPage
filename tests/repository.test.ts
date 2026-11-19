@@ -137,4 +137,64 @@ describe("Data Repository - Automated Tests", () => {
     const postDelete = await repository.getCatalogItemById(testItem.id);
     expect(postDelete).toBeUndefined();
   });
+
+  it("retrieves and records analytics metrics properly", async () => {
+    // 1. Obtener analíticas iniciales
+    const stats = await repository.getAnalytics();
+    expect(stats).toBeDefined();
+    expect(typeof stats.totalWhatsappClicks).toBe("number");
+    expect(typeof stats.totalSearches).toBe("number");
+    expect(typeof stats.totalLocationClicks).toBe("number");
+    expect(typeof stats.totalCatalogViews).toBe("number");
+    expect(Array.isArray(stats.topItems)).toBe(true);
+    expect(Array.isArray(stats.topSearches)).toBe(true);
+    expect(Array.isArray(stats.categoryInterest)).toBe(true);
+    expect(Array.isArray(stats.ctaBreakdown)).toBe(true);
+    expect(Array.isArray(stats.dailyActivity)).toBe(true);
+    expect(stats.dailyActivity.length).toBe(7);
+
+    const prevWaClicks = stats.totalWhatsappClicks;
+    const prevSearches = stats.totalSearches;
+
+    // 2. Registrar evento de WhatsApp
+    const updatedWithWa = await repository.recordAnalyticsEvent({
+      type: "whatsapp_click",
+      location: "catalog_card",
+      itemId: "test-item-metrics",
+      itemTitle: "Ítem de Prueba Métrica",
+      itemType: "service",
+      categorySlug: "servicios-cyber",
+    });
+
+    expect(updatedWithWa.totalWhatsappClicks).toBe(prevWaClicks + 1);
+    const recordedItem = updatedWithWa.topItems.find((i) => i.itemId === "test-item-metrics");
+    expect(recordedItem).toBeDefined();
+    expect(recordedItem?.whatsappClicks).toBeGreaterThanOrEqual(1);
+
+    // 3. Registrar búsqueda
+    const updatedWithSearch = await repository.recordAnalyticsEvent({
+      type: "search",
+      query: "termino-test-especial",
+      resultsCount: 3,
+    });
+
+    expect(updatedWithSearch.totalSearches).toBe(prevSearches + 1);
+    const recordedSearch = updatedWithSearch.topSearches.find((s) => s.query === "termino-test-especial");
+    expect(recordedSearch).toBeDefined();
+    expect(recordedSearch?.resultsCount).toBe(3);
+
+    // 4. Reinicio de analíticas
+    const resetStats = await repository.resetAnalytics();
+    expect(resetStats.totalWhatsappClicks).toBe(0);
+    expect(resetStats.totalSearches).toBe(0);
+    expect(resetStats.totalLocationClicks).toBe(0);
+    expect(resetStats.totalCatalogViews).toBe(0);
+    expect(resetStats.topItems.length).toBe(0);
+    expect(resetStats.topSearches.length).toBe(0);
+
+    // Restaurar datos semilla para pruebas y demo
+    const { SEED_ANALYTICS } = await import("@/lib/data/seed");
+    Object.assign(resetStats, JSON.parse(JSON.stringify(SEED_ANALYTICS)));
+    await repository.recordAnalyticsEvent({ type: "catalog_view" });
+  });
 });

@@ -362,4 +362,82 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     expect(paletteEditorContent).toContain('type="checkbox"');
     expect(paletteEditorContent).toContain("Activar Cascada");
   });
+
+  it("enforces rule 12: Admin ESTADÍSTICAS tab exists, is linked in AdminNav, backed by repository and API", () => {
+    // 1. Verificar documento de ideas pendientes
+    const ideasDocPath = path.join(process.cwd(), "docs", "IDEAS_PENDIENTES.md");
+    expect(fs.existsSync(ideasDocPath)).toBe(true);
+    const ideasContent = fs.readFileSync(ideasDocPath, "utf-8");
+    expect(ideasContent).toContain("Promociones & Banners Temporales");
+    expect(ideasContent).toContain("Tarifario Exprés");
+    expect(ideasContent).toContain("Preguntas Frecuentes");
+    expect(ideasContent).toContain("Reseñas y Testimonios");
+    expect(ideasContent).toContain("Respaldo y Datos");
+
+    // 2. Verificar que AdminNav incluya ESTADÍSTICAS
+    const navPath = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "admin",
+      "AdminNav.tsx"
+    );
+    const navContent = fs.readFileSync(navPath, "utf-8");
+    expect(navContent).toContain("ESTADÍSTICAS");
+    expect(navContent).toContain("/admin/estadisticas");
+
+    // 3. Verificar que la ruta de página /admin/estadisticas y componente existan
+    const statsPagePath = path.join(
+      process.cwd(),
+      "src",
+      "app",
+      "admin",
+      "estadisticas",
+      "page.tsx"
+    );
+    expect(fs.existsSync(statsPagePath)).toBe(true);
+
+    const statsManagerPath = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "admin",
+      "AdminStatsManager.tsx"
+    );
+    expect(fs.existsSync(statsManagerPath)).toBe(true);
+    const statsManagerContent = fs.readFileSync(statsManagerPath, "utf-8");
+    expect(statsManagerContent).toContain("Consultas WhatsApp");
+    expect(statsManagerContent).toContain("Búsquedas Realizadas");
+    expect(statsManagerContent).toContain("Cómo Llegar");
+    expect(statsManagerContent).toContain("Exportar CSV");
+    expect(statsManagerContent).toContain("Reiniciar");
+
+    // 4. Verificar API endpoint /api/analytics
+    const apiRoutePath = path.join(
+      process.cwd(),
+      "src",
+      "app",
+      "api",
+      "analytics",
+      "route.ts"
+    );
+    expect(fs.existsSync(apiRoutePath)).toBe(true);
+    const apiContent = fs.readFileSync(apiRoutePath, "utf-8");
+    expect(apiContent).toContain("export async function GET");
+    expect(apiContent).toContain("export async function POST");
+    expect(apiContent).toContain("export async function DELETE");
+
+    // 5. Verificar métodos de analítica en repository
+    const repoPath = path.join(
+      process.cwd(),
+      "src",
+      "lib",
+      "data",
+      "repository.ts"
+    );
+    const repoContent = fs.readFileSync(repoPath, "utf-8");
+    expect(repoContent).toContain("getAnalytics()");
+    expect(repoContent).toContain("recordAnalyticsEvent");
+    expect(repoContent).toContain("resetAnalytics()");
+  });
 });

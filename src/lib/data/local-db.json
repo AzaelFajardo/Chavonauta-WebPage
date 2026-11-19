@@ -563,65 +563,233 @@
   ],
   "analytics": {
     "period": "all",
-    "totalWhatsappClicks": 0,
-    "totalSearches": 0,
-    "totalLocationClicks": 0,
-    "totalCatalogViews": 1,
-    "topItems": [],
-    "topSearches": [],
-    "categoryInterest": [],
-    "ctaBreakdown": [],
+    "totalWhatsappClicks": 148,
+    "totalSearches": 234,
+    "totalLocationClicks": 67,
+    "totalCatalogViews": 1420,
+    "topItems": [
+      {
+        "itemId": "serv-impresiones-copias",
+        "title": "Centro de Impresiones y Copias (B/N y Color)",
+        "type": "service",
+        "categorySlug": "servicios-cyber",
+        "whatsappClicks": 42,
+        "views": 310
+      },
+      {
+        "itemId": "serv-renta-computadoras",
+        "title": "Renta de Computadoras e Internet",
+        "type": "service",
+        "categorySlug": "servicios-cyber",
+        "whatsappClicks": 28,
+        "views": 245
+      },
+      {
+        "itemId": "serv-tramites-digitales",
+        "title": "Trámites Digitales por Internet (CURP, Actas, Citas)",
+        "type": "service",
+        "categorySlug": "servicios-cyber",
+        "whatsappClicks": 22,
+        "views": 180
+      },
+      {
+        "itemId": "prod-usb-kingston-64gb",
+        "title": "Memoria USB Kingston 64GB DataTraveler Exodia USB 3.2",
+        "type": "product",
+        "categorySlug": "memorias-almacenamiento",
+        "whatsappClicks": 19,
+        "views": 155
+      },
+      {
+        "itemId": "prod-mouse-gamer-rgb",
+        "title": "Mouse Gamer Óptico RGB 3200 DPI",
+        "type": "product",
+        "categorySlug": "teclados-mouse",
+        "whatsappClicks": 15,
+        "views": 130
+      },
+      {
+        "itemId": "prod-cable-tipo-c-reforzado",
+        "title": "Cable USB-C de Carga Rápida Reforzado (2 Metros)",
+        "type": "product",
+        "categorySlug": "cables-carga",
+        "whatsappClicks": 12,
+        "views": 110
+      },
+      {
+        "itemId": "serv-mantenimiento-pc",
+        "title": "Mantenimiento y Reparación de Equipos",
+        "type": "service",
+        "categorySlug": "servicios-cyber",
+        "whatsappClicks": 10,
+        "views": 90
+      }
+    ],
+    "topSearches": [
+      {
+        "query": "impresiones",
+        "count": 48,
+        "resultsCount": 12,
+        "lastSearchedAt": "2026-11-18T18:00:00.000Z"
+      },
+      {
+        "query": "usb",
+        "count": 35,
+        "resultsCount": 6,
+        "lastSearchedAt": "2026-11-18T17:00:00.000Z"
+      },
+      {
+        "query": "curp",
+        "count": 28,
+        "resultsCount": 2,
+        "lastSearchedAt": "2026-11-18T16:00:00.000Z"
+      },
+      {
+        "query": "papel fotografico",
+        "count": 21,
+        "resultsCount": 0,
+        "lastSearchedAt": "2026-11-18T15:00:00.000Z"
+      },
+      {
+        "query": "audifonos",
+        "count": 19,
+        "resultsCount": 5,
+        "lastSearchedAt": "2026-11-18T14:00:00.000Z"
+      },
+      {
+        "query": "xbox",
+        "count": 16,
+        "resultsCount": 1,
+        "lastSearchedAt": "2026-11-18T13:00:00.000Z"
+      },
+      {
+        "query": "engargolado",
+        "count": 14,
+        "resultsCount": 2,
+        "lastSearchedAt": "2026-11-18T12:00:00.000Z"
+      },
+      {
+        "query": "mouse gamer",
+        "count": 11,
+        "resultsCount": 3,
+        "lastSearchedAt": "2026-11-18T11:00:00.000Z"
+      }
+    ],
+    "categoryInterest": [
+      {
+        "categorySlug": "servicios-cyber",
+        "label": "Servicios del Cyber",
+        "clicks": 56,
+        "percentage": 38
+      },
+      {
+        "categorySlug": "memorias-almacenamiento",
+        "label": "Memorias y Almacenamiento",
+        "clicks": 33,
+        "percentage": 22
+      },
+      {
+        "categorySlug": "cables-carga",
+        "label": "Cables y Carga",
+        "clicks": 24,
+        "percentage": 16
+      },
+      {
+        "categorySlug": "teclados-mouse",
+        "label": "Teclados y Mouse",
+        "clicks": 21,
+        "percentage": 14
+      },
+      {
+        "categorySlug": "papeleria",
+        "label": "Papelería y Oficina",
+        "clicks": 14,
+        "percentage": 10
+      }
+    ],
+    "ctaBreakdown": [
+      {
+        "location": "catalog_card",
+        "label": "Botón de Tarjeta en Catálogo",
+        "clicks": 65,
+        "percentage": 44
+      },
+      {
+        "location": "floating_button",
+        "label": "Botón Flotante de WhatsApp",
+        "clicks": 46,
+        "percentage": 31
+      },
+      {
+        "location": "hero",
+        "label": "Hero Banner Principal",
+        "clicks": 22,
+        "percentage": 15
+      },
+      {
+        "location": "item_detail",
+        "label": "Ficha de Detalle de Producto",
+        "clicks": 11,
+        "percentage": 7
+      },
+      {
+        "location": "navbar",
+        "label": "Barra Superior / Menú",
+        "clicks": 4,
+        "percentage": 3
+      }
+    ],
     "dailyActivity": [
       {
-        "date": "2026-11-13",
+        "date": "2026-11-12",
         "dayLabel": "Jue",
-        "whatsappClicks": 0,
-        "searches": 0,
-        "views": 0
+        "whatsappClicks": 18,
+        "searches": 28,
+        "views": 180
+      },
+      {
+        "date": "2026-11-13",
+        "dayLabel": "Vie",
+        "whatsappClicks": 29,
+        "searches": 45,
+        "views": 290
       },
       {
         "date": "2026-11-14",
-        "dayLabel": "Vie",
-        "whatsappClicks": 0,
-        "searches": 0,
-        "views": 0
+        "dayLabel": "Sáb",
+        "whatsappClicks": 19,
+        "searches": 32,
+        "views": 170
       },
       {
         "date": "2026-11-15",
-        "dayLabel": "Sáb",
-        "whatsappClicks": 0,
-        "searches": 0,
-        "views": 0
+        "dayLabel": "Dom",
+        "whatsappClicks": 15,
+        "searches": 22,
+        "views": 115
       },
       {
         "date": "2026-11-16",
-        "dayLabel": "Dom",
-        "whatsappClicks": 0,
-        "searches": 0,
-        "views": 0
+        "dayLabel": "Lun",
+        "whatsappClicks": 21,
+        "searches": 34,
+        "views": 220
       },
       {
         "date": "2026-11-17",
-        "dayLabel": "Lun",
-        "whatsappClicks": 0,
-        "searches": 0,
-        "views": 0
+        "dayLabel": "Mar",
+        "whatsappClicks": 24,
+        "searches": 39,
+        "views": 240
       },
       {
         "date": "2026-11-18",
-        "dayLabel": "Mar",
-        "whatsappClicks": 0,
-        "searches": 0,
-        "views": 0
-      },
-      {
-        "date": "2026-11-19",
         "dayLabel": "Hoy",
-        "whatsappClicks": 0,
-        "searches": 0,
-        "views": 1
+        "whatsappClicks": 22,
+        "searches": 34,
+        "views": 205
       }
     ],
-    "lastUpdated": "2026-11-19T01:56:40.769Z"
+    "lastUpdated": "2026-11-18T19:00:00.000Z"
   }
 }

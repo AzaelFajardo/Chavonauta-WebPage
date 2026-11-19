@@ -38,12 +38,18 @@ export interface ScheduleItem {
   hours: string;
 }
 
+export interface ComputerRates {
+  oneHour: number;
+  halfHour: number;
+}
+
 export interface BusinessInfo {
   name: string;
   slogan: string;
   branchName?: string;
   logoUrl?: string;
   logoWidth?: number;
+  computerRates?: ComputerRates;
   announcementText?: string;
   announcementEnabled?: boolean;
   whatsappNumber: string;

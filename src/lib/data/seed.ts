@@ -17,6 +17,10 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
     branchName: "Haciendas de Aguascalientes",
     logoUrl: "",
     logoWidth: 175,
+    computerRates: {
+      oneHour: 7,
+      halfHour: 4,
+    },
     announcementText:
       "Atención directa por WhatsApp al 449 402 2163 • Impresiones, trámites, soporte y renta de PC.",
     announcementEnabled: true,

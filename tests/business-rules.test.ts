@@ -116,4 +116,21 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
       expect(business.logoWidth).toBeLessThanOrEqual(300);
     }
   });
+
+  it("enforces rule 5: Computer rental rates configuration is valid and positive", async () => {
+    const theme = await repository.getThemeConfig();
+    const ratesSection = theme.sections.find((s) => s.type === "rates");
+
+    expect(ratesSection).toBeDefined();
+
+    const computerRates =
+      (ratesSection?.content?.computerRates as { oneHour?: number; halfHour?: number } | undefined) ||
+      theme.business.computerRates;
+
+    expect(computerRates).toBeDefined();
+    expect(computerRates?.oneHour).toBeGreaterThan(0);
+    expect(computerRates?.halfHour).toBeGreaterThan(0);
+    // La tarifa de 1 hora debe ser mayor que la de media hora
+    expect(computerRates!.oneHour).toBeGreaterThan(computerRates!.halfHour!);
+  });
 });

@@ -28,6 +28,9 @@ export function Navbar({ business, categories }: NavbarProps) {
   const [selectedCategory, setSelectedCategory] = useState("todas");
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  const oneHourRate = business.computerRates?.oneHour ?? 7;
+  const halfHourRate = business.computerRates?.halfHour ?? 4;
+
   const whatsappHref = `https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(
     `Hola ${business.name}, deseo consultar la disponibilidad de un producto o cotizar un servicio.`
   )}`;
@@ -181,7 +184,7 @@ export function Navbar({ business, categories }: NavbarProps) {
               className="hidden lg:flex flex-col leading-tight px-2.5 py-1.5 hover:bg-current/10 transition-all text-left"
             >
               <span className="text-[11px] opacity-75">Tarifas</span>
-              <span className="text-xs font-bold">Renta PC $7/hr</span>
+              <span className="text-xs font-bold">Renta PC ${oneHourRate}/hr</span>
             </Link>
 
             {/* Catálogo */}
@@ -265,7 +268,7 @@ export function Navbar({ business, categories }: NavbarProps) {
             style={{ borderRadius: "var(--radius)" }}
             className="px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 opacity-85 hover:opacity-100"
           >
-            Renta de PC ($7/hr)
+            Renta de PC (${oneHourRate}/hr)
           </Link>
           <Link
             href="/catalogo?categoria=teclados-y-mouse"
@@ -401,7 +404,7 @@ export function Navbar({ business, categories }: NavbarProps) {
                       onClick={() => setDrawerOpen(false)}
                       className="block py-2 px-2.5 rounded hover:bg-current/10 opacity-85 hover:opacity-100 transition-colors"
                     >
-                      Renta de PC ($7/hr • Media hr: $4)
+                      Renta de PC (${oneHourRate}/hr • Media hr: ${halfHourRate})
                     </Link>
                   </li>
                   <li>

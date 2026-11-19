@@ -66,7 +66,7 @@ export function Footer({ business, categories }: FooterProps) {
           <ul className="space-y-2 opacity-90">
             <li>
               <Link href="/#tarifas" className="hover:underline">
-                Renta de PC e Internet ($7/hr)
+                Renta de PC e Internet (${business.computerRates?.oneHour ?? 7}/hr)
               </Link>
             </li>
             <li>

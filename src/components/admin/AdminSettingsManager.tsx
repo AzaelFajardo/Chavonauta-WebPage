@@ -19,6 +19,7 @@ import {
   X,
   Loader2,
   RotateCcw,
+  Monitor,
 } from "lucide-react";
 import { BusinessInfo, ScheduleItem, ThemeConfig } from "@/types";
 import { ImageUploader } from "@/components/ui/ImageUploader";
@@ -101,6 +102,17 @@ export function AdminSettingsManager({
     setHasChanges(true);
   };
 
+  const handleRatesChange = (field: "oneHour" | "halfHour", value: number) => {
+    setBusiness((prev) => ({
+      ...prev,
+      computerRates: {
+        oneHour: field === "oneHour" ? value : prev.computerRates?.oneHour ?? 7,
+        halfHour: field === "halfHour" ? value : prev.computerRates?.halfHour ?? 4,
+      },
+    }));
+    setHasChanges(true);
+  };
+
   const handleDiscard = () => {
     setBusiness(initialTheme.business);
     setHasChanges(false);
@@ -112,9 +124,23 @@ export function AdminSettingsManager({
     setIsSaving(true);
 
     try {
+      const updatedSections = (initialTheme.sections || []).map((sec) => {
+        if (sec.type === "rates") {
+          return {
+            ...sec,
+            content: {
+              ...sec.content,
+              computerRates: business.computerRates || { oneHour: 7, halfHour: 4 },
+            },
+          };
+        }
+        return sec;
+      });
+
       const payload: ThemeConfig = {
         ...initialTheme,
         business,
+        sections: updatedSections,
       };
 
       const res = await fetch("/api/theme", {
@@ -561,6 +587,88 @@ export function AdminSettingsManager({
                 placeholder="https://tiktok.com/@..."
                 className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Bloque 5: Tarifas de Renta de Equipos */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
+              <Monitor className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-slate-900">
+                Tarifas de Renta de Equipos (Computadoras)
+              </h2>
+              <p className="text-[11px] text-slate-500">
+                Define el precio por hora y media hora. Se sincronizará automáticamente en la cabecera, pie de página y la sección de tarifas del escaparate.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1">
+                <span>Tarifa 1 Hora (MXN) *</span>
+              </label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                  $
+                </span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  value={business.computerRates?.oneHour ?? 7}
+                  onChange={(e) =>
+                    handleRatesChange("oneHour", parseFloat(e.target.value) || 0)
+                  }
+                  required
+                  className="w-full pl-7 pr-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
+                />
+              </div>
+              <span className="text-[10px] text-slate-400 mt-1 block">
+                Precio visible en la cabecera (ej. &quot;Renta PC $7/hr&quot;) y tarjetas principales.
+              </span>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1">
+                <span>Tarifa Media Hora / 30 min (MXN) *</span>
+              </label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                  $
+                </span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  value={business.computerRates?.halfHour ?? 4}
+                  onChange={(e) =>
+                    handleRatesChange("halfHour", parseFloat(e.target.value) || 0)
+                  }
+                  required
+                  className="w-full pl-7 pr-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
+                />
+              </div>
+              <span className="text-[10px] text-slate-400 mt-1 block">
+                Fracción estándar para usuarios con necesidades cortas (30 minutos).
+              </span>
+            </div>
+          </div>
+
+          {/* Previsualización en Vivo de Tarifas */}
+          <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <span className="text-slate-600 font-medium">Previsualización de Tarifas:</span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-bold text-blue-900 bg-blue-100/70 border border-blue-200 px-2.5 py-0.5 rounded-lg">
+                1 Hora: ${(business.computerRates?.oneHour ?? 7).toFixed(2)} MXN
+              </span>
+              <span className="font-bold text-slate-800 bg-slate-200/70 border border-slate-300 px-2.5 py-0.5 rounded-lg">
+                Media Hora: ${(business.computerRates?.halfHour ?? 4).toFixed(2)} MXN
+              </span>
             </div>
           </div>
         </div>

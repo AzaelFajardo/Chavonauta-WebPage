@@ -211,6 +211,72 @@ export function SortableSectionItem({
               className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-navy-600 text-slate-800 resize-none"
             />
           </div>
+
+          {/* Configuración específica para tarifas de renta de computadoras */}
+          {section.type === "rates" && (
+            <div className="pt-2.5 border-t border-slate-200/80 space-y-2">
+              <span className="block text-[11px] font-bold text-slate-800">
+                Tarifas de Renta de Equipos (MXN)
+              </span>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-1">
+                    Tarifa 1 Hora ($)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    value={
+                      (section.content?.computerRates as { oneHour?: number } | undefined)?.oneHour ?? 7
+                    }
+                    onChange={(e) => {
+                      const currentRates =
+                        (section.content?.computerRates as { oneHour?: number; halfHour?: number } | undefined) || {};
+                      onUpdateContent(section.id, {
+                        content: {
+                          ...section.content,
+                          computerRates: {
+                            ...currentRates,
+                            oneHour: parseFloat(e.target.value) || 0,
+                          },
+                        },
+                      });
+                    }}
+                    className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-1">
+                    Tarifa Media Hora ($)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    value={
+                      (section.content?.computerRates as { halfHour?: number } | undefined)?.halfHour ?? 4
+                    }
+                    onChange={(e) => {
+                      const currentRates =
+                        (section.content?.computerRates as { oneHour?: number; halfHour?: number } | undefined) || {};
+                      onUpdateContent(section.id, {
+                        content: {
+                          ...section.content,
+                          computerRates: {
+                            ...currentRates,
+                            halfHour: parseFloat(e.target.value) || 0,
+                          },
+                        },
+                      });
+                    }}
+                    className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

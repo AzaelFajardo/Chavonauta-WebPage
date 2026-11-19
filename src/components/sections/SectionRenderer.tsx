@@ -155,7 +155,10 @@ export function SectionRenderer({
                     Fibra óptica simétrica, paquetería Office e impresión directa desde tu estación de trabajo.
                   </p>
                   <div className="mt-2 text-sm font-bold" style={{ color: "var(--card-foreground)" }}>
-                    $7.00 / hr <span className="text-xs font-normal opacity-70">(Media hr: $4.00)</span>
+                    ${(business.computerRates?.oneHour ?? 7).toFixed(2)} / hr{" "}
+                    <span className="text-xs font-normal opacity-70">
+                      (Media hr: ${(business.computerRates?.halfHour ?? 4).toFixed(2)})
+                    </span>
                   </div>
                 </div>
                 <Link
@@ -703,6 +706,12 @@ export function SectionRenderer({
     // 4. TARIFAS DE RENTA DE COMPUTADORAS ($7/hr y $4/media hr)
     // ----------------------------------------------------
     case "rates": {
+      const computerRates =
+        (section.content?.computerRates as { oneHour?: number; halfHour?: number } | undefined) ||
+        business.computerRates || { oneHour: 7, halfHour: 4 };
+      const oneHourRate = computerRates.oneHour ?? 7;
+      const halfHourRate = computerRates.halfHour ?? 4;
+
       return (
         <section id="tarifas" className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
           <div
@@ -737,7 +746,9 @@ export function SectionRenderer({
               >
                 <span className="text-xs font-semibold opacity-70 uppercase">Tarifa 1 Hora</span>
                 <div className="mt-2 flex items-baseline gap-1">
-                  <span className="text-3xl font-black" style={{ color: "var(--card-foreground)" }}>$7.00</span>
+                  <span className="text-3xl font-black" style={{ color: "var(--card-foreground)" }}>
+                    ${oneHourRate.toFixed(2)}
+                  </span>
                   <span className="text-xs font-bold opacity-70">MXN / hora</span>
                 </div>
                 <ul className="mt-4 space-y-2 text-xs opacity-90">
@@ -766,7 +777,9 @@ export function SectionRenderer({
               >
                 <span className="text-xs font-semibold opacity-70 uppercase">Tarifa Media Hora</span>
                 <div className="mt-2 flex items-baseline gap-1">
-                  <span className="text-3xl font-black" style={{ color: "var(--card-foreground)" }}>$4.00</span>
+                  <span className="text-3xl font-black" style={{ color: "var(--card-foreground)" }}>
+                    ${halfHourRate.toFixed(2)}
+                  </span>
                   <span className="text-xs font-bold opacity-70">MXN / 30 minutos</span>
                 </div>
                 <ul className="mt-4 space-y-2 text-xs opacity-90">

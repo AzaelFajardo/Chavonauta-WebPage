@@ -4,9 +4,9 @@ Este documento recopila las propuestas de funcionalidades y pestañas para el pa
 
 ---
 
-## 💡 Ideas en Cartera (Backlog)
+## Ideas en Cartera (Backlog)
 
-### 📊 1. Pestaña: Estadísticas del Escaparate
+### 1. Pestaña: Estadísticas del Escaparate
 - **Propósito:** Métricas analíticas de interacción directa y demanda comercial para el dueño del negocio.
 - **Funcionalidades Clave:**
   - Contador de consultas a WhatsApp y desglose por servicio o producto.
@@ -15,14 +15,14 @@ Este documento recopila las propuestas de funcionalidades y pestañas para el pa
   - Clics a ubicación de Google Maps ("Cómo llegar").
   - Exportación de reporte a archivo CSV y reinicio de métricas por periodo.
 
-### 🏷️ 2. Pestaña: Promociones & Banners Temporales
+### 2. Pestaña: Promociones & Banners Temporales
 - **Propósito:** Gestión dinámica de ofertas temporales sin tocar código.
 - **Funcionalidades Clave:**
   - Creación de avisos con vigencia o temporizador (ej. *"Paquete Estudiante: 50 copias + 1 hr de internet"* o *"Viernes de retas en consolas"*).
   - Avisos especiales de horarios en días festivos (ej. *"Hoy abrimos de 10:00 a 16:00"*).
   - Activación/desactivación en 1 clic de banners destacados en el escaparate.
 
-### 📄 3. Pestaña: Tarifario Exprés de Servicios Rápidos
+### 3. Pestaña: Tarifario Exprés de Servicios Rápidos
 - **Propósito:** Actualización veloz de micro-servicios cuyos precios fluctúan con frecuencia.
 - **Funcionalidades Clave:**
   - Tabla compacta tipo hoja de cálculo para editar en segundos:
@@ -32,7 +32,7 @@ Este documento recopila las propuestas de funcionalidades y pestañas para el pa
     - Trámites oficiales en línea (CURP, RFC, actas de nacimiento).
   - Evita tener que abrir el formulario completo de cada producto en el catálogo.
 
-### 💬 4. Pestaña: Preguntas Frecuentes (FAQ)
+### 4. Pestaña: Preguntas Frecuentes (FAQ)
 - **Propósito:** Resolver dudas recurrentes antes de que los clientes pregunten por WhatsApp o acudan a mostrador.
 - **Funcionalidades Clave:**
   - CRUD simple de preguntas y respuestas desplegables (acordeón).
@@ -42,14 +42,14 @@ Este documento recopila las propuestas de funcionalidades y pestañas para el pa
     - *¿Cuáles son los requisitos para rentar una consola?*
     - *¿Cuentan con paquetería de Office y software especializado?*
 
-### ⭐ 5. Pestaña: Reseñas y Testimonios
+### 5. Pestaña: Reseñas y Testimonios
 - **Propósito:** Prueba social (*social proof*) para generar confianza inmediata en nuevos visitantes.
 - **Funcionalidades Clave:**
   - Agregar comentarios de clientes reales (estudiantes, gamers, usuarios de trámites).
   - Calificación en estrellas (1-5) y mención de servicio utilizado.
   - Activación o moderación para mostrarse en una sección destacada del escaparate.
 
-### 💾 6. Pestaña / Herramienta: Respaldo y Datos (Backup JSON)
+### 6. Pestaña / Herramienta: Respaldo y Datos (Backup JSON)
 - **Propósito:** Seguridad y autogestión sin soporte técnico.
 - **Funcionalidades Clave:**
   - Botón *"Descargar Copia de Seguridad"* en un archivo JSON descargable en 1 clic.

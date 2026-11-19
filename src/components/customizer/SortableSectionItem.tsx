@@ -267,20 +267,20 @@ export function SortableSectionItem({
                         }
                         className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-900 cursor-pointer shadow-2xs"
                       >
-                        <option value="auto">✨ Automático (Según el tema activo)</option>
-                        <option value="christmas">🎄 Navidad (Árboles de navidad, Copos, Regalos, Campanas)</option>
-                        <option value="halloween">🎃 Halloween (Calabazas, Fantasmas, Murciélagos, Calaveras)</option>
-                        <option value="space">🚀 Espacial & Chavonauta (Cohetes, Planetas, Satélites, Estrellas)</option>
-                        <option value="tech">💻 Cómputo & Tech (Laptops, Chips, Wi-Fi, Monitores, Rayos)</option>
-                        <option value="gaming">🎮 Gaming & Arcade (Mandos, Joysticks, Trofeos, Cartuchos)</option>
-                        <option value="romance">💖 Romance & Amor (Corazones, Rosas, Cartas)</option>
-                        <option value="autumn">🍂 Otoño (Hojas secas, Bellotas, Viento)</option>
-                        <option value="spring">🌸 Primavera (Flores, Mariposas, Brotes)</option>
-                        <option value="winter">❄️ Invierno & Hielo (Copos de nieve cristalinos)</option>
-                        <option value="ocean">🌊 Océano & Gotas (Olas, Gotas, Anclas)</option>
-                        <option value="coffee">☕ Café & Relax (Tazas de café, Granos, Tetera)</option>
-                        <option value="sparkles">✨ Destellos Minimalistas (Estrellas de 4 y 8 puntas)</option>
-                        <option value="patrio">🇲🇽 Fiestas Patrias (Sombreros, Campanas, Destellos)</option>
+                        <option value="auto">Automático (Según el tema activo)</option>
+                        <option value="space">Espacial & Chavonauta (Cohetes, Planetas, Satélites, Estrellas)</option>
+                        <option value="tech">Cómputo & Tech (Laptops, Chips, Wi-Fi, Monitores, Rayos)</option>
+                        <option value="gaming">Gaming & Arcade (Mandos, Joysticks, Trofeos, Cartuchos)</option>
+                        <option value="christmas">Navidad (Árboles de navidad, Copos, Regalos, Campanas)</option>
+                        <option value="halloween">Halloween (Calabazas, Fantasmas, Murciélagos, Calaveras)</option>
+                        <option value="ocean">Océano & Gotas (Olas, Gotas, Anclas)</option>
+                        <option value="sparkles">Destellos Minimalistas (Estrellas de 4 y 8 puntas)</option>
+                        <option value="winter">Invierno & Hielo (Copos de nieve cristalinos)</option>
+                        <option value="autumn">Otoño (Hojas secas, Bellotas, Viento)</option>
+                        <option value="spring">Primavera (Flores, Mariposas, Brotes)</option>
+                        <option value="coffee">Café & Relax (Tazas de café, Granos, Tetera)</option>
+                        <option value="romance">Romance & Amor (Corazones, Rosas, Cartas)</option>
+                        <option value="patrio">Fiestas Patrias (Sombreros, Campanas, Destellos)</option>
                       </select>
                     </div>
 

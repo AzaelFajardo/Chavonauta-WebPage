@@ -112,7 +112,7 @@ function initializeSchema(db: Database.Database): void {
 }
 
 /**
- * Migra datos iniciales desde local-db.json si existe o desde seed.ts si la BD está vacía.
+ * Inicializa datos semilla si la BD está vacía.
  */
 function seedIfEmpty(db: Database.Database): void {
   const countTheme = db
@@ -123,25 +123,9 @@ function seedIfEmpty(db: Database.Database): void {
     return; // Ya contiene datos
   }
 
-  let themeToSeed = DEFAULT_THEME_CONFIG;
-  let categoriesToSeed = SEED_CATEGORIES;
-  let itemsToSeed = SEED_CATALOG_ITEMS;
-
-  // Si existe src/lib/data/local-db.json, migrarlo de inmediato a SQLite
-  const localJsonPath = path.join(process.cwd(), "src", "lib", "data", "local-db.json");
-  if (fs.existsSync(localJsonPath)) {
-    try {
-      const content = fs.readFileSync(localJsonPath, "utf-8");
-      const parsed = JSON.parse(content);
-      if (parsed.theme && Array.isArray(parsed.categories) && Array.isArray(parsed.items)) {
-        themeToSeed = parsed.theme;
-        categoriesToSeed = parsed.categories;
-        itemsToSeed = parsed.items;
-      }
-    } catch (err) {
-      console.warn("No se pudo leer local-db.json para migración a SQLite, usando seed:", err);
-    }
-  }
+  const themeToSeed = DEFAULT_THEME_CONFIG;
+  const categoriesToSeed = SEED_CATEGORIES;
+  const itemsToSeed = SEED_CATALOG_ITEMS;
 
   const insertTransaction = db.transaction(() => {
     // 1. Guardar tema

@@ -13,6 +13,11 @@ import {
   sqliteBulkUpdateCatalogItems,
   sqliteToggleCatalogItemActive,
   sqliteToggleCatalogItemFeatured,
+  sqliteGetAdminWhitelist,
+  sqliteAddAdminWhitelistEmail,
+  sqliteRemoveAdminWhitelistEmail,
+  sqliteIsEmailInWhitelist,
+  sqliteSetAdminPassword,
 } from "./sqlite-db";
 
 export interface StorefrontRepository {
@@ -29,6 +34,11 @@ export interface StorefrontRepository {
   bulkUpdateCatalogItems(ids: string[], updates: Partial<CatalogItem>): Promise<number>;
   toggleCatalogItemActive(id: string): Promise<CatalogItem | undefined>;
   toggleCatalogItemFeatured(id: string): Promise<CatalogItem | undefined>;
+  getAdminWhitelist(): Promise<string[]>;
+  addAdminWhitelistEmail(email: string, addedBy?: string): Promise<boolean>;
+  removeAdminWhitelistEmail(email: string): Promise<boolean>;
+  isEmailInWhitelist(email: string): Promise<boolean>;
+  changeAdminPassword(newPassword: string): Promise<void>;
 }
 
 export const repository: StorefrontRepository = {
@@ -85,5 +95,25 @@ export const repository: StorefrontRepository = {
 
   toggleCatalogItemFeatured(id: string): Promise<CatalogItem | undefined> {
     return sqliteToggleCatalogItemFeatured(id);
+  },
+
+  getAdminWhitelist(): Promise<string[]> {
+    return sqliteGetAdminWhitelist();
+  },
+
+  addAdminWhitelistEmail(email: string, addedBy?: string): Promise<boolean> {
+    return sqliteAddAdminWhitelistEmail(email, addedBy);
+  },
+
+  removeAdminWhitelistEmail(email: string): Promise<boolean> {
+    return sqliteRemoveAdminWhitelistEmail(email);
+  },
+
+  isEmailInWhitelist(email: string): Promise<boolean> {
+    return sqliteIsEmailInWhitelist(email);
+  },
+
+  changeAdminPassword(newPassword: string): Promise<void> {
+    return sqliteSetAdminPassword(newPassword);
   },
 };

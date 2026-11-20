@@ -12,6 +12,7 @@ import {
   X,
   Store,
   ChevronRight,
+  LogOut,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -71,6 +72,15 @@ export function AdminNav() {
   const handleItemClick = () => {
     setIsHovered(false);
     setMobileMenuOpen(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // Ignorar
+    }
+    window.location.href = "/admin/login";
   };
 
   return (
@@ -231,8 +241,8 @@ export function AdminNav() {
           })}
         </div>
 
-        {/* Footer del Sidebar con enlace a la tienda */}
-        <div className="p-4 border-t border-navy-900 bg-navy-950/95">
+        {/* Footer del Sidebar con enlace a la tienda y cierre de sesión */}
+        <div className="p-4 border-t border-navy-900 bg-navy-950/95 space-y-2">
           <Link
             href="/"
             target="_blank"
@@ -245,6 +255,18 @@ export function AdminNav() {
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
           </Link>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl bg-red-950/20 hover:bg-red-900/30 text-red-300 hover:text-red-200 border border-red-900/40 hover:border-red-800/60 transition-colors text-xs font-bold cursor-pointer"
+            title="Cerrar sesión actual de administrador"
+          >
+            <div className="flex items-center gap-2">
+              <LogOut className="w-4 h-4 text-red-400" />
+              <span className="tracking-wider uppercase">Cerrar Sesión</span>
+            </div>
+          </button>
         </div>
       </aside>
     </>

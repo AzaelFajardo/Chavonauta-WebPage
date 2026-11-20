@@ -4,6 +4,7 @@ import fs from "fs";
 import { CatalogItem, Category, ThemeConfig } from "@/types";
 import { DEFAULT_THEME_CONFIG, SEED_CATALOG_ITEMS, SEED_CATEGORIES } from "./seed";
 import { isLocalUpload, safeDeleteUploadedFile } from "./upload-cleanup";
+import { hashPassword } from "@/lib/auth/security";
 
 let dbInstance: Database.Database | null = null;
 
@@ -57,6 +58,7 @@ export function getDatabase(): Database.Database {
 
   initializeSchema(db);
   seedIfEmpty(db);
+  seedSecurityIfEmpty(db);
 
   dbInstance = db;
   return dbInstance;
@@ -108,6 +110,27 @@ function initializeSchema(db: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_items_active ON catalog_items(active);
     CREATE INDEX IF NOT EXISTS idx_items_featured ON catalog_items(featured);
     CREATE INDEX IF NOT EXISTS idx_categories_order ON categories(order_index);
+
+    CREATE TABLE IF NOT EXISTS admin_whitelist (
+      id TEXT PRIMARY KEY,
+      email TEXT UNIQUE NOT NULL,
+      created_at TEXT NOT NULL,
+      added_by TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS admin_auth (
+      id TEXT PRIMARY KEY,
+      password_hash TEXT NOT NULL,
+      salt TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS login_rate_limits (
+      ip TEXT PRIMARY KEY,
+      attempts INTEGER NOT NULL,
+      last_attempt INTEGER NOT NULL,
+      locked_until INTEGER NOT NULL
+    );
   `);
 }
 
@@ -178,6 +201,24 @@ function seedIfEmpty(db: Database.Database): void {
   });
 
   insertTransaction();
+}
+
+/**
+ * Inicializa la whitelist y credenciales de autenticación si están vacías.
+ */
+function seedSecurityIfEmpty(db: Database.Database): void {
+  // 1. Whitelist inicial
+  const initialEmail = "ciberchavonauta@gmail.com";
+  db.prepare(
+    "INSERT OR IGNORE INTO admin_whitelist (id, email, created_at, added_by) VALUES ('wl-initial', ?, ?, 'sistema')"
+  ).run(initialEmail, new Date().toISOString());
+
+  // 2. Contraseña maestra inicial
+  const initialPassword = process.env.ADMIN_INITIAL_PASSWORD || "Chavonauta2026!";
+  const { hash, salt } = hashPassword(initialPassword);
+  db.prepare(
+    "INSERT OR IGNORE INTO admin_auth (id, password_hash, salt, updated_at) VALUES ('master', ?, ?, ?)"
+  ).run(hash, salt, new Date().toISOString());
 }
 
 /**
@@ -563,3 +604,153 @@ export async function sqliteToggleCatalogItemFeatured(
     featured: newFeatured,
   };
 }
+
+// -------------------------------------------------------------
+// OPERACIONES DE SEGURIDAD, WHITELIST Y CONTROL DE ACCESO
+// -------------------------------------------------------------
+
+export async function sqliteGetAdminWhitelist(): Promise<string[]> {
+  const db = getDatabase();
+  const rows = db
+    .prepare("SELECT email FROM admin_whitelist ORDER BY created_at ASC")
+    .all() as { email: string }[];
+  return rows.map((r) => r.email.toLowerCase().trim());
+}
+
+export async function sqliteAddAdminWhitelistEmail(
+  email: string,
+  addedBy: string = "admin"
+): Promise<boolean> {
+  const db = getDatabase();
+  const cleanEmail = email.toLowerCase().trim();
+  if (!cleanEmail || !cleanEmail.includes("@")) return false;
+
+  try {
+    const stmt = db.prepare(
+      "INSERT OR IGNORE INTO admin_whitelist (id, email, created_at, added_by) VALUES (?, ?, ?, ?)"
+    );
+    const id = `wl-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const info = stmt.run(id, cleanEmail, new Date().toISOString(), addedBy);
+    return info.changes > 0;
+  } catch {
+    return false;
+  }
+}
+
+export async function sqliteRemoveAdminWhitelistEmail(email: string): Promise<boolean> {
+  const db = getDatabase();
+  const cleanEmail = email.toLowerCase().trim();
+  const info = db
+    .prepare("DELETE FROM admin_whitelist WHERE LOWER(email) = ?")
+    .run(cleanEmail);
+  return info.changes > 0;
+}
+
+export async function sqliteIsEmailInWhitelist(email: string): Promise<boolean> {
+  const db = getDatabase();
+  const cleanEmail = email.toLowerCase().trim();
+  const row = db
+    .prepare("SELECT 1 FROM admin_whitelist WHERE LOWER(email) = ? LIMIT 1")
+    .get(cleanEmail);
+  return Boolean(row);
+}
+
+export async function sqliteGetAdminPasswordCredentials(): Promise<{
+  hash: string;
+  salt: string;
+} | null> {
+  const db = getDatabase();
+  const row = db
+    .prepare("SELECT password_hash, salt FROM admin_auth WHERE id = 'master' LIMIT 1")
+    .get() as { password_hash: string; salt: string } | undefined;
+
+  if (!row) return null;
+  return { hash: row.password_hash, salt: row.salt };
+}
+
+export async function sqliteSetAdminPassword(newPassword: string): Promise<void> {
+  const db = getDatabase();
+  const { hash, salt } = hashPassword(newPassword);
+  db.prepare(
+    "INSERT OR REPLACE INTO admin_auth (id, password_hash, salt, updated_at) VALUES ('master', ?, ?, ?)"
+  ).run(hash, salt, new Date().toISOString());
+}
+
+export async function sqliteCheckLoginRateLimit(
+  ip: string
+): Promise<{ locked: boolean; lockedUntil?: number }> {
+  const db = getDatabase();
+  const now = Math.floor(Date.now() / 1000);
+  const row = db
+    .prepare(
+      "SELECT attempts, last_attempt, locked_until FROM login_rate_limits WHERE ip = ?"
+    )
+    .get(ip) as
+    | { attempts: number; last_attempt: number; locked_until: number }
+    | undefined;
+
+  if (!row) return { locked: false };
+
+  if (row.locked_until > now) {
+    return { locked: true, lockedUntil: row.locked_until };
+  }
+
+  return { locked: false };
+}
+
+export async function sqliteRecordFailedLoginAttempt(
+  ip: string
+): Promise<{ locked: boolean; remainingAttempts: number; lockedUntil?: number }> {
+  const db = getDatabase();
+  const now = Math.floor(Date.now() / 1000);
+  const WINDOW_SECONDS = 15 * 60; // 15 minutos
+  const MAX_ATTEMPTS = 5;
+  const LOCKOUT_SECONDS = 15 * 60; // 15 minutos de bloqueo
+
+  const row = db
+    .prepare(
+      "SELECT attempts, last_attempt, locked_until FROM login_rate_limits WHERE ip = ?"
+    )
+    .get(ip) as
+    | { attempts: number; last_attempt: number; locked_until: number }
+    | undefined;
+
+  let newAttempts = 1;
+  let lockedUntil = 0;
+
+  if (row) {
+    if (now - row.last_attempt > WINDOW_SECONDS) {
+      newAttempts = 1;
+    } else {
+      newAttempts = row.attempts + 1;
+    }
+  }
+
+  if (newAttempts >= MAX_ATTEMPTS) {
+    lockedUntil = now + LOCKOUT_SECONDS;
+    db.prepare(
+      "INSERT OR REPLACE INTO login_rate_limits (ip, attempts, last_attempt, locked_until) VALUES (?, ?, ?, ?)"
+    ).run(ip, newAttempts, now, lockedUntil);
+
+    return {
+      locked: true,
+      remainingAttempts: 0,
+      lockedUntil,
+    };
+  }
+
+  db.prepare(
+    "INSERT OR REPLACE INTO login_rate_limits (ip, attempts, last_attempt, locked_until) VALUES (?, ?, ?, 0)"
+  ).run(ip, newAttempts, now);
+
+  return {
+    locked: false,
+    remainingAttempts: MAX_ATTEMPTS - newAttempts,
+  };
+}
+
+export async function sqliteResetFailedLoginAttempts(ip: string): Promise<void> {
+  const db = getDatabase();
+  db.prepare("DELETE FROM login_rate_limits WHERE ip = ?").run(ip);
+}
+

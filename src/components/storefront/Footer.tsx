@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MessageCircle, Mail, Clock } from "lucide-react";
+import { MessageCircle, Mail, Clock, Lock } from "lucide-react";
 import { BusinessInfo, Category } from "@/types";
 
 interface FooterProps {
@@ -241,12 +241,14 @@ export function Footer({ business, categories }: FooterProps) {
             © {new Date().getFullYear()}, {business.name}. Catálogo digital y plataforma informativa. Precios y disponibilidad en mostrador.
           </div>
 
-          <div className="pt-2">
+          <div className="pt-2 flex items-center justify-center">
             <Link
               href="/admin"
-              className="text-[11px] opacity-60 hover:opacity-100 transition-opacity"
+              className="p-1.5 rounded-lg opacity-20 hover:opacity-80 transition-all text-current"
+              title="Panel Administrativo"
+              aria-label="Acceso privado de administración"
             >
-              Acceso a Administración
+              <Lock className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>

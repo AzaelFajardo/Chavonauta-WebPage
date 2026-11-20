@@ -6,6 +6,9 @@ import { promises as fsp } from "fs";
  * Directorio absoluto donde se guardan las imágenes subidas en el servidor.
  */
 export function getUploadsDirectory(): string {
+  if (process.env.UPLOADS_DIR) {
+    return path.resolve(process.env.UPLOADS_DIR);
+  }
   return path.resolve(process.cwd(), "public", "uploads");
 }
 

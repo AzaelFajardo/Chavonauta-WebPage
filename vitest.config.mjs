@@ -7,5 +7,11 @@ export default defineConfig({
     globals: true,
     environment: "node",
     include: ["tests/**/*.test.ts", "tests/**/*.spec.ts"],
+    setupFiles: ["tests/setup-env.ts"],
+    env: {
+      NODE_ENV: "test",
+      ADMIN_JWT_SECRET: "vitest-only-session-secret-with-32-plus-characters",
+      ADMIN_INITIAL_PASSWORD: "VitestOnlyAdminPassword2026!",
+    },
   },
 });

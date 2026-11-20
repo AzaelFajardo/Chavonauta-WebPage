@@ -8,7 +8,8 @@
     "start": "next start -H 127.0.0.1 -p 49152",
     "lint": "next lint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "backup": "node scripts/backup.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

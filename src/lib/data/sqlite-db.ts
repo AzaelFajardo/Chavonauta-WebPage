@@ -135,15 +135,28 @@ function initializeSchema(db: Database.Database): void {
     );
   `);
 
-  // Compatibilidad con bases existentes creadas antes del versionado de sesiones.
-  const adminAuthColumns = db
-    .prepare("PRAGMA table_info(admin_auth)")
-    .all() as { name: string }[];
+  runMigrations(db);
+}
 
-  if (!adminAuthColumns.some((column) => column.name === "session_version")) {
-    db.exec(
-      "ALTER TABLE admin_auth ADD COLUMN session_version INTEGER NOT NULL DEFAULT 0"
-    );
+/**
+ * Aplica migraciones incrementales usando PRAGMA user_version.
+ * Cada migración debe ser idempotente y añadirse al final de la lista.
+ */
+function runMigrations(db: Database.Database): void {
+  const currentVersion = Number(db.pragma("user_version", { simple: true }) ?? 0);
+
+  if (currentVersion < 1) {
+    const adminAuthColumns = db
+      .prepare("PRAGMA table_info(admin_auth)")
+      .all() as { name: string }[];
+
+    if (!adminAuthColumns.some((column) => column.name === "session_version")) {
+      db.exec(
+        "ALTER TABLE admin_auth ADD COLUMN session_version INTEGER NOT NULL DEFAULT 0"
+      );
+    }
+
+    db.pragma("user_version = 1");
   }
 }
 

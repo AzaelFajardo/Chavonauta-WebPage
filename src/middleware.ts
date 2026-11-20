@@ -4,15 +4,9 @@ import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth/token";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Permitir la página de inicio de sesión sin autenticación
+  // Permitir siempre la página de inicio de sesión. La validación de sesión
+  // contra la base de datos se hace en las páginas y APIs del panel.
   if (pathname === "/admin/login") {
-    const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-    if (sessionCookie) {
-      const session = await verifySessionToken(sessionCookie);
-      if (session) {
-        return NextResponse.redirect(new URL("/admin/catalogo", request.url));
-      }
-    }
     return NextResponse.next();
   }
 

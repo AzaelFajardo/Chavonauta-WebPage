@@ -1,5 +1,6 @@
 import React from "react";
 import { repository } from "@/lib/data/repository";
+import { requireAdminPage } from "@/lib/auth/require-admin-page";
 import { CustomizerClientWrapper } from "@/components/customizer/CustomizerClientWrapper";
 
 export const dynamic = "force-dynamic";
@@ -11,6 +12,8 @@ export const metadata = {
 };
 
 export default async function AdminCustomizerPage() {
+  await requireAdminPage("/admin/personalizador");
+
   const [theme, items, categories] = await Promise.all([
     repository.getThemeConfig(),
     repository.getCatalogItems({ includeInactive: false }),

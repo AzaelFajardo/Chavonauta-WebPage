@@ -3,6 +3,11 @@ import { NextRequest } from "next/server";
 import { GET as getTheme, POST as postTheme } from "@/app/api/theme/route";
 import { GET as getCatalog } from "@/app/api/catalog/route";
 import { POST as postUpload } from "@/app/api/upload/route";
+import { createSessionToken } from "@/lib/auth/security";
+
+async function adminCookie(): Promise<string> {
+  return `chavonauta_session=${await createSessionToken("test-admin@chavonauta.com")}`;
+}
 
 describe("API Routes - Automated Tests", () => {
   it("GET /api/theme returns 200 with valid theme configuration", async () => {
@@ -20,6 +25,10 @@ describe("API Routes - Automated Tests", () => {
     // Payload vacío o incompleto
     const invalidReq = new NextRequest("http://localhost:3000/api/theme", {
       method: "POST",
+      headers: {
+        "content-type": "application/json",
+        cookie: await adminCookie(),
+      },
       body: JSON.stringify({ invalid: true }),
     });
 
@@ -78,6 +87,7 @@ describe("API Routes - Automated Tests", () => {
     const emptyFormData = new FormData();
     const req = new NextRequest("http://localhost:3000/api/upload", {
       method: "POST",
+      headers: { cookie: await adminCookie() },
       body: emptyFormData,
     });
 

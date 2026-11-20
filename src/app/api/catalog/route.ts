@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { repository } from "@/lib/data/repository";
+import { requireAdminSession } from "@/lib/auth/require-session";
 import { CatalogItem } from "@/types";
 
 export async function GET(request: NextRequest) {
@@ -41,6 +42,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const auth = await requireAdminSession(request);
+  if (!auth.session) return auth.response;
+
   try {
     const body = (await request.json()) as Partial<CatalogItem>;
 
@@ -98,6 +102,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const auth = await requireAdminSession(request);
+  if (!auth.session) return auth.response;
+
   try {
     const { searchParams } = new URL(request.url);
     let id = searchParams.get("id");
@@ -138,6 +145,9 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const auth = await requireAdminSession(request);
+  if (!auth.session) return auth.response;
+
   try {
     const body = await request.json();
     const { id, ids, action } = body;

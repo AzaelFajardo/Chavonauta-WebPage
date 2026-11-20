@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { repository } from "@/lib/data/repository";
+import { requireAdminSession } from "@/lib/auth/require-session";
 import { ThemeConfig } from "@/types";
 
 export async function GET() {
@@ -16,6 +17,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const auth = await requireAdminSession(request);
+  if (!auth.session) return auth.response;
+
   try {
     const body = (await request.json()) as ThemeConfig;
 

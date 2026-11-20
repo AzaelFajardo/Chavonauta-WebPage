@@ -13,6 +13,7 @@ import { isImageUrlInUse } from "@/lib/data/sqlite-db";
 import { CatalogItem } from "@/types";
 import { NextRequest } from "next/server";
 import { DELETE as deleteUploadApi } from "@/app/api/upload/route";
+import { createSessionToken } from "@/lib/auth/security";
 
 describe("Upload Cleanup & Image Lifecycle Management", () => {
   const uploadsDir = getUploadsDirectory();
@@ -183,8 +184,10 @@ describe("Upload Cleanup & Image Lifecycle Management", () => {
 
     expect(fs.existsSync(apiTestFile)).toBe(true);
 
+    const token = await createSessionToken("test-admin@chavonauta.com");
     const req = new NextRequest(`http://localhost:3000/api/upload?url=${encodeURIComponent(apiDeleteUrl)}`, {
       method: "DELETE",
+      headers: { cookie: `chavonauta_session=${token}` },
     });
 
     const res = await deleteUploadApi(req);
@@ -198,8 +201,17 @@ describe("Upload Cleanup & Image Lifecycle Management", () => {
     // Petición con URL no local o inválida
     const invalidReq = new NextRequest("http://localhost:3000/api/upload?url=https://external.com/pic.png", {
       method: "DELETE",
+      headers: { cookie: `chavonauta_session=${token}` },
     });
     const invalidRes = await deleteUploadApi(invalidReq);
     expect(invalidRes.status).toBe(400);
+
+    // Petición sin sesión
+    const unauthenticatedReq = new NextRequest(
+      "http://localhost:3000/api/upload?url=%2Fuploads%2Ftest.png",
+      { method: "DELETE" }
+    );
+    const unauthenticatedRes = await deleteUploadApi(unauthenticatedReq);
+    expect(unauthenticatedRes.status).toBe(401);
   });
 });

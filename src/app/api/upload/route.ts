@@ -5,6 +5,8 @@ import {
   isLocalUpload,
   safeDeleteUploadedFile,
 } from "@/lib/data/upload-cleanup";
+import { isImageUrlInUse } from "@/lib/data/sqlite-db";
+import { requireAdminSession } from "@/lib/auth/require-session";
 
 // Formatos de imagen soportados ampliamente
 const ALLOWED_MIME_TYPES = [
@@ -22,6 +24,9 @@ const ALLOWED_MIME_TYPES = [
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export async function POST(request: NextRequest) {
+  const auth = await requireAdminSession(request);
+  if (!auth.session) return auth.response;
+
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
@@ -106,6 +111,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const auth = await requireAdminSession(request);
+  if (!auth.session) return auth.response;
+
   try {
     const { searchParams } = new URL(request.url);
     let url = searchParams.get("url");
@@ -123,6 +131,13 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json(
         { error: "Se requiere una URL válida de archivo local en /uploads/" },
         { status: 400 }
+      );
+    }
+
+    if (await isImageUrlInUse(url)) {
+      return NextResponse.json(
+        { error: "La imagen está en uso y no puede eliminarse." },
+        { status: 409 }
       );
     }
 

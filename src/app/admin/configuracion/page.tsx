@@ -1,5 +1,6 @@
 import React from "react";
 import { repository } from "@/lib/data/repository";
+import { requireAdminPage } from "@/lib/auth/require-admin-page";
 import { AdminSettingsManager } from "@/components/admin/AdminSettingsManager";
 
 export const dynamic = "force-dynamic";
@@ -11,6 +12,8 @@ export const metadata = {
 };
 
 export default async function AdminSettingsPage() {
+  await requireAdminPage("/admin/configuracion");
+
   const theme = await repository.getThemeConfig();
 
   return <AdminSettingsManager initialTheme={theme} />;

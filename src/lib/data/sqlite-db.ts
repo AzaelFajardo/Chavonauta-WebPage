@@ -341,6 +341,15 @@ function rowToCategory(row: any): Category {
   };
 }
 
+function containsExactUrl(value: unknown, target: string): boolean {
+  if (typeof value === "string") return value === target;
+  if (Array.isArray(value)) return value.some((item) => containsExactUrl(item, target));
+  if (value && typeof value === "object") {
+    return Object.values(value).some((item) => containsExactUrl(item, target));
+  }
+  return false;
+}
+
 /**
  * Verifica si una URL de imagen sigue en uso en el catálogo o tema.
  */
@@ -364,11 +373,16 @@ export function isImageUrlInUse(imageUrl: string, excludeItemId?: string): boole
     .prepare("SELECT data FROM theme_config WHERE id = 'default-theme' LIMIT 1")
     .get() as { data: string } | undefined;
 
-  if (themeRow?.data && themeRow.data.includes(imageUrl)) {
-    return true;
+  if (!themeRow?.data) {
+    return false;
   }
 
-  return false;
+  try {
+    return containsExactUrl(JSON.parse(themeRow.data), imageUrl);
+  } catch {
+    // Si el tema no se puede interpretar, es más seguro no borrar el archivo.
+    return true;
+  }
 }
 
 // -------------------------------------------------------------

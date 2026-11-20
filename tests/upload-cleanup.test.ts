@@ -104,6 +104,24 @@ describe("Upload Cleanup & Image Lifecycle Management", () => {
     await repository.deleteCatalogItem(dummyItem.id);
   });
 
+  it("matches theme image URLs exactly instead of by substring", async () => {
+    const originalTheme = await repository.getThemeConfig();
+    const themeLogoUrl = `/uploads/theme-logo-${Date.now()}.png`;
+
+    await repository.saveThemeConfig({
+      ...originalTheme,
+      business: {
+        ...originalTheme.business,
+        logoUrl: themeLogoUrl,
+      },
+    });
+
+    expect(isImageUrlInUse(themeLogoUrl)).toBe(true);
+    expect(isImageUrlInUse(themeLogoUrl.replace(/\.png$/, ""))).toBe(false);
+
+    await repository.saveThemeConfig(originalTheme);
+  });
+
   it("automatically deletes the old local image when a catalog item's image is updated", async () => {
     const updateTestFileOld = path.join(uploadsDir, `test-old-${Date.now()}.png`);
     const updateTestFileNew = path.join(uploadsDir, `test-new-${Date.now()}.png`);

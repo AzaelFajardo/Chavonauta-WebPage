@@ -1,33 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
+import crypto from "crypto";
 import {
+  getUploadsDirectory,
   isLocalUpload,
   safeDeleteUploadedFile,
 } from "@/lib/data/upload-cleanup";
+import { detectImageType } from "@/lib/data/image-validation";
 import { isImageUrlInUse } from "@/lib/data/sqlite-db";
 import { requireAdminSession } from "@/lib/auth/require-session";
 
-// Formatos de imagen soportados ampliamente
-const ALLOWED_MIME_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/svg+xml",
-  "image/gif",
-  "image/avif",
-  "image/bmp",
-  "image/x-icon",
-  "image/vnd.microsoft.icon",
-];
-
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_REQUEST_SIZE = MAX_FILE_SIZE + 1024 * 1024; // margen para multipart
+const DEFAULT_MAX_UPLOADS_BYTES = 1024 * 1024 * 1024; // 1 GB
+
+function getMaxUploadsBytes(): number {
+  const configured = Number(process.env.UPLOADS_MAX_BYTES);
+  return Number.isFinite(configured) && configured > 0
+    ? configured
+    : DEFAULT_MAX_UPLOADS_BYTES;
+}
+
+async function getDirectorySize(directory: string): Promise<number> {
+  try {
+    const entries = await fs.readdir(directory, { withFileTypes: true });
+    let total = 0;
+
+    for (const entry of entries) {
+      if (!entry.isFile()) continue;
+      const stats = await fs.stat(path.join(directory, entry.name));
+      total += stats.size;
+    }
+
+    return total;
+  } catch {
+    return 0;
+  }
+}
 
 export async function POST(request: NextRequest) {
   const auth = await requireAdminSession(request);
   if (!auth.session) return auth.response;
 
   try {
+    const declaredLength = Number(request.headers.get("content-length") || 0);
+    if (Number.isFinite(declaredLength) && declaredLength > MAX_REQUEST_SIZE) {
+      return NextResponse.json(
+        { error: "La imagen excede el límite permitido." },
+        { status: 413 }
+      );
+    }
+
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
 
@@ -38,57 +62,49 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validar tipo MIME
-    if (!file.type.startsWith("image/") && !ALLOWED_MIME_TYPES.includes(file.type)) {
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: "La imagen excede el límite de 10 MB." },
+        { status: 413 }
+      );
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const detected = detectImageType(buffer, file.type, file.name);
+
+    if (!detected) {
       return NextResponse.json(
         {
           error:
-            "El formato no es válido. Sube un archivo de imagen válido (PNG, JPG, SVG, WEBP, GIF, AVIF, etc.).",
+            "El contenido no corresponde a una imagen válida (PNG, JPG, WEBP, GIF, AVIF, BMP, ICO o SVG seguro).",
         },
         { status: 400 }
       );
     }
 
-    // Validar tamaño máximo
-    if (file.size > MAX_FILE_SIZE) {
+    const uploadDir = getUploadsDirectory();
+    await fs.mkdir(uploadDir, { recursive: true });
+
+    const currentSize = await getDirectorySize(uploadDir);
+    if (currentSize + buffer.length > getMaxUploadsBytes()) {
       return NextResponse.json(
-        { error: "La imagen excede el límite de 10 MB." },
-        { status: 400 }
+        {
+          error:
+            "Se alcanzó el límite de almacenamiento de imágenes del servidor.",
+        },
+        { status: 413 }
       );
     }
 
-    // Extraer extensión limpia o inferir del tipo MIME
-    let extension = path.extname(file.name).toLowerCase();
-    if (!extension) {
-      const mimeMap: Record<string, string> = {
-        "image/jpeg": ".jpg",
-        "image/png": ".png",
-        "image/webp": ".webp",
-        "image/svg+xml": ".svg",
-        "image/gif": ".gif",
-        "image/avif": ".avif",
-      };
-      extension = mimeMap[file.type] || ".png";
-    }
-
-    // Generar nombre único para evitar colisiones
     const prefix = file.name
-      .replace(extension, "")
+      .replace(/\.[^.]+$/, "")
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-z0-9]+/g, "-")
       .substring(0, 25);
 
-    const filename = `${prefix || "img"}-${Date.now()}${extension}`;
-
-    // Carpeta destino en public/uploads
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await fs.mkdir(uploadDir, { recursive: true });
-
-    // Guardar buffer en disco
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const filename = `${prefix || "img"}-${crypto.randomUUID()}.${detected.extension}`;
     const filePath = path.join(uploadDir, filename);
     await fs.writeFile(filePath, buffer);
 
@@ -98,8 +114,8 @@ export async function POST(request: NextRequest) {
       success: true,
       url: publicUrl,
       filename,
-      size: file.size,
-      type: file.type,
+      size: buffer.length,
+      type: detected.mime,
     });
   } catch (error) {
     console.error("Error al procesar subida de archivo:", error);

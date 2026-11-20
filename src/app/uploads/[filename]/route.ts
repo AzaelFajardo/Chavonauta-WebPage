@@ -15,6 +15,7 @@ const MIME_BY_EXTENSION: Record<string, string> = {
   ".avif": "image/avif",
   ".bmp": "image/bmp",
   ".ico": "image/x-icon",
+  ".svg": "image/svg+xml",
 };
 
 /**
@@ -53,11 +54,19 @@ export async function GET(
 
   try {
     const file = await fs.readFile(filePath);
+    const isSvg = extension === ".svg";
+
     return new NextResponse(file, {
       headers: {
         "Content-Type": contentType,
         "X-Content-Type-Options": "nosniff",
         "Cache-Control": "public, max-age=31536000, immutable",
+        ...(isSvg
+          ? {
+              "Content-Security-Policy":
+                "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+            }
+          : {}),
       },
     });
   } catch {

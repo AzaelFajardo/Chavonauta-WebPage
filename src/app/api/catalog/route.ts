@@ -8,7 +8,16 @@ import { CatalogItem } from "@/types";
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const includeInactive = searchParams.get("includeInactive") === "true";
+    const includeInactiveRequested =
+      searchParams.get("includeInactive") === "true";
+    let includeInactive = false;
+
+    if (includeInactiveRequested) {
+      const auth = await requireAdminSession(request);
+      if (!auth.session) return auth.response;
+      includeInactive = true;
+    }
+
     const category = searchParams.get("category");
     const search = searchParams.get("search")?.toLowerCase().trim();
 

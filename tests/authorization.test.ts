@@ -96,6 +96,20 @@ describe("Authorization on administrative endpoints", () => {
     expect(response.status).toBe(200);
   });
 
+  it("requires a session to list inactive catalog items", async () => {
+    const publicResponse = await getCatalog(
+      new NextRequest("http://localhost:3000/api/catalog?includeInactive=true")
+    );
+    expect(publicResponse.status).toBe(401);
+
+    const adminResponse = await getCatalog(
+      new NextRequest("http://localhost:3000/api/catalog?includeInactive=true", {
+        headers: { cookie: await adminCookie() },
+      })
+    );
+    expect(adminResponse.status).toBe(200);
+  });
+
   it("allows an authenticated inventory round-trip", async () => {
     const cookie = await adminCookie();
     const suffix = Date.now();

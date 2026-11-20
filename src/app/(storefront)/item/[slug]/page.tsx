@@ -14,7 +14,7 @@ export default async function ItemDetailPage({
     repository.getThemeConfig(),
   ]);
 
-  if (!item) {
+  if (!item || !item.active) {
     notFound();
   }
 

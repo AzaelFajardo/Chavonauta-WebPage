@@ -40,6 +40,11 @@ export interface SectionBlock {
   content: Record<string, unknown>;
 }
 
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
 export interface ThemePalette {
   background: string;
   foreground: string;

@@ -70,4 +70,60 @@ describe("Theme configuration validation", () => {
     const response = await saveTheme(themeRequest(theme, await adminCookie()));
     expect(response.status).toBe(400);
   });
+
+  it("accepts valid promo and FAQ sections", async () => {
+    const theme = cloneTheme();
+    theme.sections.push({
+      id: "sec-promo-test",
+      type: "promo_banner",
+      title: "Promoción de prueba",
+      subtitle: "Aviso temporal",
+      enabled: true,
+      order: 90,
+      content: {
+        text: "Texto de la promoción",
+        buttonLabel: "Ver catálogo",
+        buttonHref: "/catalogo",
+        badge: "Oferta",
+      },
+    });
+    theme.sections.push({
+      id: "sec-faq-test",
+      type: "faq",
+      title: "Preguntas frecuentes",
+      enabled: true,
+      order: 91,
+      content: {
+        items: [
+          {
+            question: "¿Pregunta de prueba?",
+            answer: "Respuesta de prueba.",
+          },
+        ],
+      },
+    });
+
+    const response = await saveTheme(themeRequest(theme, await adminCookie()));
+    expect(response.status).toBe(200);
+  });
+
+  it("rejects unsafe promo links", async () => {
+    const theme = cloneTheme();
+    theme.sections.push({
+      id: "sec-promo-test",
+      type: "promo_banner",
+      title: "Promoción de prueba",
+      enabled: true,
+      order: 90,
+      content: {
+        text: "Texto",
+        buttonLabel: "Peligro",
+        buttonHref: "javascript:alert(1)",
+        badge: "",
+      },
+    });
+
+    const response = await saveTheme(themeRequest(theme, await adminCookie()));
+    expect(response.status).toBe(400);
+  });
 });

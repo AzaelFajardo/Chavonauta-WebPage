@@ -9,10 +9,18 @@ import {
   Mail,
   ChevronRight,
 } from "lucide-react";
-import { BusinessInfo, CatalogItem, Category, HeroFallingIconsConfig, SectionBlock, ThemePalette } from "@/types";
+import { BusinessInfo, CatalogItem, Category, FaqItem, HeroFallingIconsConfig, SectionBlock, ThemePalette } from "@/types";
 import { getWhatsAppDisplay } from "@/lib/business";
 import { getSafeExternalUrl } from "@/lib/validation";
 import { HeroFallingIcons } from "./HeroFallingIcons";
+
+function getSafeHref(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//")) return trimmed;
+  return getSafeExternalUrl(trimmed);
+}
 
 interface SectionRendererProps {
   section: SectionBlock;
@@ -951,6 +959,152 @@ export function SectionRenderer({
                   </a>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ----------------------------------------------------
+    // 6. PROMOCIONES Y AVISOS TEMPORALES
+    // ----------------------------------------------------
+    case "promo_banner": {
+      const text =
+        typeof section.content?.text === "string"
+          ? section.content.text.trim()
+          : "";
+      const buttonLabel =
+        typeof section.content?.buttonLabel === "string"
+          ? section.content.buttonLabel.trim()
+          : "";
+      const buttonHref = getSafeHref(section.content?.buttonHref);
+      const badge =
+        typeof section.content?.badge === "string"
+          ? section.content.badge.trim()
+          : "";
+
+      if (!text && !section.title) return null;
+
+      return (
+        <section className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
+          <div
+            style={{
+              backgroundColor: "var(--primary)",
+              color: "var(--primary-foreground)",
+              borderRadius: "var(--radius)",
+            }}
+            className="max-w-[1440px] mx-auto p-6 sm:p-8 shadow-md"
+          >
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+              <div className="max-w-3xl">
+                {badge && (
+                  <span
+                    style={{
+                      backgroundColor: "var(--accent)",
+                      color: "var(--accent-foreground)",
+                      borderRadius: "var(--radius)",
+                    }}
+                    className="inline-block px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider mb-2"
+                  >
+                    {badge}
+                  </span>
+                )}
+                <h2 className="font-heading font-bold text-xl sm:text-2xl">
+                  {section.title}
+                </h2>
+                {section.subtitle && (
+                  <p className="text-xs sm:text-sm opacity-85 mt-1">
+                    {section.subtitle}
+                  </p>
+                )}
+                {text && (
+                  <p className="text-sm mt-3 leading-relaxed whitespace-pre-line opacity-95">
+                    {text}
+                  </p>
+                )}
+              </div>
+
+              {buttonLabel && buttonHref && (
+                <a
+                  href={buttonHref}
+                  target={buttonHref.startsWith("/") ? undefined : "_blank"}
+                  rel={
+                    buttonHref.startsWith("/")
+                      ? undefined
+                      : "noopener noreferrer"
+                  }
+                  style={{
+                    backgroundColor: "var(--accent)",
+                    color: "var(--accent-foreground)",
+                    borderRadius: "var(--radius)",
+                  }}
+                  className="inline-flex items-center justify-center px-5 py-3 text-sm font-bold shadow-md hover:opacity-90 transition-opacity shrink-0"
+                >
+                  {buttonLabel}
+                </a>
+              )}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ----------------------------------------------------
+    // 7. PREGUNTAS FRECUENTES (ACORDEÓN ACCESIBLE)
+    // ----------------------------------------------------
+    case "faq": {
+      const items = Array.isArray(section.content?.items)
+        ? (section.content.items as FaqItem[]).filter(
+            (item) =>
+              item &&
+              typeof item.question === "string" &&
+              typeof item.answer === "string" &&
+              item.question.trim() &&
+              item.answer.trim()
+          )
+        : [];
+
+      if (items.length === 0) return null;
+
+      return (
+        <section className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
+          <div
+            style={{
+              backgroundColor: "var(--card)",
+              color: "var(--card-foreground)",
+              borderColor: "var(--border)",
+              borderRadius: "var(--radius)",
+            }}
+            className="max-w-[1440px] mx-auto p-6 sm:p-8 border shadow-sm"
+          >
+            <h2 className="font-heading font-bold text-xl sm:text-2xl">
+              {section.title}
+            </h2>
+            {section.subtitle && (
+              <p className="text-xs sm:text-sm opacity-80 mt-1">
+                {section.subtitle}
+              </p>
+            )}
+
+            <div className="space-y-2 mt-4">
+              {items.map((item, index) => (
+                <details
+                  key={`${index}-${item.question}`}
+                  style={{
+                    borderColor: "var(--border)",
+                    borderRadius: "var(--radius)",
+                    backgroundColor: "var(--muted)",
+                  }}
+                  className="border px-4 py-3"
+                >
+                  <summary className="cursor-pointer font-semibold text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
+                    {item.question}
+                  </summary>
+                  <p className="text-xs sm:text-sm opacity-85 leading-relaxed mt-2 whitespace-pre-line">
+                    {item.answer}
+                  </p>
+                </details>
+              ))}
             </div>
           </div>
         </section>

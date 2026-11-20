@@ -17,8 +17,16 @@ import {
   HelpCircle,
   Megaphone,
   Sparkles,
+  Plus,
+  Trash2,
 } from "lucide-react";
-import { HeroFallingIconsConfig, HeroIconPackKey, SectionBlock, SectionType } from "@/types";
+import {
+  FaqItem,
+  HeroFallingIconsConfig,
+  HeroIconPackKey,
+  SectionBlock,
+  SectionType,
+} from "@/types";
 
 interface SortableSectionItemProps {
   section: SectionBlock;
@@ -94,6 +102,49 @@ export function SortableSectionItem({
     description: "Bloque de sección modular",
   };
   const Icon = meta.icon;
+
+  const promoText =
+    typeof section.content?.text === "string" ? section.content.text : "";
+  const promoButtonLabel =
+    typeof section.content?.buttonLabel === "string"
+      ? section.content.buttonLabel
+      : "";
+  const promoButtonHref =
+    typeof section.content?.buttonHref === "string"
+      ? section.content.buttonHref
+      : "";
+  const promoBadge =
+    typeof section.content?.badge === "string" ? section.content.badge : "";
+
+  const faqItems: FaqItem[] = Array.isArray(section.content?.items)
+    ? (section.content.items as FaqItem[])
+    : [];
+
+  const updatePromo = (key: string, value: string) => {
+    onUpdateContent(section.id, {
+      content: { ...section.content, [key]: value },
+    });
+  };
+
+  const updateFaqItems = (items: FaqItem[]) => {
+    onUpdateContent(section.id, {
+      content: { ...section.content, items },
+    });
+  };
+
+  const addFaqItem = () => {
+    updateFaqItems([...faqItems, { question: "", answer: "" }]);
+  };
+
+  const updateFaqItem = (index: number, updates: Partial<FaqItem>) => {
+    const items = [...faqItems];
+    items[index] = { ...items[index], ...updates };
+    updateFaqItems(items);
+  };
+
+  const removeFaqItem = (index: number) => {
+    updateFaqItems(faqItems.filter((_, itemIndex) => itemIndex !== index));
+  };
 
   return (
     <div
@@ -212,6 +263,132 @@ export function SortableSectionItem({
               className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-navy-600 text-slate-800 resize-none"
             />
           </div>
+
+          {section.type === "promo_banner" && (
+            <div className="pt-3 border-t border-slate-200/80 space-y-2">
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                  Texto del aviso
+                </label>
+                <textarea
+                  rows={3}
+                  value={promoText}
+                  onChange={(e) => updatePromo("text", e.target.value)}
+                  placeholder="Ej. Paquete estudiante: 50 copias + 1 hora de internet."
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800 resize-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                    Texto del botón
+                  </label>
+                  <input
+                    type="text"
+                    value={promoButtonLabel}
+                    onChange={(e) =>
+                      updatePromo("buttonLabel", e.target.value)
+                    }
+                    placeholder="Ver promoción"
+                    className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                    Etiqueta
+                  </label>
+                  <input
+                    type="text"
+                    value={promoBadge}
+                    onChange={(e) => updatePromo("badge", e.target.value)}
+                    placeholder="Oferta"
+                    className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                  Enlace del botón (opcional)
+                </label>
+                <input
+                  type="text"
+                  value={promoButtonHref}
+                  onChange={(e) => updatePromo("buttonHref", e.target.value)}
+                  placeholder="/catalogo o https://wa.me/..."
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                />
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Déjalo vacío para mostrar el aviso sin botón.
+                </span>
+              </div>
+            </div>
+          )}
+
+          {section.type === "faq" && (
+            <div className="pt-3 border-t border-slate-200/80 space-y-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-bold text-slate-800">
+                  Preguntas y respuestas
+                </span>
+                <button
+                  type="button"
+                  onClick={addFaqItem}
+                  className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span>Añadir pregunta</span>
+                </button>
+              </div>
+
+              {faqItems.length === 0 ? (
+                <p className="text-[11px] text-slate-400">
+                  Aún no hay preguntas. Añade la primera para mostrarla en el
+                  escaparate.
+                </p>
+              ) : (
+                faqItems.map((item, index) => (
+                  <div
+                    key={index}
+                    className="p-2.5 rounded-lg border border-slate-200 bg-white space-y-2"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-semibold text-slate-500">
+                        Pregunta {index + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeFaqItem(index)}
+                        className="p-1 text-slate-400 hover:text-red-600 rounded transition-colors"
+                        title="Eliminar pregunta"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={item.question || ""}
+                      onChange={(e) =>
+                        updateFaqItem(index, { question: e.target.value })
+                      }
+                      placeholder="¿Pregunta?"
+                      className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                    />
+                    <textarea
+                      rows={2}
+                      value={item.answer || ""}
+                      onChange={(e) =>
+                        updateFaqItem(index, { answer: e.target.value })
+                      }
+                      placeholder="Respuesta"
+                      className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800 resize-none"
+                    />
+                  </div>
+                ))
+              )}
+            </div>
+          )}
 
           {/* Configuración de Cascada de Iconos Animados para el Hero Banner */}
           {section.type === "hero" && (() => {

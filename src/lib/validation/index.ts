@@ -320,6 +320,63 @@ function validateSections(value: unknown, errors: string[]): void {
         );
       }
     }
+
+    if (section.type === "promo_banner" && isRecord(section.content)) {
+      const content = section.content;
+      collectErrors(
+        content.text === undefined ||
+          (typeof content.text === "string" && content.text.length <= 1000),
+        `sections[${index}].content.text: inválido`,
+        errors
+      );
+      collectErrors(
+        content.buttonLabel === undefined ||
+          (typeof content.buttonLabel === "string" &&
+            content.buttonLabel.length <= 50),
+        `sections[${index}].content.buttonLabel: inválido`,
+        errors
+      );
+      collectErrors(
+        content.badge === undefined ||
+          (typeof content.badge === "string" && content.badge.length <= 50),
+        `sections[${index}].content.badge: inválido`,
+        errors
+      );
+      collectErrors(
+        content.buttonHref === undefined ||
+          content.buttonHref === "" ||
+          (typeof content.buttonHref === "string" &&
+            ((content.buttonHref.startsWith("/") &&
+              !content.buttonHref.startsWith("//")) ||
+              isHttpUrl(content.buttonHref))),
+        `sections[${index}].content.buttonHref: enlace no permitido`,
+        errors
+      );
+    }
+
+    if (section.type === "faq" && isRecord(section.content)) {
+      const items = section.content.items;
+
+      if (items !== undefined) {
+        if (!Array.isArray(items) || items.length > 30) {
+          errors.push(`sections[${index}].content.items: máximo 30 preguntas`);
+        } else {
+          items.forEach((item, itemIndex) => {
+            if (
+              !isRecord(item) ||
+              typeof item.question !== "string" ||
+              item.question.length > 500 ||
+              typeof item.answer !== "string" ||
+              item.answer.length > 2000
+            ) {
+              errors.push(
+                `sections[${index}].content.items[${itemIndex}]: pregunta o respuesta inválida`
+              );
+            }
+          });
+        }
+      }
+    }
   });
 }
 

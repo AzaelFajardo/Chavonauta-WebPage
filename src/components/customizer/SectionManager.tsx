@@ -18,19 +18,14 @@ import {
 } from "@dnd-kit/sortable";
 import { SectionBlock } from "@/types";
 import { SortableSectionItem } from "./SortableSectionItem";
-import { Layers, RotateCcw } from "lucide-react";
+import { Layers } from "lucide-react";
 
 interface SectionManagerProps {
   sections: SectionBlock[];
   onChange: (sections: SectionBlock[]) => void;
-  onResetDefaultSections?: () => void;
 }
 
-export function SectionManager({
-  sections,
-  onChange,
-  onResetDefaultSections,
-}: SectionManagerProps) {
+export function SectionManager({ sections, onChange }: SectionManagerProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -86,17 +81,6 @@ export function SectionManager({
             Arrastra para reordenar o usa el ojo para activar u ocultar bloques.
           </p>
         </div>
-
-        {onResetDefaultSections && (
-          <button
-            type="button"
-            onClick={onResetDefaultSections}
-            title="Restablecer orden predeterminado"
-            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-          </button>
-        )}
       </div>
 
       <DndContext

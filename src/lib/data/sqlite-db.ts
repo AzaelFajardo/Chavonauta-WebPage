@@ -289,10 +289,38 @@ function seedSecurityIfEmpty(db: Database.Database): void {
   ).run(hash, salt, new Date().toISOString());
 }
 
+interface CatalogItemRow {
+  id: string;
+  slug: string;
+  name: string;
+  short_description: string;
+  description: string;
+  type: string;
+  category_slug: string;
+  price_label: string;
+  reference_price: number | null;
+  promotional_price: number | null;
+  stock_type: string;
+  stock_quantity: number | null;
+  image_url: string;
+  badges: string;
+  specs: string;
+  featured: number;
+  active: number;
+}
+
+interface CategoryRow {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  icon: string;
+}
+
 /**
  * Mapea una fila de catalog_items a la interfaz TypeScript CatalogItem.
  */
-function rowToCatalogItem(row: any): CatalogItem {
+function rowToCatalogItem(row: CatalogItemRow): CatalogItem {
   let badges: string[] = [];
   try {
     badges = row.badges ? JSON.parse(row.badges) : [];
@@ -331,7 +359,7 @@ function rowToCatalogItem(row: any): CatalogItem {
 /**
  * Mapea una fila de categories a la interfaz Category.
  */
-function rowToCategory(row: any): Category {
+function rowToCategory(row: CategoryRow): Category {
   return {
     id: row.id,
     slug: row.slug,
@@ -437,7 +465,9 @@ export async function sqliteSaveThemeConfig(theme: ThemeConfig): Promise<ThemeCo
 
 export async function sqliteGetCategories(): Promise<Category[]> {
   const db = getDatabase();
-  const rows = db.prepare("SELECT * FROM categories ORDER BY order_index ASC").all();
+  const rows = db
+    .prepare("SELECT * FROM categories ORDER BY order_index ASC")
+    .all() as CategoryRow[];
   return rows.map(rowToCategory);
 }
 
@@ -467,7 +497,7 @@ export async function sqliteGetCatalogItems(options?: {
   }
   query += " ORDER BY created_at DESC";
 
-  const rows = db.prepare(query).all();
+  const rows = db.prepare(query).all() as CatalogItemRow[];
   return rows.map(rowToCatalogItem);
 }
 
@@ -477,7 +507,7 @@ export async function sqliteGetCatalogItemBySlug(
   const db = getDatabase();
   const row = db
     .prepare("SELECT * FROM catalog_items WHERE slug = ? LIMIT 1")
-    .get(slug);
+    .get(slug) as CatalogItemRow | undefined;
 
   if (!row) return undefined;
   return rowToCatalogItem(row);
@@ -489,7 +519,7 @@ export async function sqliteGetCatalogItemById(
   const db = getDatabase();
   const row = db
     .prepare("SELECT * FROM catalog_items WHERE id = ? LIMIT 1")
-    .get(id);
+    .get(id) as CatalogItemRow | undefined;
 
   if (!row) return undefined;
   return rowToCatalogItem(row);
@@ -592,7 +622,7 @@ export async function sqliteDeleteCatalogItems(ids: string[]): Promise<number> {
   const placeholders = ids.map(() => "?").join(",");
   const rows = db
     .prepare(`SELECT * FROM catalog_items WHERE id IN (${placeholders})`)
-    .all(...ids);
+    .all(...ids) as CatalogItemRow[];
   const itemsToDelete = rows.map(rowToCatalogItem);
 
   const info = db
@@ -757,15 +787,6 @@ export async function sqliteGetAdminSessionVersion(): Promise<number> {
     .get() as { session_version: number } | undefined;
 
   return row?.session_version ?? 0;
-}
-
-export async function sqliteBumpAdminSessionVersion(): Promise<number> {
-  const db = getDatabase();
-  db.prepare(
-    "UPDATE admin_auth SET session_version = session_version + 1, updated_at = ? WHERE id = 'master'"
-  ).run(new Date().toISOString());
-
-  return sqliteGetAdminSessionVersion();
 }
 
 export async function sqliteSetAdminPassword(newPassword: string): Promise<void> {

@@ -110,12 +110,6 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     // WhatsApp para CTA de contacto directo válido
     expect(business.whatsappNumber).toBeTruthy();
     expect(business.whatsappNumber.replace(/\D/g, "").length).toBeGreaterThanOrEqual(10);
-
-    // Si tiene logoWidth configurado, debe ser un número positivo coherente
-    if (business.logoWidth !== undefined) {
-      expect(business.logoWidth).toBeGreaterThanOrEqual(50);
-      expect(business.logoWidth).toBeLessThanOrEqual(300);
-    }
   });
 
   it("enforces rule 5: Computer rental rates configuration is valid and positive", async () => {

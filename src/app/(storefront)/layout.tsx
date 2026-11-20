@@ -1,12 +1,52 @@
 import React from "react";
+import type { Metadata } from "next";
 import { repository } from "@/lib/data/repository";
 import { themeToCssVars } from "@/lib/theme-engine";
+import { getSiteUrl } from "@/lib/site-url";
 import { Navbar } from "@/components/storefront/Navbar";
 import { Footer } from "@/components/storefront/Footer";
 import { ContactFloatingButton } from "@/components/storefront/ContactFloatingButton";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const theme = await repository.getThemeConfig();
+  const business = theme.business;
+  const siteUrl = getSiteUrl();
+  const title = `${business.name} | ${business.slogan}`;
+  const description =
+    `${business.slogan}. Catálogo de productos, servicios, impresiones y renta de equipos en ${business.address}.`.slice(
+      0,
+      160
+    );
+  const image = business.logoUrl || "/android-chrome-512x512.png";
+
+  return {
+    metadataBase: siteUrl,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: "/",
+      siteName: business.name,
+      locale: "es_MX",
+      type: "website",
+      images: [{ url: image, alt: business.name }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
 
 export default async function StorefrontLayout({
   children,

@@ -1,7 +1,42 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MessageCircle, MapPin, ShieldCheck, Check } from "lucide-react";
 import { repository } from "@/lib/data/repository";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const [item, theme] = await Promise.all([
+    repository.getCatalogItemBySlug(slug),
+    repository.getThemeConfig(),
+  ]);
+
+  if (!item || !item.active) {
+    return {
+      title: `Artículo no disponible | ${theme.business.name}`,
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const description = (item.shortDescription || item.description).slice(0, 160);
+
+  return {
+    title: `${item.name} | ${theme.business.name}`,
+    description,
+    alternates: { canonical: `/item/${item.slug}` },
+    openGraph: {
+      title: item.name,
+      description,
+      url: `/item/${item.slug}`,
+      type: "website",
+      images: item.imageUrl ? [{ url: item.imageUrl, alt: item.name }] : undefined,
+    },
+  };
+}
 
 export default async function ItemDetailPage({
   params,

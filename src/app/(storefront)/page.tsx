@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import { repository } from "@/lib/data/repository";
 import { SectionRenderer } from "@/components/sections/SectionRenderer";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default async function StorefrontHomePage() {
   const [theme, items, categories] = await Promise.all([

@@ -1,7 +1,37 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowLeft, Search, MessageCircle } from "lucide-react";
 import { repository } from "@/lib/data/repository";
 import { Badge } from "@/components/ui/Badge";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ categoria?: string; q?: string }>;
+}): Promise<Metadata> {
+  const { categoria, q } = await searchParams;
+  const [theme, categories] = await Promise.all([
+    repository.getThemeConfig(),
+    repository.getCategories(),
+  ]);
+  const currentCategory = categories.find((category) => category.slug === categoria);
+  const title = currentCategory
+    ? `${currentCategory.name} | ${theme.business.name}`
+    : `Catálogo | ${theme.business.name}`;
+  const canonical = q
+    ? "/catalogo"
+    : currentCategory
+    ? `/catalogo?categoria=${currentCategory.slug}`
+    : "/catalogo";
+
+  return {
+    title,
+    description: currentCategory
+      ? currentCategory.description
+      : `Catálogo de productos y servicios de ${theme.business.name}.`,
+    alternates: { canonical },
+  };
+}
 
 export default async function CatalogPage({
   searchParams,

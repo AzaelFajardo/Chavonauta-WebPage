@@ -165,12 +165,6 @@ function validateBusiness(value: unknown, errors: string[]): void {
     errors
   );
   collectErrors(
-    value.logoWidth === undefined ||
-      (isFiniteNumber(value.logoWidth) && value.logoWidth >= 50 && value.logoWidth <= 300),
-    "business.logoWidth: debe estar entre 50 y 300",
-    errors
-  );
-  collectErrors(
     isOptionalUrl(value.googleMapsUrl),
     "business.googleMapsUrl: URL http(s) inválida",
     errors

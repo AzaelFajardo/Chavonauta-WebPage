@@ -76,7 +76,6 @@ export interface BusinessInfo {
   slogan: string;
   branchName?: string;
   logoUrl?: string;
-  logoWidth?: number;
   computerRates?: ComputerRates;
   announcementText?: string;
   announcementEnabled?: boolean;

@@ -16,7 +16,6 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
     slogan: "Tecnología, accesorios y soluciones digitales",
     branchName: "Haciendas de Aguascalientes",
     logoUrl: "",
-    logoWidth: 175,
     computerRates: {
       oneHour: 7,
       halfHour: 4,

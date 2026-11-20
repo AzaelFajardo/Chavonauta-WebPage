@@ -3,11 +3,12 @@
 import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { sanitizeAdminRedirect } from "@/lib/http/safe-redirect";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const from = searchParams.get("from") || "/admin/catalogo";
+  const from = sanitizeAdminRedirect(searchParams.get("from"));
 
   const [step, setStep] = useState<1 | 2>(1);
   const [email, setEmail] = useState("");

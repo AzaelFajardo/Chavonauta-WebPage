@@ -205,19 +205,58 @@ function seedIfEmpty(db: Database.Database): void {
 
 /**
  * Inicializa la whitelist y credenciales de autenticación si están vacías.
+ * En producción la contraseña inicial debe provenir de ADMIN_INITIAL_PASSWORD;
+ * si no se configura, el acceso administrativo queda deshabilitado hasta definirla.
  */
 function seedSecurityIfEmpty(db: Database.Database): void {
-  // 1. Whitelist inicial
-  const initialEmails = ["ciberchavonauta@gmail.com", "azachavonauta@gmail.com"];
-  const insertWl = db.prepare(
-    "INSERT OR IGNORE INTO admin_whitelist (id, email, created_at, added_by) VALUES (?, ?, ?, 'sistema')"
-  );
-  initialEmails.forEach((email, idx) => {
-    insertWl.run(`wl-initial-${idx + 1}`, email, new Date().toISOString());
-  });
+  // 1. Whitelist inicial (solo si no existe ningún correo autorizado)
+  const whitelistCount = db
+    .prepare("SELECT COUNT(*) as count FROM admin_whitelist")
+    .get() as { count: number };
 
-  // 2. Contraseña maestra inicial
-  const initialPassword = process.env.ADMIN_INITIAL_PASSWORD || "Chavonauta2026!";
+  if (whitelistCount.count === 0) {
+    const configuredEmails = (process.env.ADMIN_BOOTSTRAP_EMAILS || "")
+      .split(",")
+      .map((email) => email.trim().toLowerCase())
+      .filter((email) => email.includes("@"));
+
+    const initialEmails =
+      configuredEmails.length > 0
+        ? configuredEmails
+        : ["ciberchavonauta@gmail.com", "azachavonauta@gmail.com"];
+
+    const insertWl = db.prepare(
+      "INSERT OR IGNORE INTO admin_whitelist (id, email, created_at, added_by) VALUES (?, ?, ?, 'sistema')"
+    );
+    initialEmails.forEach((email, idx) => {
+      insertWl.run(`wl-initial-${idx + 1}`, email, new Date().toISOString());
+    });
+  }
+
+  // 2. Contraseña maestra inicial (solo si aún no existe)
+  const authCount = db
+    .prepare("SELECT COUNT(*) as count FROM admin_auth")
+    .get() as { count: number };
+
+  if (authCount.count > 0) {
+    return;
+  }
+
+  const configuredPassword = process.env.ADMIN_INITIAL_PASSWORD;
+  const devFallback =
+    process.env.NODE_ENV !== "production" ? "Chavonauta2026!" : "";
+  const initialPassword =
+    configuredPassword && configuredPassword.length >= 12
+      ? configuredPassword
+      : devFallback;
+
+  if (!initialPassword) {
+    console.warn(
+      "ADMIN_INITIAL_PASSWORD no está configurada. El acceso administrativo permanecerá deshabilitado hasta configurarla y reiniciar el servicio."
+    );
+    return;
+  }
+
   const { hash, salt } = hashPassword(initialPassword);
   db.prepare(
     "INSERT OR IGNORE INTO admin_auth (id, password_hash, salt, updated_at) VALUES ('master', ?, ?, ?)"

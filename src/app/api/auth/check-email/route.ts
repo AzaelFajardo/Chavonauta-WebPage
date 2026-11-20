@@ -4,22 +4,7 @@ import {
   sqliteRecordFailedLoginAttempt,
   sqliteIsEmailInWhitelist,
 } from "@/lib/data/sqlite-db";
-
-function getClientIp(request: NextRequest): string {
-  const cfConnectingIp = request.headers.get("cf-connecting-ip");
-  if (cfConnectingIp) return cfConnectingIp.trim();
-
-  const xForwardedFor = request.headers.get("x-forwarded-for");
-  if (xForwardedFor) {
-    const firstIp = xForwardedFor.split(",")[0];
-    if (firstIp) return firstIp.trim();
-  }
-
-  const realIp = request.headers.get("x-real-ip");
-  if (realIp) return realIp.trim();
-
-  return "127.0.0.1";
-}
+import { getClientIp } from "@/lib/http/client-ip";
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,7 +24,12 @@ export async function POST(request: NextRequest) {
           error: `Acceso temporalmente suspendido por múltiples intentos fallidos. Inténtalo en ${minutes} minuto(s).`,
           locked: true,
         },
-        { status: 429 }
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.max(1, remainingSeconds)),
+          },
+        }
       );
     }
 

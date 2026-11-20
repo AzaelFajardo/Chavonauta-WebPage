@@ -59,6 +59,7 @@ export function getDatabase(): Database.Database {
   initializeSchema(db);
   seedIfEmpty(db);
   seedSecurityIfEmpty(db);
+  cleanupExpiredRateLimits(db);
 
   dbInstance = db;
   return dbInstance;
@@ -750,6 +751,11 @@ export async function sqliteSetAdminPassword(newPassword: string): Promise<void>
   ).run(hash, salt, new Date().toISOString(), currentVersion + 1);
 }
 
+function cleanupExpiredRateLimits(db: Database.Database): void {
+  const cutoff = Math.floor(Date.now() / 1000) - 24 * 60 * 60;
+  db.prepare("DELETE FROM login_rate_limits WHERE last_attempt < ?").run(cutoff);
+}
+
 export async function sqliteCheckLoginRateLimit(
   ip: string
 ): Promise<{ locked: boolean; lockedUntil?: number }> {
@@ -826,5 +832,9 @@ export async function sqliteRecordFailedLoginAttempt(
 export async function sqliteResetFailedLoginAttempts(ip: string): Promise<void> {
   const db = getDatabase();
   db.prepare("DELETE FROM login_rate_limits WHERE ip = ?").run(ip);
+}
+
+export async function sqliteCleanupExpiredRateLimits(): Promise<void> {
+  cleanupExpiredRateLimits(getDatabase());
 }
 

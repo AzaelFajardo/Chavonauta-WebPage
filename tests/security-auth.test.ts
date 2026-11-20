@@ -80,7 +80,7 @@ describe("Security, Authentication & Rate Limiting - Automated Tests", () => {
     // Correo autorizado (azachavonauta@gmail.com)
     const validReq = new NextRequest("http://localhost:3000/api/auth/check-email", {
       method: "POST",
-      headers: { "x-forwarded-for": testIp },
+      headers: { "cf-ray": "test-ray", "cf-connecting-ip": testIp },
       body: JSON.stringify({ email: "azachavonauta@gmail.com" }),
     });
     const validRes = await postCheckEmail(validReq);
@@ -91,7 +91,7 @@ describe("Security, Authentication & Rate Limiting - Automated Tests", () => {
     // Correo no autorizado
     const invalidReq = new NextRequest("http://localhost:3000/api/auth/check-email", {
       method: "POST",
-      headers: { "x-forwarded-for": testIp },
+      headers: { "cf-ray": "test-ray", "cf-connecting-ip": testIp },
       body: JSON.stringify({ email: "unauthorized-intruder@unknown.com" }),
     });
     const invalidRes = await postCheckEmail(invalidReq);
@@ -110,7 +110,7 @@ describe("Security, Authentication & Rate Limiting - Automated Tests", () => {
     for (let i = 1; i <= 4; i++) {
       const req = new NextRequest("http://localhost:3000/api/auth/login", {
         method: "POST",
-        headers: { "x-forwarded-for": bruteForceIp },
+        headers: { "cf-ray": "test-ray", "cf-connecting-ip": bruteForceIp },
         body: JSON.stringify({
           email: "azachavonauta@gmail.com",
           password: `WrongPasswordAttempt${i}`,
@@ -124,7 +124,7 @@ describe("Security, Authentication & Rate Limiting - Automated Tests", () => {
 
     const req5 = new NextRequest("http://localhost:3000/api/auth/login", {
       method: "POST",
-      headers: { "x-forwarded-for": bruteForceIp },
+      headers: { "cf-ray": "test-ray", "cf-connecting-ip": bruteForceIp },
       body: JSON.stringify({
         email: "azachavonauta@gmail.com",
         password: "WrongPasswordAttempt5",
@@ -132,11 +132,36 @@ describe("Security, Authentication & Rate Limiting - Automated Tests", () => {
     });
     const res5 = await postLogin(req5);
     expect(res5.status).toBe(429);
+    expect(res5.headers.get("retry-after")).toBeTruthy();
     const data5 = await res5.json();
     expect(data5.locked).toBe(true);
     expect(data5.error).toContain("temporalmente");
 
     await sqliteResetFailedLoginAttempts(bruteForceIp);
+  });
+
+  it("ignores spoofed X-Forwarded-For headers for rate limiting", async () => {
+    await sqliteResetFailedLoginAttempts("local");
+
+    for (let i = 1; i <= 6; i++) {
+      const req = new NextRequest("http://localhost:3000/api/auth/login", {
+        method: "POST",
+        headers: { "x-forwarded-for": `10.0.0.${i}` },
+        body: JSON.stringify({
+          email: "azachavonauta@gmail.com",
+          password: "WrongPasswordWithSpoofedHeader",
+        }),
+      });
+
+      const res = await postLogin(req);
+      if (i < 5) {
+        expect(res.status).toBe(401);
+      } else {
+        expect(res.status).toBe(429);
+      }
+    }
+
+    await sqliteResetFailedLoginAttempts("local");
   });
 
   it("authenticates valid credentials, sets session cookie, and resets failed attempts", async () => {
@@ -148,7 +173,7 @@ describe("Security, Authentication & Rate Limiting - Automated Tests", () => {
 
     const req = new NextRequest("http://localhost:3000/api/auth/login", {
       method: "POST",
-      headers: { "x-forwarded-for": successIp },
+      headers: { "cf-ray": "test-ray", "cf-connecting-ip": successIp },
       body: JSON.stringify({
         email: "azachavonauta@gmail.com",
         password: testPw,

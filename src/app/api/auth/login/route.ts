@@ -12,24 +12,13 @@ import {
   executeDummyPasswordVerification,
   createSessionToken,
 } from "@/lib/auth/security";
+import { getClientIp } from "@/lib/http/client-ip";
 
-/**
- * Extrae la dirección IP real del cliente considerando Cloudflare Tunnel y proxies reversos.
- */
-function getClientIp(request: NextRequest): string {
-  const cfConnectingIp = request.headers.get("cf-connecting-ip");
-  if (cfConnectingIp) return cfConnectingIp.trim();
-
-  const xForwardedFor = request.headers.get("x-forwarded-for");
-  if (xForwardedFor) {
-    const firstIp = xForwardedFor.split(",")[0];
-    if (firstIp) return firstIp.trim();
-  }
-
-  const realIp = request.headers.get("x-real-ip");
-  if (realIp) return realIp.trim();
-
-  return "127.0.0.1";
+function getRetryAfterSeconds(lockedUntil?: number): string {
+  const remaining = lockedUntil
+    ? Math.max(1, lockedUntil - Math.floor(Date.now() / 1000))
+    : 900;
+  return String(remaining);
 }
 
 export async function POST(request: NextRequest) {
@@ -50,7 +39,12 @@ export async function POST(request: NextRequest) {
           locked: true,
           lockedUntil: rateLimit.lockedUntil,
         },
-        { status: 429 }
+        {
+          status: 429,
+          headers: {
+            "Retry-After": getRetryAfterSeconds(rateLimit.lockedUntil),
+          },
+        }
       );
     }
 
@@ -84,7 +78,12 @@ export async function POST(request: NextRequest) {
               "Demasiados intentos fallidos. Por seguridad, el acceso ha sido bloqueado temporalmente por 15 minutos.",
             locked: true,
           },
-          { status: 429 }
+          {
+            status: 429,
+            headers: {
+              "Retry-After": getRetryAfterSeconds(attempt.lockedUntil),
+            },
+          }
         );
       }
 
@@ -110,7 +109,12 @@ export async function POST(request: NextRequest) {
               "Demasiados intentos fallidos. Por seguridad, el acceso ha sido bloqueado temporalmente por 15 minutos.",
             locked: true,
           },
-          { status: 429 }
+          {
+            status: 429,
+            headers: {
+              "Retry-After": getRetryAfterSeconds(attempt.lockedUntil),
+            },
+          }
         );
       }
 

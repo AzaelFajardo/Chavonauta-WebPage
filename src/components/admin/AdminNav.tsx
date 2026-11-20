@@ -13,6 +13,7 @@ import {
   Store,
   ChevronRight,
   LogOut,
+  Shield,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -33,6 +34,12 @@ const NAV_ITEMS = [
     href: "/admin/configuracion",
     icon: Settings,
     description: "Sucursal, horarios y contacto",
+  },
+  {
+    label: "SEGURIDAD",
+    href: "/admin/seguridad",
+    icon: Shield,
+    description: "Whitelist y claves de acceso",
   },
 ];
 

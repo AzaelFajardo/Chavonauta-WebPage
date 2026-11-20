@@ -23,7 +23,6 @@ import {
 } from "lucide-react";
 import { BusinessInfo, ScheduleItem, ThemeConfig } from "@/types";
 import { ImageUploader } from "@/components/ui/ImageUploader";
-import { AdminSecuritySettings } from "@/components/admin/AdminSecuritySettings";
 
 interface AdminSettingsManagerProps {
   initialTheme: ThemeConfig;
@@ -674,9 +673,6 @@ export function AdminSettingsManager({
           </div>
         </div>
       </form>
-
-      {/* Bloque 6: Seguridad, Whitelist de Personal y Contraseña de Administración */}
-      <AdminSecuritySettings />
 
       {/* Diálogo Personalizado de Confirmación para Salir sin Guardar (NUNCA el del navegador) */}
       {isLeaveConfirmOpen && (

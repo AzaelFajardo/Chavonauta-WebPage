@@ -14,14 +14,15 @@ import {
   Eye,
   EyeOff,
   Check,
+  ShieldCheck,
 } from "lucide-react";
 
-export function AdminSecuritySettings() {
+export function AdminSecurityManager() {
   const [whitelist, setWhitelist] = useState<string[]>([]);
   const [currentSessionEmail, setCurrentSessionEmail] = useState<string>("");
   const [isLoadingList, setIsLoadingList] = useState(true);
 
-  // Nuevo correo
+  // Nuevo correo para la whitelist
   const [newEmail, setNewEmail] = useState("");
   const [isAddingEmail, setIsAddingEmail] = useState(false);
   const [emailSuccessMsg, setEmailSuccessMsg] = useState<string | null>(null);
@@ -37,7 +38,6 @@ export function AdminSecuritySettings() {
   const [pwSuccessMsg, setPwSuccessMsg] = useState<string | null>(null);
   const [pwErrorMsg, setPwErrorMsg] = useState<string | null>(null);
 
-  // Cargar lista blanca
   const fetchWhitelist = async () => {
     try {
       setIsLoadingList(true);
@@ -58,7 +58,6 @@ export function AdminSecuritySettings() {
     fetchWhitelist();
   }, []);
 
-  // Agregar correo a la lista blanca
   const handleAddEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     setEmailErrorMsg(null);
@@ -100,7 +99,6 @@ export function AdminSecuritySettings() {
     }
   };
 
-  // Eliminar correo de la lista blanca
   const handleRemoveEmail = async (emailToRemove: string) => {
     setEmailErrorMsg(null);
     setEmailSuccessMsg(null);
@@ -130,7 +128,6 @@ export function AdminSecuritySettings() {
     }
   };
 
-  // Cambiar contraseña
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setPwErrorMsg(null);
@@ -172,7 +169,7 @@ export function AdminSecuritySettings() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      setPwSuccessMsg("¡Contraseña de administración actualizada exitosamente!");
+      setPwSuccessMsg("¡Contraseña de administración actualizada con éxito!");
       setTimeout(() => setPwSuccessMsg(null), 5000);
     } catch (err: unknown) {
       setPwErrorMsg(err instanceof Error ? err.message : "Error al cambiar la contraseña.");
@@ -181,46 +178,52 @@ export function AdminSecuritySettings() {
     }
   };
 
-  // Medidor de fuerza de contraseña
   const hasMinLength = newPassword.length >= 8;
   const hasNumber = /\d/.test(newPassword);
   const hasLetter = /[a-zA-Z]/.test(newPassword);
-  const isStrong = hasMinLength && hasNumber && hasLetter;
 
   return (
-    <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-6">
-      {/* Encabezado del Bloque de Seguridad */}
-      <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-        <div className="w-8 h-8 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center">
-          <Shield className="w-4 h-4" />
-        </div>
-        <div>
-          <h2 className="text-sm font-bold text-slate-900">
-            Seguridad y Acceso del Personal (Whitelist)
-          </h2>
-          <p className="text-[11px] text-slate-500">
-            Controla quién puede acceder al panel administrativo y gestiona la contraseña del cybercafé.
+    <div className="space-y-6 max-w-5xl mx-auto">
+      {/* Barra Superior Fija */}
+      <div className="sticky top-[58px] sm:top-[68px] z-30 bg-slate-100/95 backdrop-blur-md py-2.5 sm:py-3.5 mb-2 sm:mb-4 border-b border-slate-200/80 flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-base sm:text-xl font-heading font-black tracking-tight text-slate-900 uppercase">
+              Seguridad
+            </h1>
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+              <ShieldCheck className="w-3 h-3 text-emerald-600" />
+              <span>Control de Acceso Activo</span>
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5 hidden md:block">
+            Administra la lista blanca de personal autorizado y actualiza la contraseña de acceso al panel.
           </p>
         </div>
       </div>
 
-      {/* Grid de 2 columnas: Lista Blanca y Cambio de Contraseña */}
+      {/* Grid Principal */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Sub-bloque 1: Whitelist de Correos */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-              <Mail className="w-3.5 h-3.5 text-sky-600" />
-              <span>Lista Blanca de Correos Autorizados</span>
+        {/* Tarjeta 1: Whitelist de Correos */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center">
+                <Mail className="w-4 h-4" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-900">
+                  Lista Blanca de Correos
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  Solo los correos registrados podrán acceder al panel.
+                </p>
+              </div>
             </div>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
               {whitelist.length} autorizado(s)
             </span>
           </div>
-
-          <p className="text-[11px] text-slate-500 leading-relaxed">
-            Solo las personas cuyo correo esté registrado aquí podrán iniciar sesión en el panel, aun conociendo la contraseña.
-          </p>
 
           {/* Formulario para agregar nuevo correo */}
           <form onSubmit={handleAddEmail} className="flex gap-2">
@@ -260,15 +263,15 @@ export function AdminSecuritySettings() {
             </div>
           )}
 
-          {/* Lista de Correos Activos */}
-          <div className="border border-slate-200 rounded-xl divide-y divide-slate-100 max-h-56 overflow-y-auto bg-slate-50/50">
+          {/* Lista de correos autorizados */}
+          <div className="border border-slate-200 rounded-xl divide-y divide-slate-100 max-h-72 overflow-y-auto bg-slate-50/50">
             {isLoadingList ? (
-              <div className="p-4 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+              <div className="p-6 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 <span>Cargando lista blanca...</span>
               </div>
             ) : whitelist.length === 0 ? (
-              <div className="p-4 text-center text-xs text-slate-400">
+              <div className="p-6 text-center text-xs text-slate-400">
                 No hay correos en la lista blanca.
               </div>
             ) : (
@@ -299,7 +302,7 @@ export function AdminSecuritySettings() {
                       onClick={() => handleRemoveEmail(email)}
                       className={`p-1.5 rounded-lg transition-colors ${
                         canDelete
-                          ? "text-slate-400 hover:text-red-600 hover:bg-red-50"
+                          ? "text-slate-400 hover:text-red-600 hover:bg-red-50 cursor-pointer"
                           : "text-slate-300 cursor-not-allowed opacity-50"
                       }`}
                       title={
@@ -317,16 +320,21 @@ export function AdminSecuritySettings() {
           </div>
         </div>
 
-        {/* Sub-bloque 2: Cambio de Contraseña de Administración */}
-        <div className="space-y-4 border-t lg:border-t-0 lg:border-l border-slate-100 lg:pl-6 pt-4 lg:pt-0">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-            <KeyRound className="w-3.5 h-3.5 text-sky-600" />
-            <span>Contraseña de Administración</span>
+        {/* Tarjeta 2: Cambio de Contraseña */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+            <div className="w-8 h-8 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center">
+              <KeyRound className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-slate-900">
+                Contraseña de Administración
+              </h2>
+              <p className="text-[11px] text-slate-500">
+                Clave de acceso compartida para el personal autorizado.
+              </p>
+            </div>
           </div>
-
-          <p className="text-[11px] text-slate-500 leading-relaxed">
-            Esta contraseña es compartida con el personal autorizado en la lista blanca. Se recomienda actualizarla si un empleado deja de laborar.
-          </p>
 
           <form onSubmit={handleChangePassword} className="space-y-3">
             <div>
@@ -344,7 +352,7 @@ export function AdminSecuritySettings() {
                 <button
                   type="button"
                   onClick={() => setShowCurrentPw(!showCurrentPw)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
                 >
                   {showCurrentPw ? (
                     <EyeOff className="w-3.5 h-3.5" />
@@ -370,7 +378,7 @@ export function AdminSecuritySettings() {
                 <button
                   type="button"
                   onClick={() => setShowNewPw(!showNewPw)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
                 >
                   {showNewPw ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                 </button>
@@ -447,11 +455,11 @@ export function AdminSecuritySettings() {
         </div>
       </div>
 
-      {/* Franja Informativa de Protecciones Activas */}
-      <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center gap-3 text-xs text-slate-600">
-        <Shield className="w-4 h-4 text-emerald-600 shrink-0" />
+      {/* Tarjeta 3: Resumen de Protecciones Activas */}
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3 text-xs text-slate-600">
+        <Shield className="w-5 h-5 text-emerald-600 shrink-0" />
         <div className="text-[11px] leading-relaxed">
-          <strong>Protecciones activas:</strong> Bloqueo automático por 15 minutos tras 5 intentos fallidos, sesiones cifradas con HMAC-SHA256 y defensa contra ataques de temporización.
+          <strong>Protecciones activas del servidor:</strong> Bloqueo automático por 15 minutos tras 5 intentos fallidos (Rate Limiting por IP), sesiones criptográficas firmadas con HMAC-SHA256 y autenticación en 2 pasos.
         </div>
       </div>
     </div>

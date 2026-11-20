@@ -9,7 +9,8 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "backup": "node scripts/backup.mjs"
+    "backup": "node scripts/backup.mjs",
+    "admin:recovery": "node scripts/admin-recovery.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

@@ -11,3 +11,12 @@ Plataforma web de exhibición (*showcase*) y catálogo interactivo para **Cyberc
 - **Una rama por implementación**: Cada módulo o tarea se desarrolla en su propia rama (`feat/...`, `chore/...`, `fix/...`, `docs/...`).
 - **Commits cortos y descriptivos**: Historial limpio siguiendo commits atómicos y concisos.
 - Consulta [AGENTS.md](./AGENTS.md) para ver la arquitectura detallada y las reglas para agentes IA (LLMs).
+
+## Operación y despliegue
+La guía completa de instalación, systemd, Cloudflare Tunnel, respaldos, restauración, recuperación de acceso y diagnóstico está en [docs/OPERACIONES.md](./docs/OPERACIONES.md).
+
+Scripts disponibles:
+- `npm run backup` — respaldo consistente de SQLite y de las imágenes subidas.
+- `npm run admin:recovery -- correo@dominio.com 'NuevaClave'` — recuperación local del acceso administrativo.
+
+Variables importantes en producción: `ADMIN_JWT_SECRET`, `DATABASE_PATH`, `UPLOADS_DIR` y `SITE_URL`. Consulta `.env.example`.

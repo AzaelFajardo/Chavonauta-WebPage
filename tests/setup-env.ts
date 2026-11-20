@@ -12,7 +12,6 @@ process.env.DATABASE_PATH = databasePath;
 process.env.UPLOADS_DIR = uploadsDir;
 process.env.ADMIN_JWT_SECRET ??= "vitest-only-session-secret-with-32-plus-characters";
 process.env.ADMIN_INITIAL_PASSWORD ??= "VitestOnlyAdminPassword2026!";
-process.env.NODE_ENV = "test";
 
 afterAll(async () => {
   const { closeDatabase } = await import("@/lib/data/sqlite-db");

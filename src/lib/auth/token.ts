@@ -1,8 +1,46 @@
 export const SESSION_COOKIE_NAME = "chavonauta_session";
 
-const SESSION_SECRET =
-  process.env.ADMIN_JWT_SECRET ||
-  "chavonauta-web-secure-hmac-secret-key-2026-production-salt-987654";
+const DEV_SESSION_SECRET = `dev-${Date.now()}-${Math.random()
+  .toString(36)
+  .slice(2)}-${Math.random().toString(36).slice(2)}`;
+
+let cachedSessionSecret: string | null = null;
+
+/**
+ * Resuelve el secreto de firma de sesiones.
+ * En producción es obligatorio configurarlo; en desarrollo/pruebas se genera
+ * un secreto efímero por proceso para no exponer valores fijos en el código.
+ */
+function getSessionSecret(): string {
+  if (cachedSessionSecret) return cachedSessionSecret;
+
+  const configuredSecret = process.env.ADMIN_JWT_SECRET;
+  if (configuredSecret && configuredSecret.length >= 32) {
+    cachedSessionSecret = configuredSecret;
+    return cachedSessionSecret;
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "ADMIN_JWT_SECRET no está configurado. Define un secreto de al menos 32 caracteres."
+    );
+  }
+
+  cachedSessionSecret = DEV_SESSION_SECRET;
+  return cachedSessionSecret;
+}
+
+/**
+ * Comparación de cadenas en tiempo constante para verificar firmas HMAC.
+ */
+function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
+}
 
 export interface AdminSessionPayload {
   email: string;
@@ -80,7 +118,7 @@ export async function createSessionToken(
   const encodedPayload = base64UrlEncode(JSON.stringify(payload));
   const dataToSign = `${encodedHeader}.${encodedPayload}`;
 
-  const signature = await generateHmacSignature(dataToSign, SESSION_SECRET);
+  const signature = await generateHmacSignature(dataToSign, getSessionSecret());
   return `${dataToSign}.${signature}`;
 }
 
@@ -96,8 +134,14 @@ export async function verifySessionToken(token: string): Promise<AdminSessionPay
   const [encodedHeader, encodedPayload, signature] = parts;
   const dataToVerify = `${encodedHeader}.${encodedPayload}`;
 
-  const expectedSignature = await generateHmacSignature(dataToVerify, SESSION_SECRET);
-  if (signature !== expectedSignature) {
+  let expectedSignature: string;
+  try {
+    expectedSignature = await generateHmacSignature(dataToVerify, getSessionSecret());
+  } catch {
+    return null;
+  }
+
+  if (!safeEqual(signature, expectedSignature)) {
     return null;
   }
 

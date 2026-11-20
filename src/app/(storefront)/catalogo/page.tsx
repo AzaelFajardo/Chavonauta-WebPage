@@ -33,12 +33,14 @@ export async function generateMetadata({
   };
 }
 
+const ITEMS_PER_PAGE = 24;
+
 export default async function CatalogPage({
   searchParams,
 }: {
-  searchParams: Promise<{ categoria?: string; q?: string }>;
+  searchParams: Promise<{ categoria?: string; q?: string; page?: string }>;
 }) {
-  const { categoria, q } = await searchParams;
+  const { categoria, q, page: pageParam } = await searchParams;
   const [items, categories, theme] = await Promise.all([
     repository.getCatalogItems(),
     repository.getCategories(),
@@ -66,6 +68,24 @@ export default async function CatalogPage({
   }
 
   const currentCategory = categories.find((c) => c.slug === categoria);
+
+  const requestedPage = Math.max(1, Number.parseInt(pageParam ?? "1", 10) || 1);
+  const totalItems = filteredItems.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+  const currentPage = Math.min(requestedPage, totalPages);
+  const pagedItems = filteredItems.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const buildPageHref = (page: number): string => {
+    const params = new URLSearchParams();
+    if (categoria && categoria !== "todas") params.set("categoria", categoria);
+    if (queryClean) params.set("q", queryClean);
+    if (page > 1) params.set("page", String(page));
+    const queryString = params.toString();
+    return `/catalogo${queryString ? `?${queryString}` : ""}`;
+  };
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 py-6">
@@ -96,7 +116,7 @@ export default async function CatalogPage({
 
         <div className="opacity-80 font-medium">
           <strong className="opacity-100" style={{ color: "var(--card-foreground)" }}>
-            {filteredItems.length}
+            {totalItems}
           </strong>{" "}
           resultados
           {queryClean && <span> para "{queryClean}"</span>}
@@ -171,9 +191,9 @@ export default async function CatalogPage({
 
         {/* Grilla de Productos */}
         <main className="lg:col-span-4">
-          {filteredItems.length > 0 ? (
+          {pagedItems.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {filteredItems.map((item) => {
+              {pagedItems.map((item) => {
                 const waLink = `https://wa.me/${theme.business.whatsappNumber}?text=${encodeURIComponent(
                   `Hola Chavonauta, me interesa consultar el artículo: ${item.name}`
                 )}`;
@@ -284,6 +304,46 @@ export default async function CatalogPage({
               >
                 Ver todos los productos
               </Link>
+            </div>
+          )}
+
+          {totalPages > 1 && (
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs">
+              {currentPage > 1 && (
+                <Link
+                  href={buildPageHref(currentPage - 1)}
+                  style={{
+                    backgroundColor: "var(--card)",
+                    color: "var(--card-foreground)",
+                    borderColor: "var(--border)",
+                    borderRadius: "var(--radius)",
+                  }}
+                  className="px-3 py-2 border font-semibold hover:opacity-80 transition-opacity"
+                >
+                  Anterior
+                </Link>
+              )}
+
+              <span
+                style={{ color: "var(--card-foreground)" }}
+                className="px-2 font-semibold"
+              >
+                Página {currentPage} de {totalPages}
+              </span>
+
+              {currentPage < totalPages && (
+                <Link
+                  href={buildPageHref(currentPage + 1)}
+                  style={{
+                    backgroundColor: "var(--primary)",
+                    color: "var(--primary-foreground)",
+                    borderRadius: "var(--radius)",
+                  }}
+                  className="px-3 py-2 font-semibold hover:opacity-90 transition-opacity"
+                >
+                  Siguiente
+                </Link>
+              )}
             </div>
           )}
         </main>

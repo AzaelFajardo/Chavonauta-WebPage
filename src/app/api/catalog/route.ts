@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { repository } from "@/lib/data/repository";
 import { requireAdminSession } from "@/lib/auth/require-session";
+import { isPayloadTooLarge } from "@/lib/http/request";
+import { validateCatalogItemInput } from "@/lib/validation";
 import { CatalogItem } from "@/types";
 
 export async function GET(request: NextRequest) {
@@ -45,54 +47,94 @@ export async function POST(request: NextRequest) {
   const auth = await requireAdminSession(request);
   if (!auth.session) return auth.response;
 
-  try {
-    const body = (await request.json()) as Partial<CatalogItem>;
+  if (isPayloadTooLarge(request)) {
+    return NextResponse.json(
+      { error: "Los datos del producto son demasiado grandes." },
+      { status: 413 }
+    );
+  }
 
-    if (!body.name || !body.type || !body.categorySlug) {
+  try {
+    const body = await request.json().catch(() => null);
+
+    if (body === null || typeof body !== "object" || Array.isArray(body)) {
       return NextResponse.json(
-        { error: "Nombre, tipo y categoría son campos obligatorios" },
+        { error: "Los datos del producto son inválidos." },
         { status: 400 }
       );
     }
 
-    // Generar slug si no se proporcionó
-    const slug =
-      body.slug?.trim() ||
-      body.name
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
+    const categories = await repository.getCategories();
+    const validation = validateCatalogItemInput(body, categories);
+
+    if (!validation.valid) {
+      return NextResponse.json(
+        {
+          error: "Producto o servicio inválido.",
+          details: validation.errors,
+        },
+        { status: 400 }
+      );
+    }
+
+    const payload = body as Partial<CatalogItem>;
+
+    const generatedSlug = payload.name
+      ? payload.name
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "")
+      : "";
+
+    const slug = payload.slug?.trim() || generatedSlug || `item-${Date.now()}`;
 
     const itemToSave: CatalogItem = {
-      id: body.id || "",
+      id: payload.id || "",
       slug,
-      name: body.name.trim(),
-      shortDescription: body.shortDescription?.trim() || "",
-      description: body.description?.trim() || body.shortDescription?.trim() || "",
-      type: body.type,
-      categorySlug: body.categorySlug,
-      priceLabel: body.priceLabel?.trim() || "Consultar en mostrador",
+      name: payload.name!.trim(),
+      shortDescription: payload.shortDescription?.trim() || "",
+      description:
+        payload.description?.trim() || payload.shortDescription?.trim() || "",
+      type: payload.type!,
+      categorySlug: payload.categorySlug!,
+      priceLabel: payload.priceLabel?.trim() || "Consultar en mostrador",
       referencePrice:
-        typeof body.referencePrice === "number" ? body.referencePrice : undefined,
+        typeof payload.referencePrice === "number"
+          ? payload.referencePrice
+          : undefined,
       promotionalPrice:
-        typeof body.promotionalPrice === "number" ? body.promotionalPrice : undefined,
-      stockType: body.stockType === "limited" ? "limited" : "infinite",
+        typeof payload.promotionalPrice === "number"
+          ? payload.promotionalPrice
+          : undefined,
+      stockType: payload.stockType === "limited" ? "limited" : "infinite",
       stockQuantity:
-        typeof body.stockQuantity === "number" ? body.stockQuantity : undefined,
+        typeof payload.stockQuantity === "number"
+          ? payload.stockQuantity
+          : undefined,
       imageUrl:
-        body.imageUrl?.trim() ||
+        payload.imageUrl?.trim() ||
         "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80",
-      badges: Array.isArray(body.badges) ? body.badges : [],
-      featured: Boolean(body.featured),
-      active: body.active !== undefined ? Boolean(body.active) : true,
-      specs: Array.isArray(body.specs) ? body.specs : [],
+      badges: Array.isArray(payload.badges) ? payload.badges : [],
+      featured: Boolean(payload.featured),
+      active: payload.active !== undefined ? Boolean(payload.active) : true,
+      specs: Array.isArray(payload.specs) ? payload.specs : [],
     };
 
     const saved = await repository.saveCatalogItem(itemToSave);
     return NextResponse.json(saved, { status: 200 });
   } catch (error) {
+    if (
+      error instanceof Error &&
+      /UNIQUE constraint failed: catalog_items\.slug/i.test(error.message)
+    ) {
+      return NextResponse.json(
+        { error: "El slug ya está en uso. Elige otro identificador." },
+        { status: 409 }
+      );
+    }
+
     console.error("Error al guardar ítem de catálogo:", error);
     return NextResponse.json(
       { error: "Error interno al guardar producto/servicio" },

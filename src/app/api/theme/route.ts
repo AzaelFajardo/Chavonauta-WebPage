@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { repository } from "@/lib/data/repository";
 import { requireAdminSession } from "@/lib/auth/require-session";
+import { isPayloadTooLarge } from "@/lib/http/request";
+import { validateThemeConfig } from "@/lib/validation";
 import { ThemeConfig } from "@/types";
 
 export async function GET() {
@@ -20,17 +22,37 @@ export async function POST(request: NextRequest) {
   const auth = await requireAdminSession(request);
   if (!auth.session) return auth.response;
 
-  try {
-    const body = (await request.json()) as ThemeConfig;
+  if (isPayloadTooLarge(request)) {
+    return NextResponse.json(
+      { error: "La configuración del tema es demasiado grande." },
+      { status: 413 }
+    );
+  }
 
-    if (!body || !body.palette || !body.business || !Array.isArray(body.sections)) {
+  try {
+    const body = await request.json().catch(() => null);
+    const validation = validateThemeConfig(body);
+
+    if (!validation.valid) {
       return NextResponse.json(
-        { error: "Estructura de configuración de tema inválida" },
+        {
+          error: "Configuración de tema inválida.",
+          details: validation.errors,
+        },
         { status: 400 }
       );
     }
 
-    const saved = await repository.saveThemeConfig(body);
+    const theme = body as ThemeConfig;
+    const normalizedTheme: ThemeConfig = {
+      ...theme,
+      business: {
+        ...theme.business,
+        whatsappNumber: theme.business.whatsappNumber.replace(/\D/g, ""),
+      },
+    };
+
+    const saved = await repository.saveThemeConfig(normalizedTheme);
     return NextResponse.json(saved, { status: 200 });
   } catch (error) {
     console.error("Error al guardar tema:", error);

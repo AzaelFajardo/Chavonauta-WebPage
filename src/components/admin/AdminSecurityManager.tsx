@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Shield,
   KeyRound,
   Mail,
   UserPlus,
@@ -452,14 +451,6 @@ export function AdminSecurityManager() {
               <span>Actualizar Contraseña de Acceso</span>
             </button>
           </form>
-        </div>
-      </div>
-
-      {/* Tarjeta 3: Resumen de Protecciones Activas */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3 text-xs text-slate-600">
-        <Shield className="w-5 h-5 text-emerald-600 shrink-0" />
-        <div className="text-[11px] leading-relaxed">
-          <strong>Protecciones activas del servidor:</strong> Bloqueo automático por 15 minutos tras 5 intentos fallidos (Rate Limiting por IP), sesiones criptográficas firmadas con HMAC-SHA256 y autenticación en 2 pasos.
         </div>
       </div>
     </div>

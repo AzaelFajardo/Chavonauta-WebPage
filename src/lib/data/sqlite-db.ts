@@ -122,7 +122,8 @@ function initializeSchema(db: Database.Database): void {
       id TEXT PRIMARY KEY,
       password_hash TEXT NOT NULL,
       salt TEXT NOT NULL,
-      updated_at TEXT NOT NULL
+      updated_at TEXT NOT NULL,
+      session_version INTEGER NOT NULL DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS login_rate_limits (
@@ -132,6 +133,17 @@ function initializeSchema(db: Database.Database): void {
       locked_until INTEGER NOT NULL
     );
   `);
+
+  // Compatibilidad con bases existentes creadas antes del versionado de sesiones.
+  const adminAuthColumns = db
+    .prepare("PRAGMA table_info(admin_auth)")
+    .all() as { name: string }[];
+
+  if (!adminAuthColumns.some((column) => column.name === "session_version")) {
+    db.exec(
+      "ALTER TABLE admin_auth ADD COLUMN session_version INTEGER NOT NULL DEFAULT 0"
+    );
+  }
 }
 
 /**
@@ -710,12 +722,32 @@ export async function sqliteGetAdminPasswordCredentials(): Promise<{
   return { hash: row.password_hash, salt: row.salt };
 }
 
+export async function sqliteGetAdminSessionVersion(): Promise<number> {
+  const db = getDatabase();
+  const row = db
+    .prepare("SELECT session_version FROM admin_auth WHERE id = 'master' LIMIT 1")
+    .get() as { session_version: number } | undefined;
+
+  return row?.session_version ?? 0;
+}
+
+export async function sqliteBumpAdminSessionVersion(): Promise<number> {
+  const db = getDatabase();
+  db.prepare(
+    "UPDATE admin_auth SET session_version = session_version + 1, updated_at = ? WHERE id = 'master'"
+  ).run(new Date().toISOString());
+
+  return sqliteGetAdminSessionVersion();
+}
+
 export async function sqliteSetAdminPassword(newPassword: string): Promise<void> {
   const db = getDatabase();
   const { hash, salt } = hashPassword(newPassword);
+  const currentVersion = await sqliteGetAdminSessionVersion();
+
   db.prepare(
-    "INSERT OR REPLACE INTO admin_auth (id, password_hash, salt, updated_at) VALUES ('master', ?, ?, ?)"
-  ).run(hash, salt, new Date().toISOString());
+    "INSERT OR REPLACE INTO admin_auth (id, password_hash, salt, updated_at, session_version) VALUES ('master', ?, ?, ?, ?)"
+  ).run(hash, salt, new Date().toISOString(), currentVersion + 1);
 }
 
 export async function sqliteCheckLoginRateLimit(

@@ -17,6 +17,7 @@ import {
   sqliteIsEmailInWhitelist,
   sqliteSetAdminPassword,
   sqliteResetFailedLoginAttempts,
+  sqliteGetAdminSessionVersion,
 } from "@/lib/data/sqlite-db";
 
 describe("Security, Authentication & Rate Limiting - Automated Tests", () => {
@@ -171,12 +172,70 @@ describe("Security, Authentication & Rate Limiting - Automated Tests", () => {
     expect(logoutCookie?.maxAge).toBe(0);
   });
 
+  it("invalidates active sessions when the password changes", async () => {
+    const email = "azachavonauta@gmail.com";
+
+    await sqliteSetAdminPassword("InitialPasswordForRevocation2026!");
+    const oldVersion = await sqliteGetAdminSessionVersion();
+    const oldToken = await createSessionToken(email, 3600, oldVersion);
+
+    const initialReq = new NextRequest("http://localhost:3000/api/admin/security", {
+      headers: { cookie: `chavonauta_session=${oldToken}` },
+    });
+    const initialRes = await getSecurity(initialReq);
+    expect(initialRes.status).toBe(200);
+
+    await sqliteSetAdminPassword("UpdatedPasswordForRevocation2026!");
+
+    const rejectedReq = new NextRequest("http://localhost:3000/api/admin/security", {
+      headers: { cookie: `chavonauta_session=${oldToken}` },
+    });
+    const rejectedRes = await getSecurity(rejectedReq);
+    expect(rejectedRes.status).toBe(401);
+
+    const newVersion = await sqliteGetAdminSessionVersion();
+    const newToken = await createSessionToken(email, 3600, newVersion);
+    const renewedReq = new NextRequest("http://localhost:3000/api/admin/security", {
+      headers: { cookie: `chavonauta_session=${newToken}` },
+    });
+    const renewedRes = await getSecurity(renewedReq);
+    expect(renewedRes.status).toBe(200);
+
+    await sqliteSetAdminPassword("Chavonauta2026!");
+  });
+
+  it("rejects sessions for emails no longer included in the whitelist", async () => {
+    const tempEmail = `revoked-${Date.now()}@chavonauta.com`;
+    await sqliteAddAdminWhitelistEmail(tempEmail);
+
+    const version = await sqliteGetAdminSessionVersion();
+    const token = await createSessionToken(tempEmail, 3600, version);
+
+    const allowedReq = new NextRequest("http://localhost:3000/api/admin/security", {
+      headers: { cookie: `chavonauta_session=${token}` },
+    });
+    const allowedRes = await getSecurity(allowedReq);
+    expect(allowedRes.status).toBe(200);
+
+    await sqliteRemoveAdminWhitelistEmail(tempEmail);
+
+    const revokedReq = new NextRequest("http://localhost:3000/api/admin/security", {
+      headers: { cookie: `chavonauta_session=${token}` },
+    });
+    const revokedRes = await getSecurity(revokedReq);
+    expect(revokedRes.status).toBe(401);
+  });
+
   it("protects /api/admin/security: requires valid session and handles whitelist CRUD", async () => {
     const unauthReq = new NextRequest("http://localhost:3000/api/admin/security");
     const unauthRes = await getSecurity(unauthReq);
     expect(unauthRes.status).toBe(401);
 
-    const token = await createSessionToken("azachavonauta@gmail.com");
+    const token = await createSessionToken(
+      "azachavonauta@gmail.com",
+      24 * 60 * 60,
+      await sqliteGetAdminSessionVersion()
+    );
     const authReq = new NextRequest("http://localhost:3000/api/admin/security", {
       headers: {
         cookie: `chavonauta_session=${token}`,

@@ -47,6 +47,7 @@ export interface AdminSessionPayload {
   role: "admin";
   iat: number;
   exp: number;
+  sv: number;
 }
 
 /**
@@ -103,7 +104,8 @@ async function generateHmacSignature(data: string, secret: string): Promise<stri
  */
 export async function createSessionToken(
   email: string,
-  expiresInSeconds: number = 24 * 60 * 60
+  expiresInSeconds: number = 24 * 60 * 60,
+  sessionVersion: number = 0
 ): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
   const payload: AdminSessionPayload = {
@@ -111,6 +113,7 @@ export async function createSessionToken(
     role: "admin",
     iat: now,
     exp: now + expiresInSeconds,
+    sv: sessionVersion,
   };
 
   const header = { alg: "HS256", typ: "JWT" };
@@ -154,7 +157,12 @@ export async function verifySessionToken(token: string): Promise<AdminSessionPay
       return null;
     }
 
-    if (payload.role !== "admin" || !payload.email) {
+    if (
+      payload.role !== "admin" ||
+      !payload.email ||
+      typeof payload.sv !== "number" ||
+      payload.sv < 0
+    ) {
       return null;
     }
 

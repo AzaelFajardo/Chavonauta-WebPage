@@ -6,7 +6,7 @@ import { POST as postUpload } from "@/app/api/upload/route";
 import { createSessionToken } from "@/lib/auth/security";
 
 async function adminCookie(): Promise<string> {
-  return `chavonauta_session=${await createSessionToken("test-admin@chavonauta.com")}`;
+  return `chavonauta_session=${await createSessionToken("azachavonauta@gmail.com")}`;
 }
 
 describe("API Routes - Automated Tests", () => {

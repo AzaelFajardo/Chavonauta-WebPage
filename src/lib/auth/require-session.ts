@@ -4,6 +4,7 @@ import {
   SESSION_COOKIE_NAME,
   type AdminSessionPayload,
 } from "@/lib/auth/token";
+import { isSessionCurrent } from "@/lib/auth/session-policy";
 
 export type AdminAuthResult =
   | { session: AdminSessionPayload; response: null }
@@ -26,7 +27,7 @@ export async function requireAdminSession(
   }
 
   const session = await verifySessionToken(token);
-  if (!session) {
+  if (!session || !(await isSessionCurrent(session))) {
     return {
       session: null,
       response: NextResponse.json(

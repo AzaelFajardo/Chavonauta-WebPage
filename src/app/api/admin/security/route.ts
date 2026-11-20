@@ -5,36 +5,27 @@ import {
   sqliteRemoveAdminWhitelistEmail,
   sqliteGetAdminPasswordCredentials,
   sqliteSetAdminPassword,
+  sqliteGetAdminSessionVersion,
 } from "@/lib/data/sqlite-db";
-import { verifySessionToken, verifyPassword } from "@/lib/auth/security";
-
-/**
- * Valida que la petición contenga una cookie de sesión válida.
- */
-async function authenticateRequest(request: NextRequest) {
-  const sessionCookie = request.cookies.get("chavonauta_session")?.value;
-  if (!sessionCookie) return null;
-  return await verifySessionToken(sessionCookie);
-}
+import { verifyPassword, createSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth/security";
+import { requireAdminSession } from "@/lib/auth/require-session";
 
 export async function GET(request: NextRequest) {
-  const session = await authenticateRequest(request);
-  if (!session) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  const auth = await requireAdminSession(request);
+  if (!auth.session) return auth.response;
 
   const whitelist = await sqliteGetAdminWhitelist();
   return NextResponse.json({
     whitelist,
-    currentSessionEmail: session.email,
+    currentSessionEmail: auth.session.email,
   });
 }
 
 export async function POST(request: NextRequest) {
-  const session = await authenticateRequest(request);
-  if (!session) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  const auth = await requireAdminSession(request);
+  if (!auth.session) return auth.response;
+
+  const session = auth.session;
 
   try {
     const body = await request.json();
@@ -115,10 +106,26 @@ export async function POST(request: NextRequest) {
 
       await sqliteSetAdminPassword(newPassword);
 
-      return NextResponse.json({
+      const newVersion = await sqliteGetAdminSessionVersion();
+      const refreshedToken = await createSessionToken(
+        session.email,
+        24 * 60 * 60,
+        newVersion
+      );
+
+      const response = NextResponse.json({
         success: true,
         message: "Contraseña de administración actualizada exitosamente.",
       });
+      response.cookies.set(SESSION_COOKIE_NAME, refreshedToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 24 * 60 * 60,
+      });
+
+      return response;
     }
 
     return NextResponse.json({ error: "Acción no reconocida." }, { status: 400 });

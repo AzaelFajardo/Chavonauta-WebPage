@@ -213,7 +213,7 @@ describe("Upload Cleanup & Image Lifecycle Management", () => {
 
     expect(fs.existsSync(apiTestFile)).toBe(true);
 
-    const token = await createSessionToken("test-admin@chavonauta.com");
+    const token = await createSessionToken("azachavonauta@gmail.com");
     const req = new NextRequest(`http://localhost:3000/api/upload?url=${encodeURIComponent(apiDeleteUrl)}`, {
       method: "DELETE",
       headers: { cookie: `chavonauta_session=${token}` },

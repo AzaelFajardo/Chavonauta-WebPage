@@ -5,6 +5,7 @@ import {
   sqliteResetFailedLoginAttempts,
   sqliteIsEmailInWhitelist,
   sqliteGetAdminPasswordCredentials,
+  sqliteGetAdminSessionVersion,
 } from "@/lib/data/sqlite-db";
 import {
   verifyPassword,
@@ -124,7 +125,8 @@ export async function POST(request: NextRequest) {
 
     // 5. Autenticación exitosa: reiniciar contador de fallos y emitir sesión
     await sqliteResetFailedLoginAttempts(ip);
-    const token = await createSessionToken(email);
+    const sessionVersion = await sqliteGetAdminSessionVersion();
+    const token = await createSessionToken(email, 24 * 60 * 60, sessionVersion);
 
     const response = NextResponse.json({
       success: true,

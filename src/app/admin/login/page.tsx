@@ -2,34 +2,22 @@
 
 import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  ArrowRight,
-  ArrowLeft,
-  Eye,
-  EyeOff,
-  Loader2,
-  AlertCircle,
-  Mail,
-  Lock,
-} from "lucide-react";
-import Link from "next/link";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get("from") || "/admin/catalogo";
 
-  // Estado del flujo de 2 pasos
   const [step, setStep] = useState<1 | 2>(1);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // Estados de carga y error
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Paso 1: Validar si el correo está autorizado en la Whitelist
+  // Paso 1: Comprobar si el correo está en la lista blanca
   const handleCheckEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -58,7 +46,6 @@ function LoginForm() {
         return;
       }
 
-      // Correo autorizado -> Pasar a la ventana de contraseña
       setStep(2);
       setPassword("");
     } catch {
@@ -68,7 +55,7 @@ function LoginForm() {
     }
   };
 
-  // Paso 2: Validar contraseña y generar sesión
+  // Paso 2: Validar contraseña y acceder
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -105,24 +92,15 @@ function LoginForm() {
 
   return (
     <div className="w-full max-w-sm mx-auto">
-      {/* Tarjeta Minimalista */}
-      <div className="bg-navy-950/95 border border-navy-800/80 rounded-3xl p-7 shadow-2xl backdrop-blur-md">
-        {/* Cabecera Minimalista */}
-        <div className="text-center mb-6">
-          <div className="w-10 h-10 rounded-xl bg-navy-900 border border-navy-800 flex items-center justify-center mx-auto mb-3.5 text-sky-400">
-            {step === 1 ? <Mail className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-          </div>
-          <h1 className="text-base font-black tracking-tight text-white uppercase">
-            CHAVONAUTA
-          </h1>
-          <p className="text-xs text-slate-400 mt-0.5">Panel Administrativo</p>
-        </div>
+      {/* Contenedor Plano y Minimalista */}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-7">
+        <h1 className="text-xl font-bold text-white text-center mb-6 tracking-tight">
+          Bienvenido
+        </h1>
 
-        {/* Mensaje de Error */}
         {errorMessage && (
-          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/25 text-red-300 text-xs flex items-center gap-2 animate-in fade-in duration-150">
-            <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
-            <span className="leading-relaxed">{errorMessage}</span>
+          <div className="mb-4 p-2.5 rounded-xl bg-zinc-800 border border-zinc-700 text-rose-300 text-xs text-center leading-relaxed">
+            {errorMessage}
           </div>
         )}
 
@@ -130,7 +108,7 @@ function LoginForm() {
         {step === 1 && (
           <form onSubmit={handleCheckEmail} className="space-y-4">
             <div>
-              <label className="block text-[11px] font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs text-zinc-400 mb-1.5 font-medium">
                 Correo Electrónico
               </label>
               <input
@@ -141,14 +119,14 @@ function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="nombre@ejemplo.com"
-                className="w-full px-3.5 py-2.5 bg-navy-900/90 border border-navy-750 rounded-xl text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
+                className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-zinc-500 transition-colors"
               />
             </div>
 
             <button
               type="submit"
               disabled={isLoading || !email.trim()}
-              className="w-full py-2.5 px-4 rounded-xl font-bold text-xs tracking-wider uppercase text-white bg-sky-600 hover:bg-sky-500 active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-sky-600/20"
+              className="w-full py-2.5 px-4 rounded-xl font-medium text-xs text-zinc-900 bg-white hover:bg-zinc-200 active:bg-zinc-300 transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               {isLoading ? (
                 <>
@@ -156,21 +134,17 @@ function LoginForm() {
                   <span>Comprobando...</span>
                 </>
               ) : (
-                <>
-                  <span>Continuar</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </>
+                <span>Continuar</span>
               )}
             </button>
           </form>
         )}
 
-        {/* VENTANA 2: Contraseña (Solo si el correo fue autorizado) */}
+        {/* VENTANA 2: Contraseña */}
         {step === 2 && (
-          <form onSubmit={handleLogin} className="space-y-4 animate-in fade-in duration-200">
-            {/* Chip con el correo validado */}
-            <div className="flex items-center justify-between p-2.5 bg-navy-900/70 border border-navy-800 rounded-xl text-xs">
-              <span className="text-slate-300 font-medium truncate max-w-[200px]">
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="flex items-center justify-between p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs">
+              <span className="text-zinc-300 font-medium truncate max-w-[200px]">
                 {email}
               </span>
               <button
@@ -179,14 +153,14 @@ function LoginForm() {
                   setStep(1);
                   setErrorMessage(null);
                 }}
-                className="text-[11px] font-semibold text-sky-400 hover:text-sky-300 transition-colors"
+                className="text-[11px] text-zinc-400 hover:text-white transition-colors cursor-pointer"
               >
                 Cambiar
               </button>
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs text-zinc-400 mb-1.5 font-medium">
                 Contraseña
               </label>
               <div className="relative">
@@ -198,12 +172,12 @@ function LoginForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full px-3.5 py-2.5 pr-10 bg-navy-900/90 border border-navy-750 rounded-xl text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
+                  className="w-full px-3 py-2.5 pr-10 bg-zinc-950 border border-zinc-800 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-zinc-500 transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors cursor-pointer"
                 >
                   {showPassword ? (
                     <EyeOff className="w-3.5 h-3.5" />
@@ -217,7 +191,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={isLoading || !password}
-              className="w-full py-2.5 px-4 rounded-xl font-bold text-xs tracking-wider uppercase text-white bg-sky-600 hover:bg-sky-500 active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-sky-600/20"
+              className="w-full py-2.5 px-4 rounded-xl font-medium text-xs text-zinc-900 bg-white hover:bg-zinc-200 active:bg-zinc-300 transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               {isLoading ? (
                 <>
@@ -230,17 +204,6 @@ function LoginForm() {
             </button>
           </form>
         )}
-
-        {/* Enlace sutil para volver a la tienda */}
-        <div className="mt-5 pt-4 border-t border-navy-900/80 text-center">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors"
-          >
-            <ArrowLeft className="w-3 h-3" />
-            <span>Volver a la tienda</span>
-          </Link>
-        </div>
       </div>
     </div>
   );
@@ -248,11 +211,11 @@ function LoginForm() {
 
 export default function AdminLoginPage() {
   return (
-    <div className="min-h-screen w-full bg-slate-950 flex items-center justify-center p-4">
+    <div className="min-h-screen w-full bg-zinc-950 flex items-center justify-center p-4">
       <Suspense
         fallback={
-          <div className="text-slate-400 text-xs flex items-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin text-sky-400" />
+          <div className="text-zinc-500 text-xs flex items-center gap-2">
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-400" />
             <span>Cargando...</span>
           </div>
         }

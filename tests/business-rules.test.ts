@@ -365,7 +365,7 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     expect(paletteEditorContent).toContain("Activar Cascada para este tema");
   });
 
-  it("enforces rule 12: No emoji symbols in customizer/storefront UI, and custom theme presets support cascade packs", () => {
+  it("enforces rule 12: No emoji symbols in customizer/storefront UI, and custom theme presets support cascade packs", async () => {
     // 1. Verificar que no existan emojis en componentes del personalizador
     const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
 
@@ -386,5 +386,38 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     const typesContent = fs.readFileSync(typesPath, "utf-8");
     expect(typesContent).toContain("fallingIconsPack?: HeroIconPackKey;");
     expect(typesContent).toContain("fallingIconsEnabled?: boolean;");
+
+    // 3. Verificar que getParticlesForDensity distribuya partículas equitativamente en todo el ancho
+    const heroFallingIconsPath = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "sections",
+      "HeroFallingIcons.tsx"
+    );
+    const heroFallingIconsContent = fs.readFileSync(heroFallingIconsPath, "utf-8");
+    expect(heroFallingIconsContent).toContain("getParticlesForDensity");
+
+    // Test dinámico de distribución
+    const { getParticlesForDensity } = await import("@/lib/theme-engine");
+    for (const density of ["subtle", "balanced", "lively"] as const) {
+      const particles = getParticlesForDensity(density);
+      expect(particles.length).toBeGreaterThan(0);
+
+      const numericLefts = particles.map((p) => parseFloat(p.left));
+      const minLeft = Math.min(...numericLefts);
+      const maxLeft = Math.max(...numericLefts);
+
+      // Debe cubrir de extremo a extremo el ancho del hero
+      expect(minLeft).toBeLessThanOrEqual(10);
+      expect(maxLeft).toBeGreaterThanOrEqual(90);
+
+      // Ambas mitades (izquierda y derecha) deben tener partículas suficientes
+      const leftHalfCount = numericLefts.filter((l) => l <= 50).length;
+      const rightHalfCount = numericLefts.filter((l) => l > 50).length;
+
+      expect(leftHalfCount).toBeGreaterThanOrEqual(Math.floor(particles.length * 0.4));
+      expect(rightHalfCount).toBeGreaterThanOrEqual(Math.floor(particles.length * 0.4));
+    }
   });
 });

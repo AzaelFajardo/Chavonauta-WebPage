@@ -2,7 +2,9 @@
 
 import React, { useMemo } from "react";
 import { HeroFallingIconsConfig, HeroIconPackKey, ThemePalette } from "@/types";
-import { resolveHeroIconPack } from "@/lib/theme-engine";
+import { getParticlesForDensity, HeroParticle, resolveHeroIconPack } from "@/lib/theme-engine";
+
+export { getParticlesForDensity };
 
 interface HeroFallingIconsProps {
   config?: HeroFallingIconsConfig;
@@ -312,50 +314,8 @@ const ICON_PACK_COMPONENTS: Record<string, IconRenderer[]> = {
 };
 
 // ----------------------------------------------------
-// 28 Partículas Determinísticas (Sin Math.random para evitar Hydration Error)
+// Partículas Distribuidas en Todo el Ancho (de 3% a 97%)
 // ----------------------------------------------------
-interface Particle {
-  id: number;
-  left: string;
-  size: number;
-  delay: number;
-  duration: number;
-  swayDuration: number;
-  swayX: number;
-  opacity: number;
-  rotateDeg: number;
-}
-
-const DETERMINISTIC_PARTICLES: Particle[] = [
-  { id: 1, left: "3%", size: 24, delay: -1.5, duration: 9.8, swayDuration: 3.5, swayX: 14, opacity: 0.55, rotateDeg: 340 },
-  { id: 2, left: "7%", size: 28, delay: -7.2, duration: 11.4, swayDuration: 4.2, swayX: -16, opacity: 0.65, rotateDeg: 280 },
-  { id: 3, left: "12%", size: 20, delay: -3.8, duration: 8.6, swayDuration: 3.2, swayX: 12, opacity: 0.45, rotateDeg: 190 },
-  { id: 4, left: "16%", size: 30, delay: -10.1, duration: 12.8, swayDuration: 4.6, swayX: -18, opacity: 0.60, rotateDeg: 360 },
-  { id: 5, left: "21%", size: 22, delay: -5.4, duration: 9.2, swayDuration: 3.7, swayX: 15, opacity: 0.50, rotateDeg: 240 },
-  { id: 6, left: "25%", size: 26, delay: -2.1, duration: 10.6, swayDuration: 4.1, swayX: -14, opacity: 0.58, rotateDeg: 310 },
-  { id: 7, left: "29%", size: 20, delay: -8.6, duration: 8.9, swayDuration: 3.4, swayX: 11, opacity: 0.45, rotateDeg: 180 },
-  { id: 8, left: "34%", size: 32, delay: -4.3, duration: 13.2, swayDuration: 4.8, swayX: -20, opacity: 0.65, rotateDeg: 380 },
-  { id: 9, left: "38%", size: 24, delay: -11.9, duration: 9.5, swayDuration: 3.6, swayX: 13, opacity: 0.52, rotateDeg: 260 },
-  { id: 10, left: "43%", size: 28, delay: -6.7, duration: 11.8, swayDuration: 4.3, swayX: -16, opacity: 0.60, rotateDeg: 330 },
-  { id: 11, left: "47%", size: 20, delay: -1.9, duration: 8.5, swayDuration: 3.1, swayX: 10, opacity: 0.42, rotateDeg: 200 },
-  { id: 12, left: "52%", size: 26, delay: -9.4, duration: 10.3, swayDuration: 3.9, swayX: -15, opacity: 0.55, rotateDeg: 300 },
-  { id: 13, left: "56%", size: 30, delay: -3.5, duration: 12.4, swayDuration: 4.5, swayX: 18, opacity: 0.62, rotateDeg: 350 },
-  { id: 14, left: "60%", size: 22, delay: -8.1, duration: 9.1, swayDuration: 3.5, swayX: -12, opacity: 0.48, rotateDeg: 220 },
-  { id: 15, left: "65%", size: 28, delay: -12.5, duration: 11.6, swayDuration: 4.2, swayX: 16, opacity: 0.58, rotateDeg: 320 },
-  { id: 16, left: "69%", size: 20, delay: -4.9, duration: 8.7, swayDuration: 3.3, swayX: -11, opacity: 0.44, rotateDeg: 190 },
-  { id: 17, left: "73%", size: 32, delay: -10.8, duration: 13.0, swayDuration: 4.7, swayX: 19, opacity: 0.64, rotateDeg: 370 },
-  { id: 18, left: "78%", size: 24, delay: -2.7, duration: 9.6, swayDuration: 3.8, swayX: -14, opacity: 0.53, rotateDeg: 270 },
-  { id: 19, left: "82%", size: 26, delay: -7.9, duration: 10.8, swayDuration: 4.0, swayX: 15, opacity: 0.56, rotateDeg: 310 },
-  { id: 20, left: "86%", size: 20, delay: -0.8, duration: 8.4, swayDuration: 3.0, swayX: -10, opacity: 0.42, rotateDeg: 180 },
-  { id: 21, left: "90%", size: 30, delay: -6.1, duration: 12.1, swayDuration: 4.4, swayX: 17, opacity: 0.62, rotateDeg: 340 },
-  { id: 22, left: "94%", size: 24, delay: -11.2, duration: 9.4, swayDuration: 3.6, swayX: -13, opacity: 0.50, rotateDeg: 250 },
-  { id: 23, left: "97%", size: 28, delay: -4.1, duration: 11.2, swayDuration: 4.1, swayX: 15, opacity: 0.58, rotateDeg: 300 },
-  { id: 24, left: "5%", size: 22, delay: -9.8, duration: 9.3, swayDuration: 3.4, swayX: -12, opacity: 0.46, rotateDeg: 210 },
-  { id: 25, left: "32%", size: 26, delay: -1.2, duration: 10.5, swayDuration: 3.9, swayX: 14, opacity: 0.54, rotateDeg: 290 },
-  { id: 26, left: "50%", size: 24, delay: -6.4, duration: 9.7, swayDuration: 3.6, swayX: -13, opacity: 0.50, rotateDeg: 240 },
-  { id: 27, left: "68%", size: 30, delay: -13.1, duration: 12.6, swayDuration: 4.6, swayX: 18, opacity: 0.60, rotateDeg: 350 },
-  { id: 28, left: "85%", size: 22, delay: -3.3, duration: 8.9, swayDuration: 3.3, swayX: -11, opacity: 0.45, rotateDeg: 190 },
-];
 
 export function HeroFallingIcons({
   config,
@@ -374,17 +334,15 @@ export function HeroFallingIcons({
     return ICON_PACK_COMPONENTS[resolvedPackKey] || ICON_PACK_COMPONENTS.tech;
   }, [resolvedPackKey]);
 
-  // Ajustar cantidad de partículas según densidad
+  // Generar partículas distribuidas en todo el ancho según densidad
   const density = config?.density || "balanced";
-  const particleCount = density === "subtle" ? 12 : density === "lively" ? 28 : 20;
+  const activeParticles = useMemo(() => {
+    return getParticlesForDensity(density);
+  }, [density]);
 
   // Multiplicador de velocidad
   const speed = config?.speed || "normal";
   const speedMultiplier = speed === "slow" ? 1.4 : speed === "fast" ? 0.7 : 1.0;
-
-  const activeParticles = useMemo(() => {
-    return DETERMINISTIC_PARTICLES.slice(0, particleCount);
-  }, [particleCount]);
 
   if (!isEnabled || icons.length === 0) {
     return null;

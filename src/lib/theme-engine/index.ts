@@ -495,3 +495,56 @@ export function resolveHeroIconPack(
 
   return "tech";
 }
+
+export interface HeroParticle {
+  id: number;
+  left: string;
+  size: number;
+  delay: number;
+  duration: number;
+  swayDuration: number;
+  swayX: number;
+  opacity: number;
+  rotateDeg: number;
+}
+
+/**
+ * Genera partículas distribuidas equitativamente a lo largo de TODO el ancho del Hero (de 3% a 97%).
+ * De esta manera, sin importar la densidad (suave, media o viva), las partículas cubren
+ * de extremo a extremo el banner y nunca quedan concentradas en solo una mitad.
+ */
+export function getParticlesForDensity(density: "subtle" | "balanced" | "lively"): HeroParticle[] {
+  const count = density === "subtle" ? 12 : density === "lively" ? 28 : 20;
+  const particles: HeroParticle[] = [];
+  const usableWidth = 94.0; // entre 3% y 97%
+  const bucketWidth = usableWidth / count;
+
+  for (let i = 0; i < count; i++) {
+    // Variación sutil dentro de cada franja para naturalidad orgánica sin amontonarse
+    const jitterFactor = (((i * 13) % 7) - 3) / 10.0; // -0.3 a +0.3
+    const leftVal = (3.0 + (i + 0.5 + jitterFactor) * bucketWidth).toFixed(1);
+
+    const size = 20 + ((i * 11) % 13); // entre 20px y 32px
+    const duration = +(8.5 + ((i * 17) % 45) / 10).toFixed(1); // entre 8.5s y 13.0s
+    // Delays intercalados no lineales para que ya se encuentren a diferentes alturas en vuelo
+    const delay = -+(0.8 + ((i * 31 + 17) % 120) / 10).toFixed(1); // entre -0.8s y -12.8s
+    const swayDuration = +(3.2 + ((i * 13) % 16) / 10).toFixed(1); // entre 3.2s y 4.8s
+    const swayX = (i % 2 === 0 ? 1 : -1) * (11 + ((i * 7) % 9)); // entre 11px y 19px
+    const opacity = +(0.44 + ((i * 19) % 20) / 100).toFixed(2); // entre 0.44 y 0.64
+    const rotateDeg = 180 + ((i * 43) % 190);
+
+    particles.push({
+      id: i + 1,
+      left: `${leftVal}%`,
+      size,
+      delay,
+      duration,
+      swayDuration,
+      swayX,
+      opacity,
+      rotateDeg,
+    });
+  }
+
+  return particles;
+}

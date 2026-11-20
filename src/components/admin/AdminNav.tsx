@@ -38,6 +38,12 @@ const NAV_ITEMS = [
 
 export function AdminNav() {
   const pathname = usePathname();
+
+  // Si estamos en la página de inicio de sesión, no mostrar ninguna barra de navegación
+  if (pathname === "/admin/login") {
+    return null;
+  }
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const leaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);

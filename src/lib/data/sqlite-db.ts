@@ -208,10 +208,13 @@ function seedIfEmpty(db: Database.Database): void {
  */
 function seedSecurityIfEmpty(db: Database.Database): void {
   // 1. Whitelist inicial
-  const initialEmail = "ciberchavonauta@gmail.com";
-  db.prepare(
-    "INSERT OR IGNORE INTO admin_whitelist (id, email, created_at, added_by) VALUES ('wl-initial', ?, ?, 'sistema')"
-  ).run(initialEmail, new Date().toISOString());
+  const initialEmails = ["ciberchavonauta@gmail.com", "azachavonauta@gmail.com"];
+  const insertWl = db.prepare(
+    "INSERT OR IGNORE INTO admin_whitelist (id, email, created_at, added_by) VALUES (?, ?, ?, 'sistema')"
+  );
+  initialEmails.forEach((email, idx) => {
+    insertWl.run(`wl-initial-${idx + 1}`, email, new Date().toISOString());
+  });
 
   // 2. Contraseña maestra inicial
   const initialPassword = process.env.ADMIN_INITIAL_PASSWORD || "Chavonauta2026!";

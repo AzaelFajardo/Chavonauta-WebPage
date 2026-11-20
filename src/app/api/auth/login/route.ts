@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(
         {
-          error: "Credenciales inválidas o correo no autorizado.",
+          error: "Contraseña incorrecta.",
           remainingAttempts: attempt.remainingAttempts,
         },
         { status: 401 }
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(
         {
-          error: "Credenciales inválidas o correo no autorizado.",
+          error: "Contraseña incorrecta.",
           remainingAttempts: attempt.remainingAttempts,
         },
         { status: 401 }

@@ -13,6 +13,7 @@ import { isImageUrlInUse } from "@/lib/data/sqlite-db";
 import { CatalogItem } from "@/types";
 import { NextRequest } from "next/server";
 import { DELETE as deleteUploadApi } from "@/app/api/upload/route";
+import { GET as serveUploadApi } from "@/app/uploads/[filename]/route";
 import { createSessionToken } from "@/lib/auth/security";
 
 describe("Upload Cleanup & Image Lifecycle Management", () => {
@@ -175,6 +176,34 @@ describe("Upload Cleanup & Image Lifecycle Management", () => {
 
     // El archivo físico debe haber desaparecido
     expect(fs.existsSync(deleteTestFile)).toBe(false);
+  });
+
+  it("serves uploaded images at runtime through the dedicated handler", async () => {
+    const servedFile = path.join(uploadsDir, `test-serving-${Date.now()}.png`);
+    fs.writeFileSync(servedFile, Buffer.from([0x89, 0x50, 0x4e, 0x47]));
+
+    const response = await serveUploadApi(
+      new NextRequest(`http://localhost:3000/uploads/${path.basename(servedFile)}`),
+      { params: Promise.resolve({ filename: path.basename(servedFile) }) }
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toBe("image/png");
+    expect(response.headers.get("x-content-type-options")).toBe("nosniff");
+
+    const traversal = await serveUploadApi(
+      new NextRequest("http://localhost:3000/uploads/../secret.png"),
+      { params: Promise.resolve({ filename: "../secret.png" }) }
+    );
+    expect(traversal.status).toBe(404);
+
+    const disallowed = await serveUploadApi(
+      new NextRequest("http://localhost:3000/uploads/document.html"),
+      { params: Promise.resolve({ filename: "document.html" }) }
+    );
+    expect(disallowed.status).toBe(404);
+
+    fs.unlinkSync(servedFile);
   });
 
   it("handles DELETE /api/upload endpoint securely", async () => {

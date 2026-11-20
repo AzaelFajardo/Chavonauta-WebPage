@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { MessageCircle, Mail, Clock, Lock } from "lucide-react";
 import { BusinessInfo, Category } from "@/types";
+import { getWhatsAppDisplay } from "@/lib/business";
 
 interface FooterProps {
   business: BusinessInfo;
@@ -119,7 +120,7 @@ export function Footer({ business, categories }: FooterProps) {
           <div className="space-y-2 opacity-90 mb-4">
             <p className="flex items-center gap-1.5">
               <MessageCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span>WhatsApp: 449 402 2163</span>
+              <span>WhatsApp: {getWhatsAppDisplay(business)}</span>
             </p>
             {business.email && (
               <p className="flex items-center gap-1.5">

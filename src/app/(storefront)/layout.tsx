@@ -53,9 +53,10 @@ export default async function StorefrontLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [theme, categories] = await Promise.all([
+  const [theme, categories, items] = await Promise.all([
     repository.getThemeConfig(),
     repository.getCategories(),
+    repository.getCatalogItems(),
   ]);
   const cssVars = themeToCssVars(theme);
 
@@ -69,7 +70,23 @@ export default async function StorefrontLayout({
       } as React.CSSProperties}
       className="min-h-screen flex flex-col bg-background text-foreground antialiased transition-colors duration-200"
     >
-      <Navbar business={theme.business} categories={categories} />
+      {theme.business.announcementEnabled &&
+      theme.business.announcementText?.trim() ? (
+        <div
+          style={{
+            backgroundColor: "var(--accent)",
+            color: "var(--accent-foreground)",
+          }}
+          className="text-center px-4 py-2 text-[11px] sm:text-xs font-semibold"
+        >
+          {theme.business.announcementText.trim()}
+        </div>
+      ) : null}
+      <Navbar
+        business={theme.business}
+        categories={categories}
+        items={items}
+      />
       <main className="flex-1">{children}</main>
       <Footer business={theme.business} categories={categories} />
       <ContactFloatingButton business={theme.business} />

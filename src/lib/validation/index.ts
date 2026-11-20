@@ -146,6 +146,11 @@ function validateBusiness(value: unknown, errors: string[]): void {
     errors
   );
   collectErrors(
+    value.whatsappDisplay === undefined || isString(value.whatsappDisplay, 30),
+    "business.whatsappDisplay: texto demasiado largo",
+    errors
+  );
+  collectErrors(
     value.email === undefined ||
       (isString(value.email, 200) &&
         (value.email === "" || EMAIL.test(String(value.email)))),

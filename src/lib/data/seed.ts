@@ -25,6 +25,7 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
       "Atención directa por WhatsApp al 449 402 2163 • Impresiones, trámites, soporte y renta de PC.",
     announcementEnabled: true,
     whatsappNumber: "5214494022163",
+    whatsappDisplay: "449 402 2163",
     email: "ciberchavonauta@gmail.com",
     address: "Hacienda las Amarillas #44, Haciendas de Aguascalientes, Aguascalientes, Ags.",
     schedule: "Lunes a Viernes: 8:00 - 22:00 | Sábado y Domingo: 12:00 - 22:00",

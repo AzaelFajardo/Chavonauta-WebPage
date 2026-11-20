@@ -15,14 +15,16 @@ import {
   Monitor,
   FolderOpen,
 } from "lucide-react";
-import { BusinessInfo, Category } from "@/types";
+import { BusinessInfo, CatalogItem, Category } from "@/types";
+import { getWhatsAppDisplay } from "@/lib/business";
 
 interface NavbarProps {
   business: BusinessInfo;
   categories: Category[];
+  items: CatalogItem[];
 }
 
-export function Navbar({ business, categories }: NavbarProps) {
+export function Navbar({ business, categories, items }: NavbarProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("todas");
@@ -30,6 +32,7 @@ export function Navbar({ business, categories }: NavbarProps) {
 
   const oneHourRate = business.computerRates?.oneHour ?? 7;
   const halfHourRate = business.computerRates?.halfHour ?? 4;
+  const whatsappDisplay = getWhatsAppDisplay(business);
 
   const whatsappHref = `https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(
     `Hola ${business.name}, deseo consultar la disponibilidad de un producto o cotizar un servicio.`
@@ -375,7 +378,7 @@ export function Navbar({ business, categories }: NavbarProps) {
                   className="flex items-center justify-center gap-2 w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition-colors"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>WhatsApp: 449 402 2163</span>
+                  <span>WhatsApp: {whatsappDisplay}</span>
                 </a>
               </div>
 
@@ -407,33 +410,24 @@ export function Navbar({ business, categories }: NavbarProps) {
                       Renta de PC (${oneHourRate}/hr • Media hr: ${halfHourRate})
                     </Link>
                   </li>
-                  <li>
-                    <Link
-                      href="/item/impresiones-blanco-negro-y-color"
-                      onClick={() => setDrawerOpen(false)}
-                      className="block py-2 px-2.5 rounded hover:bg-current/10 opacity-85 hover:opacity-100 transition-colors"
-                    >
-                      Impresiones B/N y Color / Copias
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/item/reparacion-y-mantenimiento-equipos-digitales"
-                      onClick={() => setDrawerOpen(false)}
-                      className="block py-2 px-2.5 rounded hover:bg-current/10 opacity-85 hover:opacity-100 transition-colors"
-                    >
-                      Mantenimiento y Reparación de Equipos
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/item/tramites-digitales-curp-actas-citas"
-                      onClick={() => setDrawerOpen(false)}
-                      className="block py-2 px-2.5 rounded hover:bg-current/10 opacity-85 hover:opacity-100 transition-colors"
-                    >
-                      Trámites Digitales (CURP, Actas, CFE)
-                    </Link>
-                  </li>
+                  {items
+                    .filter(
+                      (item) =>
+                        item.type === "service" &&
+                        item.categorySlug === "servicios-cyber"
+                    )
+                    .slice(0, 5)
+                    .map((item) => (
+                      <li key={item.id}>
+                        <Link
+                          href={`/item/${item.slug}`}
+                          onClick={() => setDrawerOpen(false)}
+                          className="block py-2 px-2.5 rounded hover:bg-current/10 opacity-85 hover:opacity-100 transition-colors"
+                        >
+                          {item.name}
+                        </Link>
+                      </li>
+                    ))}
                 </ul>
               </div>
 

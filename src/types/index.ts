@@ -76,6 +76,7 @@ export interface BusinessInfo {
   announcementText?: string;
   announcementEnabled?: boolean;
   whatsappNumber: string;
+  whatsappDisplay?: string;
   email?: string;
   address: string;
   schedule: string;

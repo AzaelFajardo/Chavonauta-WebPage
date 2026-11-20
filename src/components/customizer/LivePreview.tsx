@@ -260,7 +260,11 @@ export function LivePreview({
           >
             {/* Barra de navegación del escaparate */}
             <div className="pointer-events-none">
-              <Navbar business={theme.business} categories={categories} />
+              <Navbar
+                business={theme.business}
+                categories={categories}
+                items={items}
+              />
             </div>
 
             {/* Secciones Modulares Escrolleables de Arriba a Abajo */}

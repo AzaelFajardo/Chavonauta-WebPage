@@ -10,6 +10,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { BusinessInfo, CatalogItem, Category, HeroFallingIconsConfig, SectionBlock, ThemePalette } from "@/types";
+import { getWhatsAppDisplay } from "@/lib/business";
+import { getSafeExternalUrl } from "@/lib/validation";
 import { HeroFallingIcons } from "./HeroFallingIcons";
 
 interface SectionRendererProps {
@@ -819,6 +821,12 @@ export function SectionRenderer({
     // 5. UBICACIÓN, HORARIOS Y DATOS OFICIALES DE SUCURSAL
     // ----------------------------------------------------
     case "location": {
+      const mapsUrl =
+        getSafeExternalUrl(business.googleMapsUrl) ||
+        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+          business.address
+        )}`;
+
       return (
         <section id="ubicacion" className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
           <div
@@ -852,6 +860,16 @@ export function SectionRenderer({
                     <span className="text-xs opacity-80 leading-relaxed block">
                       {business.address}
                     </span>
+                    <a
+                      href={mapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: "var(--primary)" }}
+                      className="inline-flex items-center gap-1 text-xs font-bold hover:underline mt-2"
+                    >
+                      <MapPin className="w-3.5 h-3.5" />
+                      <span>Cómo llegar</span>
+                    </a>
                   </div>
                 </div>
 
@@ -866,7 +884,7 @@ export function SectionRenderer({
                       style={{ color: "var(--primary)" }}
                       className="text-xs font-bold hover:underline"
                     >
-                      449 402 2163
+                      {getWhatsAppDisplay(business)}
                     </a>
                   </div>
                 </div>

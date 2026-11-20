@@ -428,6 +428,24 @@ export function AdminSettingsManager({
               <span className="text-[10px] text-slate-400 mt-1 block">
                 Incluye la clave de país (ej. 521 para México + número a 10 dígitos).
               </span>
+              <div className="mt-3">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Número visible (opcional)
+                </label>
+                <input
+                  type="text"
+                  value={business.whatsappDisplay || ""}
+                  onChange={(e) =>
+                    handleFieldChange("whatsappDisplay", e.target.value)
+                  }
+                  placeholder="449 402 2163"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
+                />
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Se muestra en la cabecera, el pie y la sección de sucursal. Si
+                  se deja vacío, se usa el número técnico.
+                </span>
+              </div>
             </div>
 
             <div>

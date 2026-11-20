@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
+import {
+  isLocalUpload,
+  safeDeleteUploadedFile,
+} from "@/lib/data/upload-cleanup";
 
 // Formatos de imagen soportados ampliamente
 const ALLOWED_MIME_TYPES = [
@@ -96,6 +100,42 @@ export async function POST(request: NextRequest) {
     console.error("Error al procesar subida de archivo:", error);
     return NextResponse.json(
       { error: "Error interno al guardar la imagen en el servidor" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    let url = searchParams.get("url");
+
+    if (!url) {
+      try {
+        const body = await request.json();
+        url = body?.url;
+      } catch {
+        // Ignorar si no hay cuerpo JSON
+      }
+    }
+
+    if (!url || !isLocalUpload(url)) {
+      return NextResponse.json(
+        { error: "Se requiere una URL válida de archivo local en /uploads/" },
+        { status: 400 }
+      );
+    }
+
+    const deleted = await safeDeleteUploadedFile(url);
+    return NextResponse.json({
+      success: true,
+      deleted,
+      url,
+    });
+  } catch (error) {
+    console.error("Error al eliminar archivo local:", error);
+    return NextResponse.json(
+      { error: "Error interno al eliminar el archivo" },
       { status: 500 }
     );
   }

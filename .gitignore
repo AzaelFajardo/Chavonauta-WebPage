@@ -30,6 +30,14 @@ Thumbs.db
 *.swp
 *.swo
 
+# SQLite Database
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
 # User uploads
 public/uploads/*
 !public/uploads/.gitkeep

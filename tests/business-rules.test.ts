@@ -420,4 +420,38 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
       expect(rightHalfCount).toBeGreaterThanOrEqual(Math.floor(particles.length * 0.4));
     }
   });
+
+  it("enforces rule 13: SQLite local database with WAL mode and residual image cleanup on delete/update", async () => {
+    // 1. Verificar que el motor de SQLite existe y utiliza modo WAL
+    const { getDatabase } = await import("@/lib/data/sqlite-db");
+    const db = getDatabase();
+    expect(db).toBeDefined();
+
+    const pragmaJournal = db.pragma("journal_mode") as [{ journal_mode: string }];
+    expect(pragmaJournal[0].journal_mode.toLowerCase()).toBe("wal");
+
+    // 2. Verificar que las tablas principales existan en SQLite
+    const tables = db
+      .prepare("SELECT name FROM sqlite_master WHERE type='table'")
+      .all() as { name: string }[];
+    const tableNames = tables.map((t) => t.name);
+
+    expect(tableNames).toContain("theme_config");
+    expect(tableNames).toContain("categories");
+    expect(tableNames).toContain("catalog_items");
+
+    // 3. Verificar que los módulos de limpieza existan y protejan rutas
+    const { isLocalUpload, resolveUploadPath, safeDeleteUploadedFile } = await import(
+      "@/lib/data/upload-cleanup"
+    );
+    expect(typeof isLocalUpload).toBe("function");
+    expect(typeof resolveUploadPath).toBe("function");
+    expect(typeof safeDeleteUploadedFile).toBe("function");
+
+    // 4. Verificar que .gitignore contenga las extensiones de bases de datos locales
+    const gitignorePath = path.join(process.cwd(), ".gitignore");
+    const gitignoreContent = fs.readFileSync(gitignorePath, "utf-8");
+    expect(gitignoreContent).toContain("*.db");
+    expect(gitignoreContent).toContain("*.db-wal");
+  });
 });

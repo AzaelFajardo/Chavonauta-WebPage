@@ -26,7 +26,13 @@ import {
   HeroIconPackKey,
   SectionBlock,
   SectionType,
+  ShowcaseCard,
 } from "@/types";
+import {
+  DEFAULT_HERO_CARDS,
+  DEFAULT_SERVICES_CARDS,
+} from "@/lib/content-defaults";
+import { CardsEditor } from "./CardsEditor";
 
 interface SortableSectionItemProps {
   section: SectionBlock;
@@ -119,6 +125,54 @@ export function SortableSectionItem({
   const faqItems: FaqItem[] = Array.isArray(section.content?.items)
     ? (section.content.items as FaqItem[])
     : [];
+
+  const showcaseCards: ShowcaseCard[] = Array.isArray(section.content?.cards)
+    ? (section.content.cards as ShowcaseCard[])
+    : section.type === "services"
+    ? DEFAULT_SERVICES_CARDS
+    : DEFAULT_HERO_CARDS;
+
+  const heroBadgeText =
+    typeof section.content?.badgeText === "string"
+      ? section.content.badgeText
+      : "";
+  const heroPrimaryCtaText =
+    typeof section.content?.primaryCtaText === "string"
+      ? section.content.primaryCtaText
+      : "";
+  const heroPrimaryCtaHref =
+    typeof section.content?.primaryCtaHref === "string"
+      ? section.content.primaryCtaHref
+      : "";
+  const heroSecondaryCtaText =
+    typeof section.content?.secondaryCtaText === "string"
+      ? section.content.secondaryCtaText
+      : "";
+  const heroSecondaryCtaHref =
+    typeof section.content?.secondaryCtaHref === "string"
+      ? section.content.secondaryCtaHref
+      : "";
+  const heroSideImageUrl =
+    typeof section.content?.sideImageUrl === "string"
+      ? section.content.sideImageUrl
+      : "";
+  const heroSideImageBadge =
+    typeof section.content?.sideImageBadge === "string"
+      ? section.content.sideImageBadge
+      : "";
+  const heroSideImageUseRate = section.content?.sideImageUseRate !== false;
+
+  const updateContentField = (key: string, value: unknown) => {
+    onUpdateContent(section.id, {
+      content: { ...section.content, [key]: value },
+    });
+  };
+
+  const updateShowcaseCards = (cards: ShowcaseCard[]) => {
+    onUpdateContent(section.id, {
+      content: { ...section.content, cards },
+    });
+  };
 
   const updatePromo = (key: string, value: string) => {
     onUpdateContent(section.id, {
@@ -263,6 +317,139 @@ export function SortableSectionItem({
               className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-navy-600 text-slate-800 resize-none"
             />
           </div>
+
+          {section.type === "hero" && (
+            <div className="pt-3 border-t border-slate-200/80 space-y-2">
+              <span className="text-[11px] font-bold text-slate-800">
+                Banner principal
+              </span>
+
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                  Texto de la etiqueta superior
+                </label>
+                <input
+                  type="text"
+                  value={heroBadgeText}
+                  onChange={(e) =>
+                    updateContentField("badgeText", e.target.value)
+                  }
+                  placeholder="Catálogo Oficial y Servicios en Sucursal"
+                  className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                    Botón principal
+                  </label>
+                  <input
+                    type="text"
+                    value={heroPrimaryCtaText}
+                    onChange={(e) =>
+                      updateContentField("primaryCtaText", e.target.value)
+                    }
+                    placeholder="Ver Todo el Catálogo"
+                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                    Enlace del botón principal
+                  </label>
+                  <input
+                    type="text"
+                    value={heroPrimaryCtaHref}
+                    onChange={(e) =>
+                      updateContentField("primaryCtaHref", e.target.value)
+                    }
+                    placeholder="/catalogo"
+                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                    Botón secundario
+                  </label>
+                  <input
+                    type="text"
+                    value={heroSecondaryCtaText}
+                    onChange={(e) =>
+                      updateContentField("secondaryCtaText", e.target.value)
+                    }
+                    placeholder="Contactar por WhatsApp"
+                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                    Enlace secundario
+                  </label>
+                  <input
+                    type="text"
+                    value={heroSecondaryCtaHref}
+                    onChange={(e) =>
+                      updateContentField("secondaryCtaHref", e.target.value)
+                    }
+                    placeholder="Vacío = WhatsApp"
+                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                  Imagen lateral
+                </label>
+                <input
+                  type="text"
+                  value={heroSideImageUrl}
+                  onChange={(e) =>
+                    updateContentField("sideImageUrl", e.target.value)
+                  }
+                  placeholder="https://... o /uploads/..."
+                  className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                  Texto sobre la imagen lateral
+                </label>
+                <input
+                  type="text"
+                  value={heroSideImageBadge}
+                  onChange={(e) =>
+                    updateContentField("sideImageBadge", e.target.value)
+                  }
+                  placeholder="Opcional si no usas la tarifa automática"
+                  className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                />
+              </div>
+
+              <label className="flex items-center gap-2 text-[10px] text-slate-600 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={heroSideImageUseRate}
+                  onChange={(e) =>
+                    updateContentField("sideImageUseRate", e.target.checked)
+                  }
+                  className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span>Mostrar la tarifa actual de renta de PC sobre la imagen</span>
+              </label>
+            </div>
+          )}
+
+          {(section.type === "hero" || section.type === "services") && (
+            <div className="pt-3 border-t border-slate-200/80">
+              <CardsEditor
+                cards={showcaseCards}
+                onChange={updateShowcaseCards}
+              />
+            </div>
+          )}
 
           {section.type === "promo_banner" && (
             <div className="pt-3 border-t border-slate-200/80 space-y-2">

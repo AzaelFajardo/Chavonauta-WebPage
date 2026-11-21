@@ -415,6 +415,22 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     }
   });
 
+  it("enforces rule 14: hero and services cards are configurable content", async () => {
+    const theme = await repository.getThemeConfig();
+    const hero = theme.sections.find((section) => section.type === "hero");
+    const services = theme.sections.find((section) => section.type === "services");
+
+    expect(hero).toBeDefined();
+    expect(services).toBeDefined();
+
+    expect(Array.isArray(hero?.content.cards)).toBe(true);
+    expect(Array.isArray(services?.content.cards)).toBe(true);
+    expect((hero?.content.cards as unknown[]).length).toBeGreaterThan(0);
+    expect((services?.content.cards as unknown[]).length).toBeGreaterThan(0);
+    expect(typeof hero?.content.badgeText).toBe("string");
+    expect(typeof hero?.content.primaryCtaText).toBe("string");
+  });
+
   it("enforces rule 13: SQLite local database with WAL mode and residual image cleanup on delete/update", async () => {
     // 1. Verificar que el motor de SQLite existe y utiliza modo WAL
     const { getDatabase } = await import("@/lib/data/sqlite-db");

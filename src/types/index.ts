@@ -45,6 +45,25 @@ export interface FaqItem {
   answer: string;
 }
 
+export interface ShowcaseGridItem {
+  label: string;
+  imageUrl?: string;
+  href?: string;
+}
+
+export interface ShowcaseCard {
+  title: string;
+  description?: string;
+  imageUrl?: string;
+  badge?: string;
+  linkLabel?: string;
+  linkHref?: string;
+  linkWhatsappMessage?: string;
+  imageLayout?: "single" | "grid";
+  gridItems?: ShowcaseGridItem[];
+  showRentRates?: boolean;
+}
+
 export interface ThemePalette {
   background: string;
   foreground: string;

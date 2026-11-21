@@ -2,6 +2,10 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 import { CatalogItem, Category, ThemeConfig } from "@/types";
+import {
+  DEFAULT_HERO_CONTENT,
+  DEFAULT_SERVICES_CONTENT,
+} from "@/lib/content-defaults";
 import { DEFAULT_THEME_CONFIG, SEED_CATALOG_ITEMS, SEED_CATEGORIES } from "./seed";
 import { isLocalUpload, safeDeleteUploadedFile } from "./upload-cleanup";
 import { hashPassword } from "@/lib/auth/security";
@@ -157,6 +161,86 @@ function runMigrations(db: Database.Database): void {
     }
 
     db.pragma("user_version = 1");
+  }
+
+  if (currentVersion < 2) {
+    migrateThemeCards(db);
+    db.pragma("user_version = 2");
+  }
+}
+
+/**
+ * Incorpora el contenido editable de las tarjetas del hero y servicios a temas
+ * creados antes de que ese contenido existiera como configuración.
+ */
+function migrateThemeCards(db: Database.Database): void {
+  const row = db
+    .prepare("SELECT data FROM theme_config WHERE id = 'default-theme' LIMIT 1")
+    .get() as { data: string } | undefined;
+
+  if (!row?.data) return;
+
+  try {
+    const theme = JSON.parse(row.data) as ThemeConfig;
+
+    const sections = theme.sections.map((section) => {
+      const content = section.content || {};
+
+      if (section.type === "hero") {
+        return {
+          ...section,
+          content: {
+            ...content,
+            badgeText: DEFAULT_HERO_CONTENT.badgeText,
+            primaryCtaText: DEFAULT_HERO_CONTENT.primaryCtaText,
+            primaryCtaHref: DEFAULT_HERO_CONTENT.primaryCtaHref,
+            secondaryCtaText: DEFAULT_HERO_CONTENT.secondaryCtaText,
+            secondaryCtaHref: DEFAULT_HERO_CONTENT.secondaryCtaHref,
+            sideImageUrl:
+              typeof content.sideImageUrl === "string" &&
+              content.sideImageUrl
+                ? content.sideImageUrl
+                : DEFAULT_HERO_CONTENT.sideImageUrl,
+            sideImageBadge:
+              typeof content.sideImageBadge === "string"
+                ? content.sideImageBadge
+                : "",
+            sideImageUseRate:
+              content.sideImageUseRate === undefined
+                ? true
+                : Boolean(content.sideImageUseRate),
+            cards:
+              Array.isArray(content.cards) && content.cards.length > 0
+                ? content.cards
+                : DEFAULT_HERO_CONTENT.cards,
+          },
+        };
+      }
+
+      if (section.type === "services") {
+        return {
+          ...section,
+          content: {
+            ...content,
+            cards:
+              Array.isArray(content.cards) && content.cards.length > 0
+                ? content.cards
+                : DEFAULT_SERVICES_CONTENT.cards,
+          },
+        };
+      }
+
+      return section;
+    });
+
+    db.prepare(
+      "UPDATE theme_config SET data = ?, updated_at = ? WHERE id = 'default-theme'"
+    ).run(
+      JSON.stringify({ ...theme, sections }),
+      new Date().toISOString()
+    );
+  } catch {
+    // Si el tema existente no se puede interpretar, se deja intacto.
   }
 }
 

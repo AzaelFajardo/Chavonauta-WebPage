@@ -9,18 +9,17 @@ import {
   Mail,
   ChevronRight,
 } from "lucide-react";
-import { BusinessInfo, CatalogItem, Category, FaqItem, HeroFallingIconsConfig, SectionBlock, ThemePalette } from "@/types";
+import { BusinessInfo, CatalogItem, Category, FaqItem, HeroFallingIconsConfig, SectionBlock, ShowcaseCard, ThemePalette } from "@/types";
 import { getWhatsAppDisplay } from "@/lib/business";
 import { getSafeExternalUrl } from "@/lib/validation";
+import {
+  DEFAULT_HERO_CARDS,
+  DEFAULT_HERO_CONTENT,
+  DEFAULT_SERVICES_CARDS,
+} from "@/lib/content-defaults";
+import { getSafeHref } from "@/lib/url";
 import { HeroFallingIcons } from "./HeroFallingIcons";
-
-function getSafeHref(value: unknown): string | null {
-  if (typeof value !== "string") return null;
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  if (trimmed.startsWith("/") && !trimmed.startsWith("//")) return trimmed;
-  return getSafeExternalUrl(trimmed);
-}
+import { ShowcaseCardView } from "./ShowcaseCardView";
 
 interface SectionRendererProps {
   section: SectionBlock;
@@ -46,13 +45,53 @@ export function SectionRenderer({
     // 1. HERO BANNER + GRID MULTI-TARJETAS (Fondo navy-900 sólido con alto contraste)
     // ----------------------------------------------------
     case "hero": {
+      const content = (section.content || {}) as Record<string, unknown>;
+      const badgeText =
+        typeof content.badgeText === "string" && content.badgeText.trim()
+          ? content.badgeText.trim()
+          : String(DEFAULT_HERO_CONTENT.badgeText ?? "");
+      const primaryCtaText =
+        typeof content.primaryCtaText === "string" &&
+        content.primaryCtaText.trim()
+          ? content.primaryCtaText.trim()
+          : "Ver Todo el Catálogo";
+      const primaryCtaHref = getSafeHref(content.primaryCtaHref) || "/catalogo";
+      const secondaryCtaText =
+        typeof content.secondaryCtaText === "string" &&
+        content.secondaryCtaText.trim()
+          ? content.secondaryCtaText.trim()
+          : "Contactar por WhatsApp";
+      const secondaryCtaHref = getSafeHref(content.secondaryCtaHref);
+      const sideImageCandidate =
+        typeof content.sideImageUrl === "string" &&
+        content.sideImageUrl.trim()
+          ? content.sideImageUrl.trim()
+          : String(DEFAULT_HERO_CONTENT.sideImageUrl ?? "");
+      const sideImageUrl = getSafeHref(sideImageCandidate);
+      const sideImageBadge =
+        typeof content.sideImageBadge === "string"
+          ? content.sideImageBadge.trim()
+          : "";
+      const sideImageUseRate =
+        content.sideImageUseRate === undefined
+          ? true
+          : Boolean(content.sideImageUseRate);
+      const heroCards = Array.isArray(content.cards)
+        ? (content.cards as ShowcaseCard[])
+        : DEFAULT_HERO_CARDS;
+
       const waHero = `https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(
         `Hola ${business.name}, deseo consultar la disponibilidad de un producto o servicio.`
       )}`;
+      const secondaryHref = secondaryCtaHref || waHero;
+      const sideBadgeText = sideImageUseRate
+        ? `Renta de PC: $${(business.computerRates?.oneHour ?? 7).toFixed(
+            2
+          )} / hora`
+        : sideImageBadge;
 
       return (
         <section className="relative pb-10 bg-background text-foreground transition-colors duration-200">
-          {/* Banner Hero Superior: Fondo reactivo a la paleta del tema */}
           <div
             style={{
               backgroundColor: "var(--primary, #1a2f85)",
@@ -60,27 +99,31 @@ export function SectionRenderer({
             }}
             className="relative pt-10 pb-36 px-4 sm:px-8 overflow-hidden shadow-inner transition-colors duration-200"
           >
-            {/* Cascada de Iconos Animados en el Hero */}
             <HeroFallingIcons
-              config={section.content?.fallingIcons as HeroFallingIconsConfig | undefined}
+              config={
+                section.content?.fallingIcons as
+                  | HeroFallingIconsConfig
+                  | undefined
+              }
               themeName={themeName}
               themePalette={themePalette}
             />
 
             <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
               <div className="max-w-2xl z-10">
-                <span
-                  style={{
-                    backgroundColor: "var(--accent)",
-                    color: "var(--accent-foreground)",
-                    borderRadius: "var(--radius)",
-                  }}
-                  className="inline-block px-3.5 py-1 text-xs font-bold uppercase tracking-wider mb-3 shadow-xs border border-white/20 transition-all"
-                >
-                  Catálogo Oficial y Servicios en Sucursal
-                </span>
+                {badgeText && (
+                  <span
+                    style={{
+                      backgroundColor: "var(--accent)",
+                      color: "var(--accent-foreground)",
+                      borderRadius: "var(--radius)",
+                    }}
+                    className="inline-block px-3.5 py-1 text-xs font-bold uppercase tracking-wider mb-3 shadow-xs border border-white/20 transition-all"
+                  >
+                    {badgeText}
+                  </span>
+                )}
 
-                {/* Título en Alto Contraste sobre Fondo Primario */}
                 <h1
                   style={{ color: "var(--primary-foreground, #ffffff)" }}
                   className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-tight drop-shadow-xs"
@@ -88,15 +131,16 @@ export function SectionRenderer({
                   {section.title}
                 </h1>
 
-                {/* Subtítulo reactivo con alta legibilidad */}
                 <p className="mt-4 text-base sm:text-lg opacity-90 leading-relaxed font-normal">
                   {section.subtitle}
                 </p>
 
-                {/* Botones de acción con alto contraste */}
                 <div className="mt-7 flex flex-wrap items-center gap-3">
                   <Link
-                    href="/catalogo"
+                    href={primaryCtaHref}
+                    {...(primaryCtaHref.startsWith("/")
+                      ? {}
+                      : { target: "_blank", rel: "noopener noreferrer" })}
                     style={{
                       backgroundColor: "var(--accent)",
                       color: "var(--accent-foreground)",
@@ -104,326 +148,60 @@ export function SectionRenderer({
                     }}
                     className="px-6 py-3 font-extrabold text-sm shadow-md transition-opacity hover:opacity-90"
                   >
-                    Ver Todo el Catálogo
+                    {primaryCtaText}
                   </Link>
                   <a
-                    href={waHero}
+                    href={secondaryHref}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ borderRadius: "var(--radius)" }}
                     className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-md transition-colors"
                   >
                     <MessageCircle className="w-4 h-4 text-white" />
-                    <span>Contactar por WhatsApp</span>
+                    <span>{secondaryCtaText}</span>
                   </a>
                 </div>
               </div>
 
-              {/* Imagen lateral */}
-              <div
-                style={{ borderRadius: "var(--radius)" }}
-                className="hidden lg:block w-96 h-64 overflow-hidden border border-white/20 shadow-2xl relative"
-              >
-                <img
-                  src="https://images.unsplash.com/photo-1547082299-de196ea013d6?auto=format&fit=crop&w=800&q=80"
-                  alt="Chavonauta Cómputo"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
-                  <span
-                    style={{
-                      backgroundColor: "var(--primary)",
-                      color: "var(--primary-foreground)",
-                      borderRadius: "var(--radius)",
-                    }}
-                    className="text-xs font-semibold border border-white/20 px-3 py-1 shadow-xs"
-                  >
-                    Renta de PC: $7.00 / hora
-                  </span>
+              {sideImageUrl && (
+                <div
+                  style={{ borderRadius: "var(--radius)" }}
+                  className="hidden lg:block w-96 h-64 overflow-hidden border border-white/20 shadow-2xl relative"
+                >
+                  <img
+                    src={sideImageUrl}
+                    alt={business.name}
+                    className="w-full h-full object-cover"
+                  />
+                  {sideBadgeText && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
+                      <span
+                        style={{
+                          backgroundColor: "var(--primary)",
+                          color: "var(--primary-foreground)",
+                          borderRadius: "var(--radius)",
+                        }}
+                        className="text-xs font-semibold border border-white/20 px-3 py-1 shadow-xs"
+                      >
+                        {sideBadgeText}
+                      </span>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
-          {/* Cuadrícula de 4 Tarjetas Solapadas en el Hero */}
           <div className="max-w-[1440px] mx-auto px-4 -mt-20 sm:-mt-24 relative z-20">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-
-              {/* Tarjeta 1: Renta de PC e Internet */}
-              <div
-                style={{
-                  backgroundColor: "var(--card)",
-                  color: "var(--card-foreground)",
-                  borderColor: "var(--border)",
-                  borderRadius: "var(--radius)",
-                }}
-                className="p-5 shadow-md border flex flex-col justify-between transition-colors overflow-hidden"
-              >
-                <div>
-                  <h2 className="font-heading font-bold text-xl mb-3" style={{ color: "var(--card-foreground)" }}>
-                    Renta de PC e Internet
-                  </h2>
-                  <div
-                    style={{ borderRadius: "var(--radius)" }}
-                    className="aspect-[4/3] overflow-hidden bg-slate-100 mb-3"
-                  >
-                    <img
-                      src="https://images.unsplash.com/photo-1547082299-de196ea013d6?auto=format&fit=crop&w=600&q=80"
-                      alt="Renta de PC"
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <p className="text-xs leading-relaxed opacity-80">
-                    Fibra óptica simétrica, paquetería Office e impresión directa desde tu estación de trabajo.
-                  </p>
-                  <div className="mt-2 text-sm font-bold" style={{ color: "var(--card-foreground)" }}>
-                    ${(business.computerRates?.oneHour ?? 7).toFixed(2)} / hr{" "}
-                    <span className="text-xs font-normal opacity-70">
-                      (Media hr: ${(business.computerRates?.halfHour ?? 4).toFixed(2)})
-                    </span>
-                  </div>
-                </div>
-                <Link
-                  href="/#tarifas"
-                  style={{ color: "var(--primary)" }}
-                  className="mt-4 text-xs font-bold hover:underline flex items-center gap-1"
-                >
-                  <span>Ver tarifas de computadoras</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-
-              {/* Tarjeta 2: Cuadrante 2x2 Impresiones y Servicios */}
-              <div
-                style={{
-                  backgroundColor: "var(--card)",
-                  color: "var(--card-foreground)",
-                  borderColor: "var(--border)",
-                  borderRadius: "var(--radius)",
-                }}
-                className="p-5 shadow-md border flex flex-col justify-between transition-colors overflow-hidden"
-              >
-                <div>
-                  <h2 className="font-heading font-bold text-xl mb-3" style={{ color: "var(--card-foreground)" }}>
-                    Centro de Impresiones
-                  </h2>
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    <div className="flex flex-col">
-                      <div
-                        style={{ borderRadius: "var(--radius)" }}
-                        className="aspect-square overflow-hidden bg-slate-100 mb-1"
-                      >
-                        <img
-                          src="https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=300&q=80"
-                          alt="Impresión B/N"
-                          className="w-full h-full object-cover hover:scale-105 transition-transform"
-                        />
-                      </div>
-                      <span className="text-[11px] font-medium truncate opacity-90">
-                        Impresión B/N
-                      </span>
-                    </div>
-                    <div className="flex flex-col">
-                      <div
-                        style={{ borderRadius: "var(--radius)" }}
-                        className="aspect-square overflow-hidden bg-slate-100 mb-1"
-                      >
-                        <img
-                          src="https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=300&q=80"
-                          alt="Color & Foto"
-                          className="w-full h-full object-cover hover:scale-105 transition-transform"
-                        />
-                      </div>
-                      <span className="text-[11px] font-medium truncate opacity-90">
-                        Color & Fotos
-                      </span>
-                    </div>
-                    <div className="flex flex-col">
-                      <div
-                        style={{ borderRadius: "var(--radius)" }}
-                        className="aspect-square overflow-hidden bg-slate-100 mb-1"
-                      >
-                        <img
-                          src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=300&q=80"
-                          alt="Escaneos PDF"
-                          className="w-full h-full object-cover hover:scale-105 transition-transform"
-                        />
-                      </div>
-                      <span className="text-[11px] font-medium truncate opacity-90">
-                        Escaneo a PDF
-                      </span>
-                    </div>
-                    <div className="flex flex-col">
-                      <div
-                        style={{ borderRadius: "var(--radius)" }}
-                        className="aspect-square overflow-hidden bg-slate-100 mb-1"
-                      >
-                        <img
-                          src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=300&q=80"
-                          alt="Enmicados"
-                          className="w-full h-full object-cover hover:scale-105 transition-transform"
-                        />
-                      </div>
-                      <span className="text-[11px] font-medium truncate opacity-90">
-                        Enmicado térmico
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <a
-                  href={`https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(
-                    "Hola Chavonauta, deseo enviar archivos para imprimir o cotizar copias."
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: "var(--primary)" }}
-                  className="mt-4 text-xs font-bold hover:underline flex items-center gap-1"
-                >
-                  <span>Enviar archivos por WhatsApp</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </a>
-              </div>
-
-              {/* Tarjeta 3: Cuadrante 2x2 Accesorios de Cómputo */}
-              <div
-                style={{
-                  backgroundColor: "var(--card)",
-                  color: "var(--card-foreground)",
-                  borderColor: "var(--border)",
-                  borderRadius: "var(--radius)",
-                }}
-                className="p-5 shadow-md border flex flex-col justify-between transition-colors overflow-hidden"
-              >
-                <div>
-                  <h2 className="font-heading font-bold text-xl mb-3" style={{ color: "var(--card-foreground)" }}>
-                    Accesorios Tecnológicos
-                  </h2>
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    <Link href="/catalogo?categoria=teclados-y-mouse" className="flex flex-col group">
-                      <div
-                        style={{ borderRadius: "var(--radius)" }}
-                        className="aspect-square overflow-hidden bg-slate-100 mb-1"
-                      >
-                        <img
-                          src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=300&q=80"
-                          alt="Teclados"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                      </div>
-                      <span className="text-[11px] font-medium truncate group-hover:underline opacity-90">
-                        Teclados y Mouse
-                      </span>
-                    </Link>
-                    <Link href="/catalogo?categoria=cables-y-cargadores" className="flex flex-col group">
-                      <div
-                        style={{ borderRadius: "var(--radius)" }}
-                        className="aspect-square overflow-hidden bg-slate-100 mb-1"
-                      >
-                        <img
-                          src="https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=300&q=80"
-                          alt="Cables"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                      </div>
-                      <span className="text-[11px] font-medium truncate group-hover:underline opacity-90">
-                        Cables y Carga
-                      </span>
-                    </Link>
-                    <Link href="/catalogo?categoria=memorias" className="flex flex-col group">
-                      <div
-                        style={{ borderRadius: "var(--radius)" }}
-                        className="aspect-square overflow-hidden bg-slate-100 mb-1"
-                      >
-                        <img
-                          src="https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=300&q=80"
-                          alt="Memorias"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                      </div>
-                      <span className="text-[11px] font-medium truncate group-hover:underline opacity-90">
-                        Memorias USB
-                      </span>
-                    </Link>
-                    <Link href="/catalogo?categoria=audifonos-y-diademas" className="flex flex-col group">
-                      <div
-                        style={{ borderRadius: "var(--radius)" }}
-                        className="aspect-square overflow-hidden bg-slate-100 mb-1"
-                      >
-                        <img
-                          src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=300&q=80"
-                          alt="Audífonos"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                      </div>
-                      <span className="text-[11px] font-medium truncate group-hover:underline opacity-90">
-                        Audífonos
-                      </span>
-                    </Link>
-                  </div>
-                </div>
-                <Link
-                  href="/catalogo"
-                  style={{ color: "var(--primary)" }}
-                  className="mt-4 text-xs font-bold hover:underline flex items-center gap-1"
-                >
-                  <span>Explorar departamentos</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-
-              {/* Tarjeta 4: Reparación y Soporte Técnico */}
-              <div
-                style={{
-                  backgroundColor: "var(--card)",
-                  color: "var(--card-foreground)",
-                  borderColor: "var(--border)",
-                  borderRadius: "var(--radius)",
-                }}
-                className="p-5 shadow-md border flex flex-col justify-between transition-colors overflow-hidden"
-              >
-                <div>
-                  <h2 className="font-heading font-bold text-xl mb-3" style={{ color: "var(--card-foreground)" }}>
-                    Reparación de Equipos
-                  </h2>
-                  <div
-                    style={{ borderRadius: "var(--radius)" }}
-                    className="aspect-[4/3] overflow-hidden bg-slate-100 mb-3"
-                  >
-                    <img
-                      src="https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=600&q=80"
-                      alt="Reparación Técnica"
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <p className="text-xs leading-relaxed opacity-80">
-                    Mantenimiento preventivo, formateo, cambio de piezas y diagnóstico para PC, laptops, celulares y consolas.
-                  </p>
-                  <span
-                    style={{
-                      backgroundColor: "var(--secondary)",
-                      color: "var(--secondary-foreground)",
-                      borderColor: "var(--border)",
-                      borderRadius: "var(--radius)",
-                    }}
-                    className="inline-block mt-2 text-[11px] font-bold border px-2.5 py-0.5"
-                  >
-                    Diagnóstico en sucursal
-                  </span>
-                </div>
-                <a
-                  href={`https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(
-                    "Hola Chavonauta, tengo un equipo que requiere revisión técnica o reparación."
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: "var(--primary)" }}
-                  className="mt-4 text-xs font-bold hover:underline flex items-center gap-1"
-                >
-                  <span>Consultar diagnóstico por WhatsApp</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </a>
-              </div>
-
+              {heroCards.map((card, index) => (
+                <ShowcaseCardView
+                  key={`${card.title}-${index}`}
+                  card={card}
+                  business={business}
+                  variant="hero"
+                />
+              ))}
             </div>
           </div>
         </section>
@@ -553,171 +331,23 @@ export function SectionRenderer({
     // 3. SEGUNDA CUADRÍCULA DE SERVICIOS
     // ----------------------------------------------------
     case "services": {
+      const content = (section.content || {}) as Record<string, unknown>;
+      const serviceCards = Array.isArray(content.cards)
+        ? (content.cards as ShowcaseCard[])
+        : DEFAULT_SERVICES_CARDS;
+
       return (
         <section className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
           <div className="max-w-[1440px] mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-
-              {/* Tarjeta: Trámites Digitales */}
-              <div
-                style={{
-                  backgroundColor: "var(--card)",
-                  color: "var(--card-foreground)",
-                  borderColor: "var(--border)",
-                  borderRadius: "var(--radius)",
-                }}
-                className="p-5 shadow-sm border flex flex-col justify-between transition-colors overflow-hidden"
-              >
-                <div>
-                  <h3 className="font-heading font-bold text-xl mb-2" style={{ color: "var(--card-foreground)" }}>
-                    Trámites Digitales
-                  </h3>
-                  <div
-                    style={{ borderRadius: "var(--radius)" }}
-                    className="aspect-[4/3] overflow-hidden bg-slate-100 mb-3"
-                  >
-                    <img
-                      src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=600&q=80"
-                      alt="Trámites Digitales"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <p className="text-xs leading-relaxed opacity-80">
-                    Consulta e impresión de CURP certificada, actas de nacimiento, recibos CFE y citas. (No RFC 1ra vez).
-                  </p>
-                </div>
-                <a
-                  href={`https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(
-                    "Hola Chavonauta, necesito asesoría con un trámite digital."
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: "var(--primary)" }}
-                  className="mt-4 text-xs font-bold hover:underline flex items-center gap-1"
-                >
-                  <span>Consultar trámite por WhatsApp</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </a>
-              </div>
-
-              {/* Tarjeta: Recargas Telefónicas */}
-              <div
-                style={{
-                  backgroundColor: "var(--card)",
-                  color: "var(--card-foreground)",
-                  borderColor: "var(--border)",
-                  borderRadius: "var(--radius)",
-                }}
-                className="p-5 shadow-sm border flex flex-col justify-between transition-colors overflow-hidden"
-              >
-                <div>
-                  <h3 className="font-heading font-bold text-xl mb-2" style={{ color: "var(--card-foreground)" }}>
-                    Recargas Telefónicas
-                  </h3>
-                  <div
-                    style={{ borderRadius: "var(--radius)" }}
-                    className="aspect-[4/3] overflow-hidden bg-slate-100 mb-3"
-                  >
-                    <img
-                      src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=600&q=80"
-                      alt="Recargas Telefónicas"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <p className="text-xs leading-relaxed opacity-80">
-                    Saldo y paquetes de datos para Telcel, Movistar, AT&T, Bait y más compañías. En mostrador.
-                  </p>
-                </div>
-                <Link
-                  href="/#ubicacion"
-                  style={{ color: "var(--primary)" }}
-                  className="mt-4 text-xs font-bold hover:underline flex items-center gap-1"
-                >
-                  <span>Ver horarios y sucursal</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-
-              {/* Tarjeta: Diseño y Programación */}
-              <div
-                style={{
-                  backgroundColor: "var(--card)",
-                  color: "var(--card-foreground)",
-                  borderColor: "var(--border)",
-                  borderRadius: "var(--radius)",
-                }}
-                className="p-5 shadow-sm border flex flex-col justify-between transition-colors overflow-hidden"
-              >
-                <div>
-                  <h3 className="font-heading font-bold text-xl mb-2" style={{ color: "var(--card-foreground)" }}>
-                    Diseño & Programación
-                  </h3>
-                  <div
-                    style={{ borderRadius: "var(--radius)" }}
-                    className="aspect-[4/3] overflow-hidden bg-slate-100 mb-3"
-                  >
-                    <img
-                      src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=600&q=80"
-                      alt="Diseño y Programación"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <p className="text-xs leading-relaxed opacity-80">
-                    Diseño de lonas, invitaciones, publicidad comercial y desarrollo de páginas web y aplicaciones a la medida.
-                  </p>
-                </div>
-                <a
-                  href={`https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(
-                    "Hola Chavonauta, deseo cotizar un proyecto de diseño o programación."
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: "var(--primary)" }}
-                  className="mt-4 text-xs font-bold hover:underline flex items-center gap-1"
-                >
-                  <span>Cotizar proyecto por WhatsApp</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </a>
-              </div>
-
-              {/* Tarjeta: Trabajos de Papelería */}
-              <div
-                style={{
-                  backgroundColor: "var(--card)",
-                  color: "var(--card-foreground)",
-                  borderColor: "var(--border)",
-                  borderRadius: "var(--radius)",
-                }}
-                className="p-5 shadow-sm border flex flex-col justify-between transition-colors overflow-hidden"
-              >
-                <div>
-                  <h3 className="font-heading font-bold text-xl mb-2" style={{ color: "var(--card-foreground)" }}>
-                    Trabajos de Papelería
-                  </h3>
-                  <div
-                    style={{ borderRadius: "var(--radius)" }}
-                    className="aspect-[4/3] overflow-hidden bg-slate-100 mb-3"
-                  >
-                    <img
-                      src="https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?auto=format&fit=crop&w=600&q=80"
-                      alt="Papelería"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <p className="text-xs leading-relaxed opacity-80">
-                    Forrado de libretas y libros, engargolados con arillo y pastas, preparación de carpetas escolares y de oficina.
-                  </p>
-                </div>
-                <Link
-                  href="/catalogo?categoria=papeleria"
-                  style={{ color: "var(--primary)" }}
-                  className="mt-4 text-xs font-bold hover:underline flex items-center gap-1"
-                >
-                  <span>Ver artículos de papelería</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-
+              {serviceCards.map((card, index) => (
+                <ShowcaseCardView
+                  key={`${card.title}-${index}`}
+                  card={card}
+                  business={business}
+                  variant="services"
+                />
+              ))}
             </div>
           </div>
         </section>

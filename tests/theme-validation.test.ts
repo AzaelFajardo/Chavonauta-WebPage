@@ -126,4 +126,19 @@ describe("Theme configuration validation", () => {
     const response = await saveTheme(themeRequest(theme, await adminCookie()));
     expect(response.status).toBe(400);
   });
+
+  it("rejects unsafe links inside showcase cards", async () => {
+    const theme = cloneTheme();
+    const hero = theme.sections.find((section) => section.type === "hero");
+    expect(hero).toBeDefined();
+
+    const cards = JSON.parse(JSON.stringify(hero!.content.cards)) as Array<{
+      linkHref?: string;
+    }>;
+    cards[0].linkHref = "javascript:alert(1)";
+    (hero!.content as Record<string, unknown>).cards = cards;
+
+    const response = await saveTheme(themeRequest(theme, await adminCookie()));
+    expect(response.status).toBe(400);
+  });
 });

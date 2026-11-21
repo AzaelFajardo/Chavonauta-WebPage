@@ -90,6 +90,108 @@ function collectErrors(
   if (!condition) errors.push(message);
 }
 
+function isSafeAppHref(value: unknown): boolean {
+  if (value === undefined || value === "") return true;
+  if (typeof value !== "string") return false;
+  if (value.startsWith("/") && !value.startsWith("//")) return true;
+  return isHttpUrl(value);
+}
+
+function validateShowcaseCards(
+  value: unknown,
+  errors: string[],
+  prefix: string
+): void {
+  if (value === undefined) return;
+
+  if (!Array.isArray(value) || value.length > 8) {
+    errors.push(`${prefix}: máximo 8 tarjetas`);
+    return;
+  }
+
+  value.forEach((card, index) => {
+    if (!isRecord(card)) {
+      errors.push(`${prefix}[${index}]: estructura inválida`);
+      return;
+    }
+
+    collectErrors(
+      typeof card.title === "string" &&
+        card.title.length > 0 &&
+        card.title.length <= 150,
+      `${prefix}[${index}].title: obligatorio (máx. 150)`,
+      errors
+    );
+    collectErrors(
+      card.description === undefined || isString(card.description, 500),
+      `${prefix}[${index}].description: texto demasiado largo`,
+      errors
+    );
+    collectErrors(
+      card.imageUrl === undefined ||
+        card.imageUrl === "" ||
+        isImageUrl(card.imageUrl),
+      `${prefix}[${index}].imageUrl: URL inválida`,
+      errors
+    );
+    collectErrors(
+      card.badge === undefined || isString(card.badge, 50),
+      `${prefix}[${index}].badge: texto demasiado largo`,
+      errors
+    );
+    collectErrors(
+      card.linkLabel === undefined || isString(card.linkLabel, 80),
+      `${prefix}[${index}].linkLabel: texto demasiado largo`,
+      errors
+    );
+    collectErrors(
+      isSafeAppHref(card.linkHref),
+      `${prefix}[${index}].linkHref: enlace no permitido`,
+      errors
+    );
+    collectErrors(
+      card.linkWhatsappMessage === undefined ||
+        isString(card.linkWhatsappMessage, 300),
+      `${prefix}[${index}].linkWhatsappMessage: texto demasiado largo`,
+      errors
+    );
+    collectErrors(
+      card.imageLayout === undefined ||
+        card.imageLayout === "single" ||
+        card.imageLayout === "grid",
+      `${prefix}[${index}].imageLayout: valor no permitido`,
+      errors
+    );
+    collectErrors(
+      card.showRentRates === undefined ||
+        typeof card.showRentRates === "boolean",
+      `${prefix}[${index}].showRentRates: debe ser booleano`,
+      errors
+    );
+
+    if (card.gridItems !== undefined) {
+      if (!Array.isArray(card.gridItems) || card.gridItems.length > 6) {
+        errors.push(`${prefix}[${index}].gridItems: máximo 6 elementos`);
+      } else {
+        card.gridItems.forEach((item, itemIndex) => {
+          if (
+            !isRecord(item) ||
+            !isString(item.label, 80, false) ||
+            (item.imageUrl !== undefined &&
+              item.imageUrl !== "" &&
+              !isImageUrl(item.imageUrl)) ||
+            !isSafeAppHref(item.href)
+          ) {
+            errors.push(
+              `${prefix}[${index}].gridItems[${itemIndex}]: elemento inválido`
+            );
+          }
+        });
+      }
+    }
+  });
+}
+
 function validatePalette(value: unknown, errors: string[], prefix: string): boolean {
   if (!isRecord(value)) {
     errors.push(`${prefix}: estructura de colores inválida`);
@@ -313,6 +415,64 @@ function validateSections(value: unknown, errors: string[]): void {
           errors
         );
       }
+    }
+
+    if ((section.type === "hero" || section.type === "services") && isRecord(section.content)) {
+      if (section.type === "hero") {
+        collectErrors(
+          section.content.badgeText === undefined ||
+            isString(section.content.badgeText, 100),
+          `sections[${index}].content.badgeText: inválido`,
+          errors
+        );
+        collectErrors(
+          section.content.primaryCtaText === undefined ||
+            isString(section.content.primaryCtaText, 50),
+          `sections[${index}].content.primaryCtaText: inválido`,
+          errors
+        );
+        collectErrors(
+          isSafeAppHref(section.content.primaryCtaHref),
+          `sections[${index}].content.primaryCtaHref: enlace no permitido`,
+          errors
+        );
+        collectErrors(
+          section.content.secondaryCtaText === undefined ||
+            isString(section.content.secondaryCtaText, 50),
+          `sections[${index}].content.secondaryCtaText: inválido`,
+          errors
+        );
+        collectErrors(
+          isSafeAppHref(section.content.secondaryCtaHref),
+          `sections[${index}].content.secondaryCtaHref: enlace no permitido`,
+          errors
+        );
+        collectErrors(
+          section.content.sideImageUrl === undefined ||
+            section.content.sideImageUrl === "" ||
+            isImageUrl(section.content.sideImageUrl),
+          `sections[${index}].content.sideImageUrl: URL inválida`,
+          errors
+        );
+        collectErrors(
+          section.content.sideImageBadge === undefined ||
+            isString(section.content.sideImageBadge, 100),
+          `sections[${index}].content.sideImageBadge: inválido`,
+          errors
+        );
+        collectErrors(
+          section.content.sideImageUseRate === undefined ||
+            typeof section.content.sideImageUseRate === "boolean",
+          `sections[${index}].content.sideImageUseRate: debe ser booleano`,
+          errors
+        );
+      }
+
+      validateShowcaseCards(
+        section.content.cards,
+        errors,
+        `sections[${index}].content.cards`
+      );
     }
 
     if (section.type === "promo_banner" && isRecord(section.content)) {

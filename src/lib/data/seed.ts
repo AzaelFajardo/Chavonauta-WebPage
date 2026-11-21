@@ -1,5 +1,9 @@
 import { CatalogItem, Category, ThemeConfig } from "@/types";
 import { PRESET_PALETTES } from "@/lib/theme-engine";
+import {
+  DEFAULT_HERO_CONTENT,
+  DEFAULT_SERVICES_CONTENT,
+} from "@/lib/content-defaults";
 
 export const DEFAULT_THEME_CONFIG: ThemeConfig = {
   id: "default-chavonauta-theme",
@@ -53,13 +57,7 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
         "Catálogo de productos de cómputo, audio, conectividad y papelería, además de centro de impresión, trámites, renta de equipos y soporte técnico especializado.",
       enabled: true,
       order: 1,
-      content: {
-        badgeText: "Catálogo Digital y Servicios",
-        primaryCtaText: "Ver Catálogo",
-        primaryCtaHref: "/catalogo",
-        secondaryCtaText: "Consultar por WhatsApp",
-        secondaryCtaHref: "https://wa.me/5215500000000",
-      },
+      content: { ...DEFAULT_HERO_CONTENT },
     },
     {
       id: "sec-featured",
@@ -79,7 +77,7 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
       subtitle: "Soluciones ágiles para estudiantes, profesionales y público en general.",
       enabled: true,
       order: 3,
-      content: {},
+      content: { ...DEFAULT_SERVICES_CONTENT },
     },
     {
       id: "sec-rates",

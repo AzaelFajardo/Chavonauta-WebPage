@@ -415,6 +415,20 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
       expect(leftHalfCount).toBeGreaterThanOrEqual(Math.floor(particles.length * 0.4));
       expect(rightHalfCount).toBeGreaterThanOrEqual(Math.floor(particles.length * 0.4));
     }
+
+    // 4. Verificar que ColorPaletteEditor usa "Guardar Actual" condicionado a que la paleta sea diferente a presets existentes
+    const paletteEditorPath = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "customizer",
+      "ColorPaletteEditor.tsx"
+    );
+    const paletteEditorContent = fs.readFileSync(paletteEditorPath, "utf-8");
+    expect(paletteEditorContent).toContain("Guardar Actual");
+    expect(paletteEditorContent).not.toContain("<span>Nueva paleta</span>");
+    expect(paletteEditorContent).toContain("isCurrentPaletteDifferentFromPresets");
+    expect(paletteEditorContent).toContain("matchesPresetPalette");
   });
 
   it("enforces rule 14: hero and services cards are configurable content and responsive without gaps", async () => {

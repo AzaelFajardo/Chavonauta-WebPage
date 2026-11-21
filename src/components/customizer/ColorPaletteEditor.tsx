@@ -87,6 +87,20 @@ function getContrastForeground(hexColor: string): string {
   return luminance > 0.55 ? "#0f172a" : "#ffffff";
 }
 
+function matchesPresetPalette(current: ThemePalette, target: ThemePalette): boolean {
+  const norm = (c?: string) => (c || "").trim().toLowerCase();
+  const keys: (keyof ThemePalette)[] = [
+    "primary",
+    "background",
+    "accent",
+    "secondary",
+    "card",
+    "border",
+    "muted",
+  ];
+  return keys.every((key) => norm(current[key]) === norm(target[key]));
+}
+
 export function ColorPaletteEditor({
   theme,
   onChange,
@@ -121,6 +135,22 @@ export function ColorPaletteEditor({
       }
     }
     return "";
+  }, [currentPalette, customPresets]);
+
+  // Determina si la combinación actual es diferente de todos los presets existentes
+  // para evitar guardar temas repetidos idénticos
+  const isCurrentPaletteDifferentFromPresets = useMemo(() => {
+    for (const preset of Object.values(PRESET_PALETTES)) {
+      if (matchesPresetPalette(currentPalette, preset.palette)) {
+        return false;
+      }
+    }
+    for (const cp of customPresets) {
+      if (matchesPresetPalette(currentPalette, cp.palette)) {
+        return false;
+      }
+    }
+    return true;
   }, [currentPalette, customPresets]);
 
   // Estado del creador de preset personalizado
@@ -199,6 +229,7 @@ export function ColorPaletteEditor({
   const applyOfficialPreset = (presetKey: string) => {
     const preset = PRESET_PALETTES[presetKey];
     if (preset) {
+      setIsCreatingPreset(false);
       onChange({
         name: preset.label,
         mode: preset.mode,
@@ -208,6 +239,7 @@ export function ColorPaletteEditor({
   };
 
   const applyCustomPreset = (preset: CustomPreset) => {
+    setIsCreatingPreset(false);
     let updatedSections = theme.sections;
     if (preset.fallingIconsEnabled !== undefined || preset.fallingIconsPack !== undefined) {
       updatedSections = theme.sections.map((s) => {
@@ -249,7 +281,7 @@ export function ColorPaletteEditor({
 
   const handleSaveCustomPreset = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPresetName.trim()) return;
+    if (!newPresetName.trim() || !isCurrentPaletteDifferentFromPresets) return;
 
     // Asegurar que el nombre sea conciso (1 palabra preferente o corto)
     const cleanName = newPresetName.trim().split(" ")[0];
@@ -319,14 +351,17 @@ export function ColorPaletteEditor({
             <span>Paletas Prediseñadas</span>
           </label>
 
-          <button
-            type="button"
-            onClick={() => setIsCreatingPreset(!isCreatingPreset)}
-            className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors border border-blue-200 shadow-2xs"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Nueva paleta</span>
-          </button>
+          {isCurrentPaletteDifferentFromPresets && (
+            <button
+              type="button"
+              onClick={() => setIsCreatingPreset(!isCreatingPreset)}
+              className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2.5 py-1 rounded-lg transition-colors border border-blue-200 shadow-2xs animate-in fade-in"
+              title="Guardar la combinación actual como nuevo tema personalizado"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Guardar Actual</span>
+            </button>
+          )}
         </div>
 
         {/* Selector Desplegable Rápido (1 Clic, Sin Scroll) */}

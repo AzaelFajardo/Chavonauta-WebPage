@@ -26,7 +26,7 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
     },
     whatsappNumber: "5214494022163",
     whatsappDisplay: "449 402 2163",
-    email: "ciberchavonauta@gmail.com",
+    email: "contacto@chavonauta.com",
     address: "Hacienda las Amarillas #44, Haciendas de Aguascalientes, Aguascalientes, Ags.",
     schedule: "Lunes a Viernes: 8:00 - 22:00 | Sábado y Domingo: 12:00 - 22:00",
     scheduleDetails: [
@@ -169,8 +169,8 @@ export const SEED_CATEGORIES: Category[] = [
   },
   {
     id: "cat-servicios",
-    slug: "servicios-cyber",
-    name: "Servicios del Cyber",
+    slug: "servicios-digitales",
+    name: "Servicios Digitales",
     description: "Impresiones, trámites, escaneo, enmicados y reparación de equipos.",
     icon: "Monitor",
   },
@@ -337,7 +337,7 @@ export const SEED_CATALOG_ITEMS: CatalogItem[] = [
     active: true,
   },
 
-  // --- SERVICIOS OFICIALES DEL CYBER ---
+  // --- SERVICIOS DIGITALES Y EN SUCURSAL ---
   {
     id: "serv-renta-pc",
     slug: "renta-de-computadoras-por-hora",
@@ -346,7 +346,7 @@ export const SEED_CATALOG_ITEMS: CatalogItem[] = [
     description:
       "Renta de estaciones de trabajo con conexión rápida a internet. Tarifa estándar: $7.00 MXN por hora y $4.00 MXN por media hora. Disponibilidad de paquetería de oficina e impresión directa.",
     type: "service",
-    categorySlug: "servicios-cyber",
+    categorySlug: "servicios-digitales",
     priceLabel: "$7.00 / hr (Media hr: $4.00)",
     referencePrice: 7,
     imageUrl: "https://images.unsplash.com/photo-1547082299-de196ea013d6?auto=format&fit=crop&w=1200&q=85",
@@ -367,7 +367,7 @@ export const SEED_CATALOG_ITEMS: CatalogItem[] = [
     description:
       "Servicio de impresión y fotocopiado en papel bond, opalina y fotográfico. Envío directo de archivos por WhatsApp para entrega sin esperas.",
     type: "service",
-    categorySlug: "servicios-cyber",
+    categorySlug: "servicios-digitales",
     priceLabel: "Consultar por WhatsApp",
     imageUrl: "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=1200&q=85",
     badges: ["Destacado"],
@@ -387,7 +387,7 @@ export const SEED_CATALOG_ITEMS: CatalogItem[] = [
     description:
       "Diagnóstico, mantenimiento preventivo, limpieza, cambio de pasta térmica, formateo y reparación de fallas en equipos digitales (no electrodomésticos).",
     type: "service",
-    categorySlug: "servicios-cyber",
+    categorySlug: "servicios-digitales",
     priceLabel: "Cotización por WhatsApp",
     imageUrl: "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=1200&q=85",
     badges: ["Destacado"],
@@ -406,7 +406,7 @@ export const SEED_CATALOG_ITEMS: CatalogItem[] = [
     description:
       "Asesoría e impresión de trámites digitales: CURP certificada, actas de nacimiento, recibos CFE, citas médicas y formatos oficiales (excepto RFC por primera vez).",
     type: "service",
-    categorySlug: "servicios-cyber",
+    categorySlug: "servicios-digitales",
     priceLabel: "Consultar por WhatsApp",
     imageUrl: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=85",
     badges: [],
@@ -421,7 +421,7 @@ export const SEED_CATALOG_ITEMS: CatalogItem[] = [
     description:
       "Recargas electrónicas para todas las compañías de telefonía móvil. (Aclaración: contamos con recargas telefónicas, no con pago de servicios en ventanilla).",
     type: "service",
-    categorySlug: "servicios-cyber",
+    categorySlug: "servicios-digitales",
     priceLabel: "En mostrador",
     imageUrl: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1200&q=85",
     badges: [],
@@ -436,7 +436,7 @@ export const SEED_CATALOG_ITEMS: CatalogItem[] = [
     description:
       "Servicios de diseño gráfico profesional (lonas, volantes, logotipos) y desarrollo de sitios web o sistemas a la medida de tu negocio.",
     type: "service",
-    categorySlug: "servicios-cyber",
+    categorySlug: "servicios-digitales",
     priceLabel: "Cotización por WhatsApp",
     imageUrl: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=85",
     badges: [],

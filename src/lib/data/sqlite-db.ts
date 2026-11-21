@@ -233,12 +233,21 @@ function migrateThemeCards(db: Database.Database): void {
       return section;
     });
 
+    const migratedThemeJson = JSON.stringify({ ...theme, sections })
+      .replace(/servicios-cyber/g, "servicios-digitales")
+      .replace(/Servicios del Cyber/gi, "Servicios Digitales");
+
     db.prepare(
       "UPDATE theme_config SET data = ?, updated_at = ? WHERE id = 'default-theme'"
-    ).run(
-      JSON.stringify({ ...theme, sections }),
-      new Date().toISOString()
-    );
+    ).run(migratedThemeJson, new Date().toISOString());
+
+    // Migrar nombres y slugs de categorías o servicios antiguos para no usar la palabra cyber/ciber
+    db.prepare(
+      "UPDATE categories SET slug = 'servicios-digitales', name = 'Servicios Digitales' WHERE slug = 'servicios-cyber' OR name = 'Servicios del Cyber'"
+    ).run();
+    db.prepare(
+      "UPDATE catalog_items SET category_slug = 'servicios-digitales' WHERE category_slug = 'servicios-cyber'"
+    ).run();
   } catch {
     // Si el tema existente no se puede interpretar, se deja intacto.
   }
@@ -333,7 +342,7 @@ function seedSecurityIfEmpty(db: Database.Database): void {
     const initialEmails =
       configuredEmails.length > 0
         ? configuredEmails
-        : ["ciberchavonauta@gmail.com", "azachavonauta@gmail.com"];
+        : ["contacto@chavonauta.com", "azachavonauta@gmail.com"];
 
     const insertWl = db.prepare(
       "INSERT OR IGNORE INTO admin_whitelist (id, email, created_at, added_by) VALUES (?, ?, ?, 'sistema')"

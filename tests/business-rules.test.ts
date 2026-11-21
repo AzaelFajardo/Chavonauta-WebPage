@@ -294,7 +294,7 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     expect(resolveHeroIconPack("auto", PRESET_PALETTES.navidad.palette, "Navidad")).toBe("christmas");
     expect(resolveHeroIconPack("auto", PRESET_PALETTES.halloween.palette, "Halloween")).toBe("halloween");
     expect(resolveHeroIconPack("auto", PRESET_PALETTES.chavonauta_dark.palette, "Espacial")).toBe("space");
-    expect(resolveHeroIconPack("auto", PRESET_PALETTES.cyberpunk.palette, "Cyber")).toBe("gaming");
+    expect(resolveHeroIconPack("auto", PRESET_PALETTES.arcade.palette, "Arcade")).toBe("gaming");
     expect(resolveHeroIconPack("auto", PRESET_PALETTES.oceano.palette, "Océano")).toBe("ocean");
     expect(resolveHeroIconPack("auto", PRESET_PALETTES.cafe.palette, "Moca")).toBe("coffee");
     expect(resolveHeroIconPack("auto", PRESET_PALETTES.glaciar.palette, "Glaciar")).toBe("winter");

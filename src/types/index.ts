@@ -177,7 +177,7 @@ export interface ThemeConfig {
 }
 
 export type ItemCategorySlug =
-  | "servicios-cyber"
+  | "servicios-digitales"
   | "impresiones-papeleria"
   | "gaming-consolas"
   | "accesorios-computo"

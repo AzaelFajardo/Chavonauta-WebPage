@@ -71,17 +71,17 @@ export function Footer({ business, categories }: FooterProps) {
               </Link>
             </li>
             <li>
-              <Link href="/catalogo?categoria=servicios-cyber" className="hover:underline">
+              <Link href="/catalogo?categoria=servicios-digitales" className="hover:underline">
                 Centro de Impresiones & Copias
               </Link>
             </li>
             <li>
-              <Link href="/catalogo?categoria=servicios-cyber" className="hover:underline">
+              <Link href="/catalogo?categoria=servicios-digitales" className="hover:underline">
                 Trámites Digitales por Internet
               </Link>
             </li>
             <li>
-              <Link href="/catalogo?categoria=servicios-cyber" className="hover:underline">
+              <Link href="/catalogo?categoria=servicios-digitales" className="hover:underline">
                 Reparación y Mantenimiento
               </Link>
             </li>

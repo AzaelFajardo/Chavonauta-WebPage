@@ -53,7 +53,7 @@ describe("API Routes - Automated Tests", () => {
   });
 
   it("GET /api/catalog filters dynamically by category parameter", async () => {
-    const testCategory = "servicios-cyber";
+    const testCategory = "servicios-digitales";
     const req = new NextRequest(`http://localhost:3000/api/catalog?category=${testCategory}`);
     const response = await getCatalog(req);
 

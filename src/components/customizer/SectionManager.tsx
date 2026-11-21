@@ -43,7 +43,7 @@ const OPTIONAL_SECTIONS: Array<Omit<SectionBlock, "order">> = [
     content: {
       items: [
         {
-          question: "¿Cuáles son los horarios de atención del cyber?",
+          question: "¿Cuáles son los horarios de atención de la sucursal?",
           answer: "Lunes a Viernes de 8:00 a 22:00, Sábados y Domingos de 12:00 a 22:00.",
         },
         {

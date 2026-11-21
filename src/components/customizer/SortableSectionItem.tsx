@@ -38,7 +38,7 @@ import { ImageUploader } from "@/components/ui/ImageUploader";
 
 const HERO_DESTINATIONS = [
   { value: "/catalogo", label: "Catálogo completo de productos y servicios" },
-  { value: "#sec-services", label: "Bajar a: Servicios del Cyber" },
+  { value: "#sec-services", label: "Bajar a: Servicios Digitales" },
   { value: "#sec-rates", label: "Bajar a: Tarifas de Equipos y Consolas" },
   { value: "#sec-location", label: "Bajar a: Ubicación y Horarios" },
   { value: "#sec-promo-banner", label: "Bajar a: Promociones y Avisos" },
@@ -69,7 +69,7 @@ const SECTION_METADATA: Record<
     description: "Vitrina de artículos seleccionados en el inicio.",
   },
   services: {
-    label: "Servicios del Cyber",
+    label: "Servicios Digitales",
     icon: Monitor,
     description: "Cuadrícula informativa de servicios ofrecidos.",
   },
@@ -619,7 +619,7 @@ export function SortableSectionItem({
                 <ImageUploader
                   value={heroSideImageUrl}
                   onChange={(url) => updateContentField("sideImageUrl", url)}
-                  label="Fotografía del cybercafé (Lado derecho del banner)"
+                  label="Fotografía de la sucursal (Lado derecho del banner)"
                   helperText="Se muestra al lado derecho del banner principal en computadoras. Sube una foto de tus computadoras, consolas o instalaciones."
                   placeholderText="Haz clic o arrastra una foto desde tu equipo"
                 />

@@ -41,7 +41,7 @@ const EMPTY_CARD: ShowcaseCard = {
 const CARD_DESTINATIONS = [
   { value: "/catalogo", label: "Catálogo completo de productos y servicios" },
   { value: "/#tarifas", label: "Bajar a: Tarifas de computadoras" },
-  { value: "/#sec-services", label: "Bajar a: Servicios del Cyber" },
+  { value: "/#sec-services", label: "Bajar a: Servicios Digitales" },
   { value: "/#ubicacion", label: "Bajar a: Ubicación y Horarios" },
   { value: "custom", label: "Enlace web externo personalizado..." },
 ];

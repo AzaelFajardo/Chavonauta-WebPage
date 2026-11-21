@@ -127,9 +127,9 @@ export function Navbar({ business, categories, items }: NavbarProps) {
                 aria-label="Seleccionar categoría"
               >
                 <option value="todas">Departamentos</option>
-                <option value="servicios-cyber">Servicios del Cyber</option>
+                <option value="servicios-digitales">Servicios Digitales</option>
                 {categories
-                  .filter((c) => c.slug !== "servicios-cyber")
+                  .filter((c) => c.slug !== "servicios-digitales")
                   .map((cat) => (
                     <option key={cat.id} value={cat.slug}>
                       {cat.name}
@@ -260,11 +260,11 @@ export function Navbar({ business, categories, items }: NavbarProps) {
 
           {/* Enlaces directos a departamentos en Desktop (heredan color de secondary-foreground con alta legibilidad) */}
           <Link
-            href="/catalogo?categoria=servicios-cyber"
+            href="/catalogo?categoria=servicios-digitales"
             style={{ borderRadius: "var(--radius)" }}
             className="px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 font-bold"
           >
-            Servicios del Cyber
+            Servicios Digitales
           </Link>
           <Link
             href="/#tarifas"
@@ -382,7 +382,7 @@ export function Navbar({ business, categories, items }: NavbarProps) {
                 </a>
               </div>
 
-              {/* Sección de Servicios del Cyber */}
+              {/* Sección de Servicios Digitales */}
               <div>
                 <div
                   style={{ color: "var(--card-foreground)" }}
@@ -394,11 +394,11 @@ export function Navbar({ business, categories, items }: NavbarProps) {
                 <ul className="space-y-1 text-xs">
                   <li>
                     <Link
-                      href="/catalogo?categoria=servicios-cyber"
+                      href="/catalogo?categoria=servicios-digitales"
                       onClick={() => setDrawerOpen(false)}
                       className="block py-2 px-2.5 rounded hover:bg-current/10 font-semibold transition-colors"
                     >
-                      Todos los Servicios del Cyber
+                      Todos los Servicios Digitales
                     </Link>
                   </li>
                   <li>
@@ -414,7 +414,7 @@ export function Navbar({ business, categories, items }: NavbarProps) {
                     .filter(
                       (item) =>
                         item.type === "service" &&
-                        item.categorySlug === "servicios-cyber"
+                        item.categorySlug === "servicios-digitales"
                     )
                     .slice(0, 5)
                     .map((item) => (

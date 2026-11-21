@@ -57,8 +57,8 @@ export const PRESET_PALETTES: Record<
       border: "#1e2c45",
     },
   },
-  cyberpunk: {
-    label: "Cyber",
+  arcade: {
+    label: "Arcade",
     category: "estilos",
     mode: "dark",
     palette: {
@@ -452,7 +452,7 @@ export function themeToCssVars(theme: ThemeConfig): Record<string, string> {
 export const THEME_DEFAULT_ICON_PACK: Record<string, HeroIconPackKey> = {
   chavonauta_navy: "tech",
   chavonauta_dark: "space",
-  cyberpunk: "gaming",
+  arcade: "gaming",
   oceano: "ocean",
   esmeralda: "spring",
   lavanda: "sparkles",
@@ -519,7 +519,7 @@ export function resolveHeroIconPack(
     if (lowerName.includes("navidad")) return "christmas";
     if (lowerName.includes("halloween")) return "halloween";
     if (lowerName.includes("espacial") || lowerName.includes("space")) return "space";
-    if (lowerName.includes("cyber") || lowerName.includes("gaming")) return "gaming";
+    if (lowerName.includes("arcade") || lowerName.includes("gaming")) return "gaming";
     if (lowerName.includes("oceano") || lowerName.includes("mar")) return "ocean";
     if (lowerName.includes("otoño") || lowerName.includes("otono")) return "autumn";
     if (lowerName.includes("primavera")) return "spring";

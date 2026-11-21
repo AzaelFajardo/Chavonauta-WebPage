@@ -456,7 +456,7 @@ export function AdminSettingsManager({
                 type="email"
                 value={business.email || ""}
                 onChange={(e) => handleFieldChange("email", e.target.value)}
-                placeholder="ciberchavonauta@gmail.com"
+                placeholder="contacto@chavonauta.com"
                 className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
               />
             </div>

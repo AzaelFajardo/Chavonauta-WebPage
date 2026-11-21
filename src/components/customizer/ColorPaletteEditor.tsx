@@ -87,7 +87,7 @@ const FONT_OPTIONS: FontOption[] = [
   { name: "Poppins", desc: "Geométrica y Redonda", value: "'Poppins', sans-serif" },
   { name: "Montserrat", desc: "Urbana y Elegante", value: "'Montserrat', sans-serif" },
   { name: "Plus Jakarta", desc: "Corporativa y Nítida", value: "'Plus Jakarta Sans', sans-serif" },
-  { name: "Orbitron", desc: "Espacial y Cyber", value: "'Orbitron', sans-serif" },
+  { name: "Orbitron", desc: "Espacial y Futurista", value: "'Orbitron', sans-serif" },
   { name: "Chakra Petch", desc: "Arcade y Gaming", value: "'Chakra Petch', sans-serif" },
   { name: "Syne", desc: "Creativa y Expresiva", value: "'Syne', sans-serif" },
   { name: "DM Sans", desc: "Minimalista y Clara", value: "'DM Sans', sans-serif" },
@@ -132,7 +132,7 @@ export function ColorPaletteEditor({
   >("populares");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const POPULAR_KEYS = ["chavonauta_navy", "chavonauta_dark", "cyberpunk", "oceano"];
+  const POPULAR_KEYS = ["chavonauta_navy", "chavonauta_dark", "arcade", "oceano"];
 
   // Detección automática del preset activo para sincronizar el selector desplegable
   const activePresetKey = useMemo(() => {
@@ -664,7 +664,7 @@ export function ColorPaletteEditor({
               <optgroup label="Populares & Oficiales">
                 <option value="chavonauta_navy">Oficial — Azul Marino</option>
                 <option value="chavonauta_dark">Espacial — Modo Oscuro</option>
-                <option value="cyberpunk">Cyber — Neón Gamer</option>
+                <option value="arcade">Arcade — Neón Gamer</option>
                 <option value="oceano">Océano — Azul Celeste</option>
               </optgroup>
               <optgroup label="Estilos & Tendencias">

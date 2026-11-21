@@ -24,9 +24,6 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
       oneHour: 7,
       halfHour: 4,
     },
-    announcementText:
-      "Atención directa por WhatsApp al 449 402 2163 • Impresiones, trámites, soporte y renta de PC.",
-    announcementEnabled: true,
     whatsappNumber: "5214494022163",
     whatsappDisplay: "449 402 2163",
     email: "ciberchavonauta@gmail.com",

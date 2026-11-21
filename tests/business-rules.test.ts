@@ -110,6 +110,12 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     // WhatsApp para CTA de contacto directo válido
     expect(business.whatsappNumber).toBeTruthy();
     expect(business.whatsappNumber.replace(/\D/g, "").length).toBeGreaterThanOrEqual(10);
+
+    // Verificar que no se renderice barra de anuncio superior en layout.tsx
+    const layoutPath = path.join(process.cwd(), "src", "app", "(storefront)", "layout.tsx");
+    const layoutContent = fs.readFileSync(layoutPath, "utf-8");
+    expect(layoutContent).not.toContain("announcementEnabled");
+    expect(layoutContent).not.toContain("announcementText");
   });
 
   it("enforces rule 5: Computer rental rates configuration is valid and positive", async () => {

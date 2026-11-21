@@ -801,19 +801,6 @@ export function SortableSectionItem({
               </div>
             </div>
           )}
-          {/* Botón inferior para eliminar bloque opcional */}
-          {isOptional && onRemove && (
-            <div className="pt-2 border-t border-slate-200/80 flex justify-end">
-              <button
-                type="button"
-                onClick={() => onRemove(section.id)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 rounded-lg transition-colors cursor-pointer"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>Eliminar bloque de la página</span>
-              </button>
-            </div>
-          )}
         </div>
       )}
     </div>

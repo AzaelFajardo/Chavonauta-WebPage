@@ -18,6 +18,7 @@ import {
   DEFAULT_SERVICES_CARDS,
 } from "@/lib/content-defaults";
 import { getSafeHref } from "@/lib/url";
+import { getShowcaseGridConfig } from "@/lib/showcase-grid";
 import { HeroFallingIcons } from "./HeroFallingIcons";
 import { ShowcaseCardView } from "./ShowcaseCardView";
 
@@ -228,18 +229,23 @@ export function SectionRenderer({
             </div>
           </div>
 
-          <div className="max-w-[1440px] mx-auto px-4 -mt-20 sm:-mt-24 relative z-20">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-              {heroCards.map((card, index) => (
-                <ShowcaseCardView
-                  key={`${card.title}-${index}`}
-                  card={card}
-                  business={business}
-                  variant="hero"
-                />
-              ))}
-            </div>
-          </div>
+          {heroCards.length > 0 && (() => {
+            const heroGrid = getShowcaseGridConfig(heroCards.length);
+            return (
+              <div className={`mx-auto px-4 -mt-20 sm:-mt-24 relative z-20 ${heroGrid.containerClass}`}>
+                <div className={heroGrid.gridClass}>
+                  {heroCards.map((card, index) => (
+                    <ShowcaseCardView
+                      key={`${card.title}-${index}`}
+                      card={card}
+                      business={business}
+                      variant="hero"
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
         </section>
       );
     }
@@ -371,11 +377,12 @@ export function SectionRenderer({
       const serviceCards = Array.isArray(content.cards)
         ? (content.cards as ShowcaseCard[])
         : DEFAULT_SERVICES_CARDS;
+      const servicesGrid = getShowcaseGridConfig(serviceCards.length);
 
       return (
         <section id={section.id || "sec-services"} className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
-          <div className="max-w-[1440px] mx-auto">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          <div className={`mx-auto ${servicesGrid.containerClass}`}>
+            <div className={servicesGrid.gridClass}>
               {serviceCards.map((card, index) => (
                 <ShowcaseCardView
                   key={`${card.title}-${index}`}

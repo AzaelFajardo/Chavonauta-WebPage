@@ -33,7 +33,7 @@ function resolveCardLink(
 
   return {
     href,
-    external: !href.startsWith("/"),
+    external: !href.startsWith("/") && !href.startsWith("#"),
     label: card.linkLabel || "Ver más",
     whatsapp: false,
   };
@@ -108,7 +108,7 @@ export function ShowcaseCardView({
       }}
       className={`${
         isService ? "p-5 shadow-sm" : "p-5 shadow-md"
-      } border flex flex-col justify-between transition-colors overflow-hidden`}
+      } border flex flex-col justify-between transition-colors overflow-hidden h-full`}
     >
       <div>
         <Heading

@@ -411,7 +411,7 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     }
   });
 
-  it("enforces rule 14: hero and services cards are configurable content", async () => {
+  it("enforces rule 14: hero and services cards are configurable content and responsive without gaps", async () => {
     const theme = await repository.getThemeConfig();
     const hero = theme.sections.find((section) => section.type === "hero");
     const services = theme.sections.find((section) => section.type === "services");
@@ -425,6 +425,48 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     expect((services?.content.cards as unknown[]).length).toBeGreaterThan(0);
     expect(typeof hero?.content.badgeText).toBe("string");
     expect(typeof hero?.content.primaryCtaText).toBe("string");
+
+    // Verificar comportamiento de grid dinámico y responsivo para 1, 2, 3, 4 y más tarjetas
+    const { getShowcaseGridConfig } = await import("@/lib/showcase-grid");
+
+    // 1 tarjeta: ancho contenido y centrado sin estirarse
+    const cfg1 = getShowcaseGridConfig(1);
+    expect(cfg1.containerClass).toContain("max-w-md");
+    expect(cfg1.gridClass).toContain("grid-cols-1");
+
+    // 2 tarjetas: reparte en 2 columnas equilibradas sin hueco lateral
+    const cfg2 = getShowcaseGridConfig(2);
+    expect(cfg2.containerClass).toContain("max-w-3xl");
+    expect(cfg2.gridClass).toContain("sm:grid-cols-2");
+
+    // 3 tarjetas: reparte en 3 columnas equilibradas sin hueco lateral
+    const cfg3 = getShowcaseGridConfig(3);
+    expect(cfg3.containerClass).toContain("max-w-5xl");
+    expect(cfg3.gridClass).toContain("lg:grid-cols-3");
+
+    // 4 tarjetas: ancho completo de 4 columnas
+    const cfg4 = getShowcaseGridConfig(4);
+    expect(cfg4.containerClass).toContain("max-w-[1440px]");
+    expect(cfg4.gridClass).toContain("lg:grid-cols-4");
+
+    // 5+ tarjetas: se acumulan por debajo con máximo 4 por fila
+    const cfg5 = getShowcaseGridConfig(5);
+    expect(cfg5.containerClass).toContain("max-w-[1440px]");
+    expect(cfg5.gridClass).toContain("lg:grid-cols-4");
+
+    // Verificar que CardsEditor cuenta con pop-up / modal de edición inmediata
+    const cardsEditorPath = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "customizer",
+      "CardsEditor.tsx"
+    );
+    const cardsEditorContent = fs.readFileSync(cardsEditorPath, "utf-8");
+    expect(cardsEditorContent).toContain("createPortal");
+    expect(cardsEditorContent).toContain('role="dialog"');
+    expect(cardsEditorContent).toContain("Guardar Tarjeta");
+    expect(cardsEditorContent).toContain("setEditingIndex(next.length - 1)");
   });
 
   it("enforces rule 13: SQLite local database with WAL mode and residual image cleanup on delete/update", async () => {

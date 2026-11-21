@@ -484,7 +484,20 @@ export function ItemFormModal({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <label
-                onClick={() => setType("product")}
+                onClick={() => {
+                  setType("product");
+                  if (
+                    categorySlug === "servicios-digitales" ||
+                    categorySlug === "servicios-cyber"
+                  ) {
+                    const firstProductCat = categories.find(
+                      (c) =>
+                        c.slug !== "servicios-digitales" &&
+                        c.slug !== "servicios-cyber"
+                    );
+                    if (firstProductCat) setCategorySlug(firstProductCat.slug);
+                  }
+                }}
                 className={`flex items-start gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
                   type === "product"
                     ? "border-blue-600 bg-blue-50/40 text-blue-950"
@@ -496,7 +509,20 @@ export function ItemFormModal({
                     type="radio"
                     name="productType"
                     checked={type === "product"}
-                    onChange={() => setType("product")}
+                    onChange={() => {
+                      setType("product");
+                      if (
+                        categorySlug === "servicios-digitales" ||
+                        categorySlug === "servicios-cyber"
+                      ) {
+                        const firstProductCat = categories.find(
+                          (c) =>
+                            c.slug !== "servicios-digitales" &&
+                            c.slug !== "servicios-cyber"
+                        );
+                        if (firstProductCat) setCategorySlug(firstProductCat.slug);
+                      }
+                    }}
                     className="w-4 h-4 text-blue-600"
                   />
                 </div>
@@ -512,7 +538,15 @@ export function ItemFormModal({
               </label>
 
               <label
-                onClick={() => setType("service")}
+                onClick={() => {
+                  setType("service");
+                  const serviceCat = categories.find(
+                    (c) =>
+                      c.slug === "servicios-digitales" ||
+                      c.slug === "servicios-cyber"
+                  );
+                  if (serviceCat) setCategorySlug(serviceCat.slug);
+                }}
                 className={`flex items-start gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
                   type === "service"
                     ? "border-blue-600 bg-blue-50/40 text-blue-950"
@@ -524,7 +558,15 @@ export function ItemFormModal({
                     type="radio"
                     name="productType"
                     checked={type === "service"}
-                    onChange={() => setType("service")}
+                    onChange={() => {
+                      setType("service");
+                      const serviceCat = categories.find(
+                        (c) =>
+                          c.slug === "servicios-digitales" ||
+                          c.slug === "servicios-cyber"
+                      );
+                      if (serviceCat) setCategorySlug(serviceCat.slug);
+                    }}
                     className="w-4 h-4 text-blue-600"
                   />
                 </div>
@@ -657,7 +699,10 @@ export function ItemFormModal({
               >
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.slug}>
-                    {cat.name}
+                    {cat.slug === "servicios-digitales" ||
+                    cat.slug === "servicios-cyber"
+                      ? "Servicios"
+                      : cat.name}
                   </option>
                 ))}
               </select>

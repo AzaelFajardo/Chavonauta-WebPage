@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   Search,
   MessageCircle,
@@ -11,12 +11,10 @@ import {
   MapPin,
   ChevronDown,
   Clock,
-  Phone,
   Monitor,
   FolderOpen,
 } from "lucide-react";
 import { BusinessInfo, CatalogItem, Category } from "@/types";
-import { getWhatsAppDisplay } from "@/lib/business";
 
 interface NavbarProps {
   business: BusinessInfo;
@@ -24,15 +22,79 @@ interface NavbarProps {
   items: CatalogItem[];
 }
 
+function NavbarSearchParamsSync({
+  onCategoryChange,
+}: {
+  onCategoryChange: (category: string) => void;
+}) {
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const cat = searchParams.get("categoria") || "";
+    onCategoryChange(cat);
+  }, [searchParams, onCategoryChange]);
+  return null;
+}
+
 export function Navbar({ business, categories, items }: NavbarProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("todas");
+  const [activeCategoryParam, setActiveCategoryParam] = useState("");
+  const [activeHash, setActiveHash] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const oneHourRate = business.computerRates?.oneHour ?? 7;
   const halfHourRate = business.computerRates?.halfHour ?? 4;
-  const whatsappDisplay = getWhatsAppDisplay(business);
+
+  const handleCategoryParamChange = useCallback((cat: string) => {
+    setActiveCategoryParam(cat);
+    if (cat) {
+      setSelectedCategory(cat === "servicios-cyber" ? "servicios-digitales" : cat);
+    } else {
+      setSelectedCategory("todas");
+    }
+  }, []);
+
+  // Sincronizar hash activo (#tarifas, #ubicacion) cuando estamos en la página de inicio
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const syncHash = () => {
+      setActiveHash(window.location.hash || "");
+    };
+
+    syncHash();
+    window.addEventListener("hashchange", syncHash);
+    window.addEventListener("popstate", syncHash);
+    return () => {
+      window.removeEventListener("hashchange", syncHash);
+      window.removeEventListener("popstate", syncHash);
+    };
+  }, [pathname]);
+
+  // Si estamos en una vista de detalle (/item/[slug]), detectar su categoría para marcarla en la barra
+  const currentItemCategory = React.useMemo(() => {
+    if (!pathname?.startsWith("/item/")) return "";
+    const slug = pathname.replace("/item/", "").split("/")[0];
+    const found = items.find((i) => i.slug === slug);
+    if (!found) return "";
+    if (found.type === "service" || found.categorySlug === "servicios-cyber") {
+      return "servicios-digitales";
+    }
+    return found.categorySlug;
+  }, [pathname, items]);
+
+  const effectiveCategory =
+    pathname === "/catalogo"
+      ? activeCategoryParam === "servicios-cyber"
+        ? "servicios-digitales"
+        : activeCategoryParam
+      : currentItemCategory;
+
+  const isRentaPcActive = pathname === "/" && activeHash === "#tarifas";
+  const isUbicacionActive = pathname === "/" && activeHash === "#ubicacion";
+  const isServiciosActive = effectiveCategory === "servicios-digitales";
 
   const whatsappHref = `https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(
     `Hola ${business.name}, deseo consultar la disponibilidad de un producto o cotizar un servicio.`
@@ -51,6 +113,9 @@ export function Navbar({ business, categories, items }: NavbarProps) {
 
   return (
     <header className="sticky top-0 z-50 shadow-md">
+      <Suspense fallback={null}>
+        <NavbarSearchParamsSync onCategoryChange={handleCategoryParamChange} />
+      </Suspense>
       {/* 1. Header Principal reactivo al tema */}
       <div
         style={{
@@ -75,6 +140,7 @@ export function Navbar({ business, categories, items }: NavbarProps) {
             {/* Logotipo Personalizado */}
             <Link
               href="/"
+              onClick={() => setActiveHash("")}
               className="flex items-center px-1.5 py-1 rounded hover:ring-1 hover:ring-current/30 transition-all shrink-0"
             >
               {business.logoUrl ? (
@@ -129,7 +195,11 @@ export function Navbar({ business, categories, items }: NavbarProps) {
                 <option value="todas">Departamentos</option>
                 <option value="servicios-digitales">Servicios</option>
                 {categories
-                  .filter((c) => c.slug !== "servicios-digitales")
+                  .filter(
+                    (c) =>
+                      c.slug !== "servicios-digitales" &&
+                      c.slug !== "servicios-cyber"
+                  )
                   .map((cat) => (
                     <option key={cat.id} value={cat.slug}>
                       {cat.name}
@@ -258,67 +328,104 @@ export function Navbar({ business, categories, items }: NavbarProps) {
             <span>Todo</span>
           </button>
 
-          {/* Enlaces directos a departamentos en Desktop (heredan color de secondary-foreground con alta legibilidad) */}
-          <Link
-            href="/catalogo?categoria=servicios-digitales"
-            style={{ borderRadius: "var(--radius)" }}
-            className="px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 font-bold"
-          >
-            Servicios
-          </Link>
+          {/* Enlaces directos a departamentos en Desktop (Primero Renta de PC, luego Servicios y después el resto) */}
           <Link
             href="/#tarifas"
-            style={{ borderRadius: "var(--radius)" }}
-            className="px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 opacity-85 hover:opacity-100"
+            onClick={() => setActiveHash("#tarifas")}
+            aria-current={isRentaPcActive ? "page" : undefined}
+            style={
+              isRentaPcActive
+                ? {
+                    backgroundColor: "var(--accent)",
+                    color: "var(--accent-foreground)",
+                    borderRadius: "var(--radius)",
+                  }
+                : { borderRadius: "var(--radius)" }
+            }
+            className={`px-2.5 py-1.5 transition-all shrink-0 ${
+              isRentaPcActive
+                ? "font-bold shadow-xs ring-1 ring-black/10 opacity-100"
+                : "hover:bg-current/10 opacity-85 hover:opacity-100"
+            }`}
           >
             Renta de PC (${oneHourRate}/hr)
           </Link>
+
           <Link
-            href="/catalogo?categoria=teclados-y-mouse"
-            style={{ borderRadius: "var(--radius)" }}
-            className="px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 opacity-85 hover:opacity-100"
+            href="/catalogo?categoria=servicios-digitales"
+            onClick={() => setActiveHash("")}
+            aria-current={isServiciosActive ? "page" : undefined}
+            style={
+              isServiciosActive
+                ? {
+                    backgroundColor: "var(--accent)",
+                    color: "var(--accent-foreground)",
+                    borderRadius: "var(--radius)",
+                  }
+                : { borderRadius: "var(--radius)" }
+            }
+            className={`px-2.5 py-1.5 transition-all shrink-0 ${
+              isServiciosActive
+                ? "font-bold shadow-xs ring-1 ring-black/10 opacity-100"
+                : "font-bold hover:bg-current/10 opacity-90 hover:opacity-100"
+            }`}
           >
-            Teclados y Mouse
+            Servicios
           </Link>
-          <Link
-            href="/catalogo?categoria=audifonos-y-diademas"
-            style={{ borderRadius: "var(--radius)" }}
-            className="px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 opacity-85 hover:opacity-100"
-          >
-            Audífonos
-          </Link>
-          <Link
-            href="/catalogo?categoria=cables-y-cargadores"
-            style={{ borderRadius: "var(--radius)" }}
-            className="px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 opacity-85 hover:opacity-100"
-          >
-            Cables y Carga
-          </Link>
-          <Link
-            href="/catalogo?categoria=memorias"
-            style={{ borderRadius: "var(--radius)" }}
-            className="px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 opacity-85 hover:opacity-100"
-          >
-            Memorias
-          </Link>
-          <Link
-            href="/catalogo?categoria=papeleria"
-            style={{ borderRadius: "var(--radius)" }}
-            className="hidden lg:inline-block px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 opacity-85 hover:opacity-100"
-          >
-            Papelería
-          </Link>
-          <Link
-            href="/catalogo?categoria=focos"
-            style={{ borderRadius: "var(--radius)" }}
-            className="hidden lg:inline-block px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 opacity-85 hover:opacity-100"
-          >
-            Iluminación
-          </Link>
+
+          {[
+            { slug: "teclados-y-mouse", label: "Teclados y Mouse", responsiveClass: "" },
+            { slug: "audifonos-y-diademas", label: "Audífonos", responsiveClass: "" },
+            { slug: "cables-y-cargadores", label: "Cables y Carga", responsiveClass: "" },
+            { slug: "memorias", label: "Memorias", responsiveClass: "" },
+            { slug: "papeleria", label: "Papelería", responsiveClass: "hidden lg:inline-block" },
+            { slug: "focos", label: "Iluminación", responsiveClass: "hidden lg:inline-block" },
+          ].map((navItem) => {
+            const isActive = effectiveCategory === navItem.slug;
+            return (
+              <Link
+                key={navItem.slug}
+                href={`/catalogo?categoria=${navItem.slug}`}
+                onClick={() => setActiveHash("")}
+                aria-current={isActive ? "page" : undefined}
+                style={
+                  isActive
+                    ? {
+                        backgroundColor: "var(--accent)",
+                        color: "var(--accent-foreground)",
+                        borderRadius: "var(--radius)",
+                      }
+                    : { borderRadius: "var(--radius)" }
+                }
+                className={`${navItem.responsiveClass} px-2.5 py-1.5 transition-all shrink-0 ${
+                  isActive
+                    ? "font-bold shadow-xs ring-1 ring-black/10 opacity-100"
+                    : "hover:bg-current/10 opacity-85 hover:opacity-100"
+                }`}
+              >
+                {navItem.label}
+              </Link>
+            );
+          })}
+
           <Link
             href="/#ubicacion"
-            style={{ borderRadius: "var(--radius)" }}
-            className="hidden xl:inline-block px-2.5 py-1.5 border border-current/25 hover:bg-current/10 transition-all shrink-0 font-medium"
+            onClick={() => setActiveHash("#ubicacion")}
+            aria-current={isUbicacionActive ? "page" : undefined}
+            style={
+              isUbicacionActive
+                ? {
+                    backgroundColor: "var(--accent)",
+                    color: "var(--accent-foreground)",
+                    borderRadius: "var(--radius)",
+                  }
+                : { borderRadius: "var(--radius)" }
+            }
+            className={`hidden xl:inline-block px-2.5 py-1.5 transition-all shrink-0 ${
+              isUbicacionActive
+                ? "font-bold shadow-xs ring-1 ring-black/10 opacity-100"
+                : "border border-current/25 hover:bg-current/10 font-medium"
+            }`}
           >
             Horarios y Sucursal
           </Link>
@@ -353,7 +460,6 @@ export function Navbar({ business, categories, items }: NavbarProps) {
             >
               <div className="flex items-center gap-2">
                 <span className="font-heading font-black text-lg uppercase">{business.name}</span>
-                <span className="text-xs font-bold opacity-75">menú</span>
               </div>
               <button
                 type="button"
@@ -367,21 +473,6 @@ export function Navbar({ business, categories, items }: NavbarProps) {
 
             {/* Contenido del menú Hamburguesa */}
             <div className="flex-1 overflow-y-auto p-4 space-y-5 text-sm">
-              
-              {/* Acceso Rápido a WhatsApp */}
-              <div>
-                <a
-                  href={whatsappHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ borderRadius: "var(--radius)" }}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition-colors"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>WhatsApp: {whatsappDisplay}</span>
-                </a>
-              </div>
-
               {/* Sección de Servicios */}
               <div>
                 <div
@@ -394,27 +485,42 @@ export function Navbar({ business, categories, items }: NavbarProps) {
                 <ul className="space-y-1 text-xs">
                   <li>
                     <Link
-                      href="/catalogo?categoria=servicios-digitales"
-                      onClick={() => setDrawerOpen(false)}
-                      className="block py-2 px-2.5 rounded hover:bg-current/10 font-semibold transition-colors"
+                      href="/#tarifas"
+                      onClick={() => {
+                        setActiveHash("#tarifas");
+                        setDrawerOpen(false);
+                      }}
+                      className={`block py-2 px-2.5 rounded transition-colors ${
+                        isRentaPcActive
+                          ? "font-bold bg-current/10 opacity-100"
+                          : "hover:bg-current/10 opacity-85 hover:opacity-100"
+                      }`}
                     >
-                      Todos los Servicios
+                      Renta de PC (${oneHourRate}/hr • Media hr: ${halfHourRate})
                     </Link>
                   </li>
                   <li>
                     <Link
-                      href="/#tarifas"
-                      onClick={() => setDrawerOpen(false)}
-                      className="block py-2 px-2.5 rounded hover:bg-current/10 opacity-85 hover:opacity-100 transition-colors"
+                      href="/catalogo?categoria=servicios-digitales"
+                      onClick={() => {
+                        setActiveHash("");
+                        setDrawerOpen(false);
+                      }}
+                      className={`block py-2 px-2.5 rounded font-semibold transition-colors ${
+                        isServiciosActive
+                          ? "bg-current/10 font-bold opacity-100"
+                          : "hover:bg-current/10"
+                      }`}
                     >
-                      Renta de PC (${oneHourRate}/hr • Media hr: ${halfHourRate})
+                      Todos los Servicios
                     </Link>
                   </li>
                   {items
                     .filter(
                       (item) =>
-                        item.type === "service" &&
-                        item.categorySlug === "servicios-digitales"
+                        item.type === "service" ||
+                        item.categorySlug === "servicios-digitales" ||
+                        item.categorySlug === "servicios-cyber"
                     )
                     .slice(0, 5)
                     .map((item) => (
@@ -458,17 +564,27 @@ export function Navbar({ business, categories, items }: NavbarProps) {
                       Ver Todo el Catálogo
                     </Link>
                   </li>
-                  {categories.map((c) => (
-                    <li key={c.id}>
-                      <Link
-                        href={`/catalogo?categoria=${c.slug}`}
-                        onClick={() => setDrawerOpen(false)}
-                        className="block py-1.5 px-2.5 rounded hover:bg-current/10 opacity-85 hover:opacity-100 transition-colors"
-                      >
-                        {c.name}
-                      </Link>
-                    </li>
-                  ))}
+                  {categories
+                    .filter(
+                      (c) =>
+                        c.slug !== "servicios-digitales" &&
+                        c.slug !== "servicios-cyber"
+                    )
+                    .map((c) => (
+                      <li key={c.id}>
+                        <Link
+                          href={`/catalogo?categoria=${c.slug}`}
+                          onClick={() => setDrawerOpen(false)}
+                          className={`block py-1.5 px-2.5 rounded transition-colors ${
+                            effectiveCategory === c.slug
+                              ? "bg-current/10 font-bold opacity-100"
+                              : "hover:bg-current/10 opacity-85 hover:opacity-100"
+                          }`}
+                        >
+                          {c.name}
+                        </Link>
+                      </li>
+                    ))}
                 </ul>
               </div>
 

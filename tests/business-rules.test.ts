@@ -546,4 +546,62 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     expect(gitignoreContent).toContain("*.db");
     expect(gitignoreContent).toContain("*.db-wal");
   });
+
+  it("enforces rule 14: Navbar drawer cleanup, Renta de PC before Servicios order, active indicator, and zero cyber terms in SQLite DB", async () => {
+    const navbarPath = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "storefront",
+      "Navbar.tsx"
+    );
+    const navbarContent = fs.readFileSync(navbarPath, "utf-8");
+
+    // 1. El drawer lateral no debe tener la etiqueta 'menú' ni el botón de WhatsApp
+    expect(navbarContent).not.toContain(">menú<");
+    expect(navbarContent).not.toContain("WhatsApp: {whatsappDisplay}");
+
+    // 2. En la sub-navbar, Renta de PC aparece antes que Servicios y marca la sección activa
+    const subNavStart = navbarContent.indexOf("Enlaces directos a departamentos en Desktop");
+    expect(subNavStart).toBeGreaterThan(-1);
+    const subNavSegment = navbarContent.slice(subNavStart);
+    const rentaIndex = subNavSegment.indexOf("Renta de PC");
+    const serviciosIndex = subNavSegment.indexOf("Servicios");
+    expect(rentaIndex).toBeGreaterThan(-1);
+    expect(serviciosIndex).toBeGreaterThan(rentaIndex);
+    expect(navbarContent).toContain('aria-current={isRentaPcActive ? "page" : undefined}');
+    expect(navbarContent).toContain('aria-current={isServiciosActive ? "page" : undefined}');
+
+    // 3. Verificar que la base de datos SQLite haya migrado servicios-cyber -> servicios-digitales y no tenga la palabra cyber/ciber
+    const {
+      sqliteGetCategories,
+      sqliteGetCatalogItems,
+      sqliteGetThemeConfig,
+    } = await import("@/lib/data/sqlite-db");
+
+    const categories = await sqliteGetCategories();
+    const items = await sqliteGetCatalogItems({ includeInactive: true });
+    const theme = await sqliteGetThemeConfig();
+
+    const servicesCategory = categories.find((c) => c.slug === "servicios-digitales");
+    expect(servicesCategory).toBeDefined();
+    expect(servicesCategory?.name).toBe("Servicios");
+    expect(categories.some((c) => /c[yi]ber/i.test(c.name) || /c[yi]ber/i.test(c.slug) || /c[yi]ber/i.test(c.description))).toBe(false);
+
+    const serviceItems = items.filter(
+      (i) => i.categorySlug === "servicios-digitales" || i.type === "service"
+    );
+    expect(serviceItems.length).toBeGreaterThan(0);
+    expect(
+      items.some(
+        (i) =>
+          /c[yi]ber/i.test(i.categorySlug) ||
+          /c[yi]ber/i.test(i.name) ||
+          /c[yi]ber/i.test(i.shortDescription) ||
+          /c[yi]ber/i.test(i.description)
+      )
+    ).toBe(false);
+
+    expect(/c[yi]ber/i.test(JSON.stringify(theme))).toBe(false);
+  });
 });

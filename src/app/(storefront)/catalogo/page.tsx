@@ -21,8 +21,8 @@ export async function generateMetadata({
   const canonical = q
     ? "/catalogo"
     : currentCategory
-    ? `/catalogo?categoria=${currentCategory.slug}`
-    : "/catalogo";
+      ? `/catalogo?categoria=${currentCategory.slug}`
+      : "/catalogo";
 
   return {
     title,
@@ -51,10 +51,22 @@ export default async function CatalogPage({
 
   let filteredItems = items;
 
+  const isServicesCategory =
+    categoria === "servicios-digitales" || categoria === "servicios-cyber";
+
   if (categoria && categoria !== "todas") {
-    filteredItems = filteredItems.filter(
-      (item) => item.categorySlug === categoria
-    );
+    if (isServicesCategory) {
+      filteredItems = filteredItems.filter(
+        (item) =>
+          item.categorySlug === "servicios-digitales" ||
+          item.categorySlug === "servicios-cyber" ||
+          item.type === "service"
+      );
+    } else {
+      filteredItems = filteredItems.filter(
+        (item) => item.categorySlug === categoria
+      );
+    }
   }
 
   if (queryClean) {
@@ -67,7 +79,27 @@ export default async function CatalogPage({
     );
   }
 
-  const currentCategory = categories.find((c) => c.slug === categoria);
+  const currentCategory = isServicesCategory
+    ? categories.find(
+        (c) => c.slug === "servicios-digitales" || c.slug === "servicios-cyber"
+      ) || {
+        id: "cat-servicios",
+        slug: "servicios-digitales",
+        name: "Servicios",
+        description: "Impresiones, trámites, escaneo, enmicados y reparación de equipos.",
+        icon: "Monitor",
+      }
+    : categories.find((c) => c.slug === categoria);
+
+  // Ordenar categorías en la barra lateral poniendo Servicios primero y luego el resto
+  const orderedCategories = [
+    ...categories.filter(
+      (c) => c.slug === "servicios-digitales" || c.slug === "servicios-cyber"
+    ),
+    ...categories.filter(
+      (c) => c.slug !== "servicios-digitales" && c.slug !== "servicios-cyber"
+    ),
+  ];
 
   const requestedPage = Math.max(1, Number.parseInt(pageParam ?? "1", 10) || 1);
   const totalItems = filteredItems.length;
@@ -155,33 +187,38 @@ export default async function CatalogPage({
                       : "inherit",
                   borderRadius: "var(--radius)",
                 }}
-                className={`block py-1.5 px-2.5 transition-colors ${
-                  !categoria || categoria === "todas"
+                className={`block py-1.5 px-2.5 transition-colors ${!categoria || categoria === "todas"
                     ? "font-bold shadow-2xs"
                     : "opacity-80 hover:opacity-100 hover:bg-current/10"
-                }`}
+                  }`}
               >
                 Todos los productos
               </Link>
             </li>
-            {categories.map((cat) => {
-              const active = categoria === cat.slug;
+            {orderedCategories.map((cat) => {
+              const isCatServices =
+                cat.slug === "servicios-digitales" ||
+                cat.slug === "servicios-cyber";
+              const active = isCatServices
+                ? isServicesCategory
+                : categoria === cat.slug;
+              const targetSlug = isCatServices ? "servicios-digitales" : cat.slug;
+              const displayName = isCatServices ? "Servicios" : cat.name;
               return (
                 <li key={cat.id}>
                   <Link
-                    href={`/catalogo?categoria=${cat.slug}`}
+                    href={`/catalogo?categoria=${targetSlug}`}
                     style={{
                       backgroundColor: active ? "var(--primary)" : "transparent",
                       color: active ? "var(--primary-foreground)" : "inherit",
                       borderRadius: "var(--radius)",
                     }}
-                    className={`block py-1.5 px-2.5 transition-colors ${
-                      active
+                    className={`block py-1.5 px-2.5 transition-colors ${active
                         ? "font-bold shadow-2xs"
                         : "opacity-80 hover:opacity-100 hover:bg-current/10"
-                    }`}
+                      }`}
                   >
-                    {cat.name}
+                    {displayName}
                   </Link>
                 </li>
               );
@@ -232,7 +269,12 @@ export default async function CatalogPage({
 
                       {/* Categoría */}
                       <div className="text-[10px] opacity-60 uppercase tracking-wider mb-1 font-medium">
-                        {item.categorySlug.replace(/-/g, " ")}
+                        {item.categorySlug === "servicios-digitales" ||
+                        item.categorySlug === "servicios-cyber" ||
+                        item.type === "service"
+                          ? "Servicios"
+                          : categories.find((c) => c.slug === item.categorySlug)?.name ||
+                            item.categorySlug.replace(/-/g, " ")}
                       </div>
 
                       {/* Título */}

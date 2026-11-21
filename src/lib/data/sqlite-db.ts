@@ -11,6 +11,7 @@ import { isLocalUpload, safeDeleteUploadedFile } from "./upload-cleanup";
 import { hashPassword } from "@/lib/auth/security";
 
 let dbInstance: Database.Database | null = null;
+let hasNormalizedLegacyData = false;
 
 /**
  * Obtiene la ruta física del archivo de base de datos SQLite.
@@ -35,13 +36,20 @@ export function closeDatabase(): void {
     }
     dbInstance = null;
   }
+  hasNormalizedLegacyData = false;
 }
 
 /**
  * Obtiene o inicializa la conexión singleton a la base de datos SQLite con WAL mode.
  */
 export function getDatabase(): Database.Database {
-  if (dbInstance) return dbInstance;
+  if (dbInstance) {
+    if (!hasNormalizedLegacyData) {
+      normalizeLegacyCyberData(dbInstance);
+      hasNormalizedLegacyData = true;
+    }
+    return dbInstance;
+  }
 
   const dbPath = getDatabasePath();
 
@@ -62,6 +70,8 @@ export function getDatabase(): Database.Database {
 
   initializeSchema(db);
   seedIfEmpty(db);
+  normalizeLegacyCyberData(db);
+  hasNormalizedLegacyData = true;
   seedSecurityIfEmpty(db);
   cleanupExpiredRateLimits(db);
 
@@ -166,6 +176,121 @@ function runMigrations(db: Database.Database): void {
   if (currentVersion < 2) {
     migrateThemeCards(db);
     db.pragma("user_version = 2");
+  }
+
+  if (currentVersion < 3) {
+    normalizeLegacyCyberData(db);
+    db.pragma("user_version = 3");
+  }
+}
+
+function stripCyberTerms(text: string): string {
+  if (!text || !/c[yi]ber/i.test(text)) return text;
+  return text
+    .replace(/servicios-cyber/gi, "servicios-digitales")
+    .replace(/Todos\s+los\s+Servicios\s+del\s+C[yi]ber/gi, "Todos los Servicios")
+    .replace(/Todos\s+los\s+Servicios\s+Digitales/gi, "Todos los Servicios")
+    .replace(/Servicios\s+del\s+C[yi]ber/gi, "Servicios")
+    .replace(/Cybercaf[eé]\s+Chavonauta|Cibercaf[eé]\s+Chavonauta/gi, "Chavonauta")
+    .replace(/C[yi]ber\s+Chavonauta/gi, "Chavonauta")
+    .replace(/cybercaf[eé]|cibercaf[eé]/gi, "centro digital")
+    .replace(/del\s+c[yi]ber/gi, "de la sucursal")
+    .replace(/en\s+el\s+c[yi]ber/gi, "en sucursal")
+    .replace(/c[yi]ber/gi, "sucursal");
+}
+
+/**
+ * Limpia y migra de forma idempotente cualquier referencia antigua a "servicios-cyber",
+ * "Servicios del Cyber" o la palabra "cyber"/"ciber" en categorías, ítems del catálogo y tema.
+ */
+function normalizeLegacyCyberData(db: Database.Database): void {
+  try {
+    // 1. Normalizar tabla de categorías
+    const hasServiciosDigitales = db
+      .prepare("SELECT id FROM categories WHERE slug = 'servicios-digitales' LIMIT 1")
+      .get() as { id: string } | undefined;
+    const hasServiciosCyber = db
+      .prepare("SELECT id FROM categories WHERE slug = 'servicios-cyber' LIMIT 1")
+      .get() as { id: string } | undefined;
+
+    if (hasServiciosCyber && hasServiciosDigitales) {
+      db.prepare("DELETE FROM categories WHERE slug = 'servicios-cyber'").run();
+    } else if (hasServiciosCyber) {
+      db.prepare(
+        "UPDATE categories SET slug = 'servicios-digitales', name = 'Servicios' WHERE slug = 'servicios-cyber'"
+      ).run();
+    }
+
+    db.prepare(
+      "UPDATE categories SET slug = 'servicios-digitales', name = 'Servicios' WHERE slug = 'servicios-digitales' OR id = 'cat-servicios' OR LOWER(name) IN ('servicios del cyber', 'servicios del ciber', 'servicios digitales', 'servicios cyber', 'servicios ciber')"
+    ).run();
+
+    const allCategories = db
+      .prepare("SELECT id, name, description FROM categories")
+      .all() as { id: string; name: string; description: string }[];
+
+    const updateCategoryStmt = db.prepare(
+      "UPDATE categories SET name = ?, description = ? WHERE id = ?"
+    );
+    for (const cat of allCategories) {
+      const cleanName = stripCyberTerms(cat.name);
+      const cleanDesc = stripCyberTerms(cat.description);
+      if (cleanName !== cat.name || cleanDesc !== cat.description) {
+        updateCategoryStmt.run(cleanName, cleanDesc, cat.id);
+      }
+    }
+
+    // 2. Normalizar ítems del catálogo (migrar category_slug y limpiar textos con 'cyber'/'ciber')
+    db.prepare(
+      "UPDATE catalog_items SET category_slug = 'servicios-digitales' WHERE category_slug = 'servicios-cyber' OR (type = 'service' AND category_slug = 'servicios-cyber')"
+    ).run();
+
+    const allItems = db
+      .prepare("SELECT id, name, short_description, description, specs FROM catalog_items")
+      .all() as {
+      id: string;
+      name: string;
+      short_description: string;
+      description: string;
+      specs: string;
+    }[];
+
+    const updateItemStmt = db.prepare(
+      "UPDATE catalog_items SET name = ?, short_description = ?, description = ?, specs = ? WHERE id = ?"
+    );
+    for (const item of allItems) {
+      const cleanName = stripCyberTerms(item.name);
+      const cleanShort = stripCyberTerms(item.short_description);
+      const cleanDesc = stripCyberTerms(item.description);
+      const cleanSpecs = stripCyberTerms(item.specs);
+      if (
+        cleanName !== item.name ||
+        cleanShort !== item.short_description ||
+        cleanDesc !== item.description ||
+        cleanSpecs !== item.specs
+      ) {
+        updateItemStmt.run(cleanName, cleanShort, cleanDesc, cleanSpecs, item.id);
+      }
+    }
+
+    // 3. Normalizar configuración del tema guardada en JSON
+    const themeRow = db
+      .prepare("SELECT data FROM theme_config WHERE id = 'default-theme' LIMIT 1")
+      .get() as { data: string } | undefined;
+
+    if (themeRow?.data) {
+      const cleanedThemeJson = stripCyberTerms(themeRow.data)
+        .replace(/"Servicios Digitales"/g, '"Servicios"')
+        .replace(/"Todos los Servicios Digitales"/g, '"Todos los Servicios"');
+
+      if (cleanedThemeJson !== themeRow.data) {
+        db.prepare(
+          "UPDATE theme_config SET data = ?, updated_at = ? WHERE id = 'default-theme'"
+        ).run(cleanedThemeJson, new Date().toISOString());
+      }
+    }
+  } catch {
+    // Ignorar en caso de tabla aún no inicializada
   }
 }
 

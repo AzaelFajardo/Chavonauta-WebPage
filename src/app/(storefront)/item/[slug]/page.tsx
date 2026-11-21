@@ -44,9 +44,10 @@ export default async function ItemDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [item, theme] = await Promise.all([
+  const [item, theme, categories] = await Promise.all([
     repository.getCatalogItemBySlug(slug),
     repository.getThemeConfig(),
+    repository.getCategories(),
   ]);
 
   if (!item || !item.active) {
@@ -54,6 +55,15 @@ export default async function ItemDetailPage({
   }
 
   const isService = item.type === "service";
+  const categoryHrefSlug =
+    item.categorySlug === "servicios-cyber" || isService
+      ? "servicios-digitales"
+      : item.categorySlug;
+  const categoryDisplayName =
+    categoryHrefSlug === "servicios-digitales"
+      ? "Servicios"
+      : categories.find((c) => c.slug === item.categorySlug)?.name ||
+        item.categorySlug.replace(/-/g, " ");
 
   const whatsappMessage = encodeURIComponent(
     `Hola ${theme.business.name}, me interesa información sobre "${item.name}" que vi en su catálogo web.`
@@ -81,11 +91,11 @@ export default async function ItemDetailPage({
         </Link>
         <span>›</span>
         <Link
-          href={`/catalogo?categoria=${item.categorySlug}`}
+          href={`/catalogo?categoria=${categoryHrefSlug}`}
           style={{ color: "var(--primary)" }}
           className="hover:underline font-semibold"
         >
-          {item.categorySlug.replace(/-/g, " ")}
+          {categoryDisplayName}
         </Link>
         <span>›</span>
         <span

@@ -89,7 +89,22 @@ export function AdminCatalogManager({
       if (typeFilter !== "all" && item.type !== typeFilter) return false;
 
       // Category
-      if (categoryFilter !== "all" && item.categorySlug !== categoryFilter) return false;
+      if (categoryFilter !== "all") {
+        if (
+          categoryFilter === "servicios-digitales" ||
+          categoryFilter === "servicios-cyber"
+        ) {
+          if (
+            item.categorySlug !== "servicios-digitales" &&
+            item.categorySlug !== "servicios-cyber" &&
+            item.type !== "service"
+          ) {
+            return false;
+          }
+        } else if (item.categorySlug !== categoryFilter) {
+          return false;
+        }
+      }
 
       // Status
       if (statusFilter === "active" && !item.active) return false;
@@ -445,7 +460,10 @@ export function AdminCatalogManager({
               <option value="all">Todas las categorías</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.slug}>
-                  {cat.name}
+                  {cat.slug === "servicios-digitales" ||
+                  cat.slug === "servicios-cyber"
+                    ? "Servicios"
+                    : cat.name}
                 </option>
               ))}
             </select>
@@ -715,7 +733,10 @@ export function AdminCatalogManager({
 
                         <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                           <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
-                            {cat?.name || item.categorySlug}
+                            {item.categorySlug === "servicios-digitales" ||
+                            item.categorySlug === "servicios-cyber"
+                              ? "Servicios"
+                              : cat?.name || item.categorySlug}
                           </span>
                           <span
                             className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
@@ -923,7 +944,10 @@ export function AdminCatalogManager({
                               <div className="flex flex-wrap items-center gap-1.5 mt-1">
                                 {/* Chip de categoría */}
                                 <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
-                                  {cat?.name || item.categorySlug}
+                                  {item.categorySlug === "servicios-digitales" ||
+                                  item.categorySlug === "servicios-cyber"
+                                    ? "Servicios"
+                                    : cat?.name || item.categorySlug}
                                 </span>
 
                                 {/* Chip de tipo */}

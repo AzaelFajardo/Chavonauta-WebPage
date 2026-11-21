@@ -109,42 +109,42 @@ export function AdminNav() {
       <div
         onMouseEnter={handleMouseEnter}
         onClick={() => setIsHovered(true)}
-        className={`hidden lg:flex fixed top-6 left-0 z-40 items-center gap-2 pl-2.5 pr-3.5 py-2 bg-navy-950/95 text-sky-400 hover:text-white hover:bg-navy-900 border border-l-0 border-navy-800 rounded-r-xl shadow-xl shadow-navy-950/30 cursor-pointer transition-all duration-300 backdrop-blur-sm select-none group ${
+        className={`hidden lg:flex fixed top-6 left-0 z-40 items-center gap-2 pl-2.5 pr-3 py-2 bg-zinc-900/95 text-zinc-300 hover:text-white hover:bg-zinc-800 border border-l-0 border-zinc-700/60 rounded-r-xl shadow-lg shadow-black/25 cursor-pointer transition-all duration-300 backdrop-blur-sm select-none group ${
           isHovered
             ? "opacity-0 pointer-events-none -translate-x-full"
             : "opacity-100 translate-x-0"
         }`}
         title="Pasa el mouse para desplegar la barra lateral"
       >
-        <Menu className="w-4 h-4 text-sky-400 group-hover:scale-110 transition-transform" />
-        <span className="text-[11px] font-black tracking-wider text-slate-200">
+        <Menu className="w-4 h-4 text-zinc-400 group-hover:text-zinc-200 transition-colors" />
+        <span className="text-[11px] font-bold tracking-wider text-zinc-300 group-hover:text-white">
           MENÚ
         </span>
-        <ChevronRight className="w-3.5 h-3.5 text-navy-400 group-hover:translate-x-0.5 transition-transform" />
+        <ChevronRight className="w-3.5 h-3.5 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
       </div>
 
       {/* Barra superior para móvil y tablet */}
-      <header className="lg:hidden sticky top-0 z-40 bg-navy-950 text-white border-b border-navy-800 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between shadow-sm">
+      <header className="lg:hidden sticky top-0 z-40 bg-zinc-950 text-white border-b border-zinc-800/80 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-2.5">
           {/* Botón de Menú Hamburguesa a la IZQUIERDA para celulares y tablets */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-lg bg-navy-900 border border-navy-800 text-slate-200 hover:text-white hover:bg-navy-850 active:scale-95 transition-all focus:outline-none"
+            className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-800 active:scale-95 transition-all focus:outline-none"
             aria-label={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
           >
-            {mobileMenuOpen ? <X className="w-5 h-5 text-sky-400" /> : <Menu className="w-5 h-5 text-sky-400" />}
+            {mobileMenuOpen ? <X className="w-5 h-5 text-zinc-200" /> : <Menu className="w-5 h-5 text-zinc-200" />}
           </button>
 
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-navy-800 border border-navy-700 flex items-center justify-center text-accent shrink-0">
-              <Store className="w-4 h-4 text-sky-400" />
+            <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300 shrink-0">
+              <Store className="w-4 h-4 text-zinc-300" />
             </div>
             <div>
               <span className="font-heading font-black text-sm tracking-tight text-white block uppercase leading-tight">
                 Chavonauta
               </span>
-              <span className="text-[10px] text-navy-300 font-medium tracking-wide uppercase leading-none">
+              <span className="text-[10px] text-zinc-400 font-medium tracking-wide uppercase leading-none">
                 Panel de Control
               </span>
             </div>
@@ -155,7 +155,7 @@ export function AdminNav() {
         <Link
           href="/"
           target="_blank"
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-navy-900 hover:bg-navy-850 border border-navy-800 text-sky-400 hover:text-white text-xs font-semibold transition-all shrink-0 active:scale-95"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-semibold transition-all shrink-0 active:scale-95"
           title="Ver tienda pública en una pestaña nueva"
         >
           <ExternalLink className="w-3.5 h-3.5" />
@@ -166,7 +166,7 @@ export function AdminNav() {
       {/* Backdrop móvil */}
       {mobileMenuOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-xs"
+          className="lg:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-xs"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
@@ -175,26 +175,21 @@ export function AdminNav() {
       <aside
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-navy-950 text-white flex flex-col border-r border-navy-850 shadow-2xl shadow-navy-950/80 transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-zinc-950 text-white flex flex-col border-r border-zinc-800/80 shadow-2xl shadow-black/40 transition-transform duration-300 ease-in-out ${
           mobileMenuOpen || isHovered ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Cabecera Sidebar */}
-        <div className="p-5 border-b border-navy-900/80 bg-navy-950/90 flex items-center justify-between">
+        <div className="p-5 border-b border-zinc-800/80 bg-zinc-950 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-navy-800 to-navy-900 border border-navy-700 flex items-center justify-center shadow-inner">
-              <Store className="w-5 h-5 text-sky-400" />
+            <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300">
+              <Store className="w-4.5 h-4.5 text-zinc-200" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-heading font-black text-base tracking-tight text-white uppercase">
-                  Chavonauta
-                </span>
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-navy-800 text-sky-300 border border-navy-700">
-                  PRO
-                </span>
-              </div>
-              <p className="text-[11px] text-navy-300">Administrador de Tienda</p>
+              <span className="font-heading font-black text-base tracking-tight text-white uppercase block leading-tight">
+                Chavonauta
+              </span>
+              <p className="text-[11px] text-zinc-400">Administrador de Tienda</p>
             </div>
           </div>
 
@@ -204,7 +199,7 @@ export function AdminNav() {
               setMobileMenuOpen(false);
               setIsHovered(false);
             }}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-navy-900 transition-colors"
+            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
             title="Cerrar barra lateral"
           >
             <X className="w-5 h-5" />
@@ -212,8 +207,8 @@ export function AdminNav() {
         </div>
 
         {/* Links de Navegación */}
-        <div className="flex-1 py-6 px-3 space-y-1.5 overflow-y-auto">
-          <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-navy-400">
+        <div className="flex-1 py-5 px-3 space-y-1 overflow-y-auto">
+          <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
             SECCIONES
           </div>
           {NAV_ITEMS.map((item) => {
@@ -226,26 +221,26 @@ export function AdminNav() {
                 key={item.href}
                 href={item.href}
                 onClick={handleItemClick}
-                className={`group flex items-start gap-3.5 px-3.5 py-3 rounded-xl transition-all duration-150 ${
+                className={`group flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${
                   isActive
-                    ? "bg-navy-800/90 text-white border border-navy-700 shadow-sm shadow-navy-950/30"
-                    : "text-slate-300 hover:bg-navy-900 hover:text-white border border-transparent"
+                    ? "bg-zinc-900 text-white border border-zinc-700/70 shadow-xs"
+                    : "text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-200 border border-transparent"
                 }`}
               >
                 <div
-                  className={`mt-0.5 p-2 rounded-lg transition-colors ${
+                  className={`mt-0.5 p-1.5 rounded-lg transition-colors ${
                     isActive
-                      ? "bg-navy-700 text-sky-300"
-                      : "bg-navy-900/80 text-navy-300 group-hover:text-white group-hover:bg-navy-800"
+                      ? "bg-zinc-800 text-white"
+                      : "bg-zinc-900/80 text-zinc-400 group-hover:text-zinc-200 group-hover:bg-zinc-800"
                   }`}
                 >
                   <Icon className="w-4 h-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs font-black tracking-wider uppercase">
+                  <div className="text-xs font-bold tracking-wider uppercase">
                     {item.label}
                   </div>
-                  <div className="text-[11px] text-navy-300/80 truncate">
+                  <div className="text-[11px] text-zinc-400 truncate">
                     {item.description}
                   </div>
                 </div>
@@ -255,28 +250,28 @@ export function AdminNav() {
         </div>
 
         {/* Footer del Sidebar con enlace a la tienda y cierre de sesión */}
-        <div className="p-4 border-t border-navy-900 bg-navy-950/95 space-y-2">
+        <div className="p-4 border-t border-zinc-850 bg-zinc-950 space-y-2">
           <Link
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-200 hover:text-white border border-navy-800 hover:border-navy-700 transition-colors text-xs font-bold"
+            className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-850 text-zinc-300 hover:text-white border border-zinc-800 hover:border-zinc-700 transition-colors text-xs font-bold"
           >
             <div className="flex items-center gap-2">
-              <Store className="w-4 h-4 text-sky-400" />
+              <Store className="w-4 h-4 text-zinc-400" />
               <span className="tracking-wider uppercase">TIENDA</span>
             </div>
-            <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+            <ExternalLink className="w-3.5 h-3.5 text-zinc-500" />
           </Link>
 
           <button
             type="button"
             onClick={handleLogout}
-            className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl bg-red-950/20 hover:bg-red-900/30 text-red-300 hover:text-red-200 border border-red-900/40 hover:border-red-800/60 transition-colors text-xs font-bold cursor-pointer"
+            className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl bg-zinc-900/80 hover:bg-red-950/20 text-zinc-400 hover:text-red-300 border border-zinc-800 hover:border-red-900/40 transition-colors text-xs font-bold cursor-pointer"
             title="Cerrar sesión actual de administrador"
           >
             <div className="flex items-center gap-2">
-              <LogOut className="w-4 h-4 text-red-400" />
+              <LogOut className="w-4 h-4 text-zinc-500 group-hover:text-red-400" />
               <span className="tracking-wider uppercase">Cerrar Sesión</span>
             </div>
           </button>

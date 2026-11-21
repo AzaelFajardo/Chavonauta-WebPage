@@ -56,12 +56,49 @@ export function Navbar({ business, categories, items }: NavbarProps) {
     }
   }, []);
 
+  // Desplazar con margen exacto debajo del header sticky para que nunca tape el título del bloque
+  const scrollToSectionWithOffset = useCallback((hash: string) => {
+    if (typeof window === "undefined" || !hash.startsWith("#")) return false;
+    const targetId = hash.slice(1);
+    const el = document.getElementById(targetId);
+    if (!el) return false;
+
+    const headerEl = document.querySelector("header.sticky");
+    const headerOffset = (headerEl?.getBoundingClientRect().height ?? 100) + 24;
+    const elementTop = el.getBoundingClientRect().top + window.scrollY;
+
+    window.scrollTo({
+      top: Math.max(0, elementTop - headerOffset),
+      behavior: "smooth",
+    });
+    return true;
+  }, []);
+
+  const handleHashClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>, hash: "#tarifas" | "#ubicacion") => {
+      setActiveHash(hash);
+      if (pathname === "/" && typeof window !== "undefined") {
+        if (scrollToSectionWithOffset(hash)) {
+          e.preventDefault();
+          window.history.pushState(null, "", hash);
+        }
+      }
+    },
+    [pathname, scrollToSectionWithOffset]
+  );
+
   // Sincronizar hash activo (#tarifas, #ubicacion) cuando estamos en la página de inicio
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const syncHash = () => {
-      setActiveHash(window.location.hash || "");
+      const currentHash = window.location.hash || "";
+      setActiveHash(currentHash);
+      if (pathname === "/" && (currentHash === "#tarifas" || currentHash === "#ubicacion")) {
+        requestAnimationFrame(() => {
+          scrollToSectionWithOffset(currentHash);
+        });
+      }
     };
 
     syncHash();
@@ -71,7 +108,7 @@ export function Navbar({ business, categories, items }: NavbarProps) {
       window.removeEventListener("hashchange", syncHash);
       window.removeEventListener("popstate", syncHash);
     };
-  }, [pathname]);
+  }, [pathname, scrollToSectionWithOffset]);
 
   // Si estamos en una vista de detalle (/item/[slug]), detectar su categoría para marcarla en la barra
   const currentItemCategory = React.useMemo(() => {
@@ -166,6 +203,7 @@ export function Navbar({ business, categories, items }: NavbarProps) {
           {/* Sucursal (visible en desktop) */}
           <Link
             href="/#ubicacion"
+            onClick={(e) => handleHashClick(e, "#ubicacion")}
             style={{ borderRadius: "var(--radius)" }}
             className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 text-left"
           >
@@ -253,6 +291,7 @@ export function Navbar({ business, categories, items }: NavbarProps) {
             {/* Tarifas / Renta PC de 2 líneas (Desktop) */}
             <Link
               href="/#tarifas"
+              onClick={(e) => handleHashClick(e, "#tarifas")}
               style={{ borderRadius: "var(--radius)" }}
               className="hidden lg:flex flex-col leading-tight px-2.5 py-1.5 hover:bg-current/10 transition-all text-left"
             >
@@ -331,7 +370,7 @@ export function Navbar({ business, categories, items }: NavbarProps) {
           {/* Enlaces directos a departamentos en Desktop (Primero Renta de PC, luego Servicios y después el resto) */}
           <Link
             href="/#tarifas"
-            onClick={() => setActiveHash("#tarifas")}
+            onClick={(e) => handleHashClick(e, "#tarifas")}
             aria-current={isRentaPcActive ? "page" : undefined}
             style={
               isRentaPcActive
@@ -410,7 +449,7 @@ export function Navbar({ business, categories, items }: NavbarProps) {
 
           <Link
             href="/#ubicacion"
-            onClick={() => setActiveHash("#ubicacion")}
+            onClick={(e) => handleHashClick(e, "#ubicacion")}
             aria-current={isUbicacionActive ? "page" : undefined}
             style={
               isUbicacionActive
@@ -486,8 +525,8 @@ export function Navbar({ business, categories, items }: NavbarProps) {
                   <li>
                     <Link
                       href="/#tarifas"
-                      onClick={() => {
-                        setActiveHash("#tarifas");
+                      onClick={(e) => {
+                        handleHashClick(e, "#tarifas");
                         setDrawerOpen(false);
                       }}
                       className={`block py-2 px-2.5 rounded transition-colors ${

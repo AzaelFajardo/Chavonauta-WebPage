@@ -415,7 +415,7 @@ export function SectionRenderer({
       const halfHourRate = computerRates.halfHour ?? 4;
 
       return (
-        <section id={section.id || "sec-rates"} className="bg-background text-foreground py-6 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
+        <section id={section.id || "sec-rates"} className="scroll-mt-32 bg-background text-foreground py-6 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
           <div
             id="tarifas"
             style={{
@@ -423,8 +423,9 @@ export function SectionRenderer({
               color: "var(--card-foreground)",
               borderColor: "var(--border)",
               borderRadius: "var(--radius)",
+              scrollMarginTop: "124px",
             }}
-            className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto p-6 sm:p-8 shadow-sm border transition-colors duration-200 overflow-hidden"
+            className="scroll-mt-32 max-w-[1440px] 2xl:max-w-[1560px] mx-auto p-6 sm:p-8 shadow-sm border transition-colors duration-200 overflow-hidden"
           >
             <div className="max-w-2xl mb-6">
               <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--primary)" }}>
@@ -514,7 +515,7 @@ export function SectionRenderer({
         )}`;
 
       return (
-        <section id={section.id || "sec-location"} className="bg-background text-foreground py-6 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
+        <section id={section.id || "sec-location"} className="scroll-mt-32 bg-background text-foreground py-6 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
           <div
             id="ubicacion"
             style={{
@@ -522,8 +523,9 @@ export function SectionRenderer({
               color: "var(--card-foreground)",
               borderColor: "var(--border)",
               borderRadius: "var(--radius)",
+              scrollMarginTop: "124px",
             }}
-            className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto p-6 sm:p-8 shadow-sm border transition-colors duration-200 overflow-hidden"
+            className="scroll-mt-32 max-w-[1440px] 2xl:max-w-[1560px] mx-auto p-6 sm:p-8 shadow-sm border transition-colors duration-200 overflow-hidden"
           >
             <div className="mb-6">
               <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--primary)" }}>

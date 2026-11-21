@@ -467,6 +467,30 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     expect(cardsEditorContent).toContain('role="dialog"');
     expect(cardsEditorContent).toContain("Guardar Tarjeta");
     expect(cardsEditorContent).toContain("setEditingIndex(next.length - 1)");
+
+    // Verificar que SectionRenderer oculta productos destacados si no hay ninguno marcado con featured
+    const rendererPath = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "sections",
+      "SectionRenderer.tsx"
+    );
+    const rendererContent = fs.readFileSync(rendererPath, "utf-8");
+    expect(rendererContent).toContain("item.featured === true");
+    expect(rendererContent).toContain("featuredProducts.length === 0");
+
+    // Verificar que SortableSectionItem no muestra campo de subtítulo para productos destacados, tarifas y ubicación
+    const sortablePath = path.join(
+      process.cwd(),
+      "src",
+      "components",
+      "customizer",
+      "SortableSectionItem.tsx"
+    );
+    const sortableContent = fs.readFileSync(sortablePath, "utf-8");
+    expect(sortableContent).toContain('section.type === "featured_catalog"');
+    expect(sortableContent).toContain("Productos Destacados en Portada");
   });
 
   it("enforces rule 13: SQLite local database with WAL mode and residual image cleanup on delete/update", async () => {

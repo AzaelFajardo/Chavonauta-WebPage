@@ -254,7 +254,14 @@ export function SectionRenderer({
     // 2. PRODUCTOS DESTACADOS
     // ----------------------------------------------------
     case "featured_catalog": {
-      const products = items.filter((item) => item.type === "product");
+      const featuredProducts = items.filter(
+        (item) => item.type === "product" && item.featured === true && item.active !== false
+      );
+
+      // Si no hay productos marcados como destacados, la sección se oculta por defecto en el escaparate
+      if (featuredProducts.length === 0) {
+        return null;
+      }
 
       return (
         <section id={section.id || "sec-featured"} className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
@@ -283,7 +290,7 @@ export function SectionRenderer({
 
             {/* Fila de productos */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-              {products.slice(0, 8).map((product) => {
+              {featuredProducts.slice(0, 8).map((product) => {
                 const waLink = `https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(
                   `Hola Chavonauta, me interesa consultar disponibilidad del artículo: ${product.name}`
                 )}`;
@@ -426,9 +433,6 @@ export function SectionRenderer({
               <h2 className="font-heading font-bold text-2xl mt-1" style={{ color: "var(--card-foreground)" }}>
                 {section.title}
               </h2>
-              <p className="text-xs sm:text-sm opacity-80 mt-1">
-                {section.subtitle}
-              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -526,7 +530,7 @@ export function SectionRenderer({
                 Atención en Sucursal
               </span>
               <h2 className="font-heading font-bold text-2xl mt-1" style={{ color: "var(--card-foreground)" }}>
-                Ubicación y Horarios de Atención
+                {section.title || "Ubicación y Horarios de Atención"}
               </h2>
               <p className="text-xs sm:text-sm opacity-80 mt-1">
                 {business.branchName ? `Sucursal ${business.branchName}` : "Sucursal Principal"}

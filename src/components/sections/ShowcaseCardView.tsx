@@ -106,9 +106,8 @@ export function ShowcaseCardView({
         borderColor: "var(--border)",
         borderRadius: "var(--radius)",
       }}
-      className={`${
-        isService ? "p-5 shadow-sm" : "p-5 shadow-md"
-      } border flex flex-col justify-between transition-colors overflow-hidden h-full`}
+      className={`${isService ? "p-5 shadow-sm" : "p-5 shadow-md"
+        } border flex flex-col justify-between transition-colors overflow-hidden h-full`}
     >
       <div>
         <Heading

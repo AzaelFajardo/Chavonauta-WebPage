@@ -20,6 +20,7 @@ import {
   Plus,
   Trash2,
   MessageCircle,
+  Star,
 } from "lucide-react";
 import {
   FaqItem,
@@ -380,20 +381,49 @@ export function SortableSectionItem({
             />
           </div>
 
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-              Subtítulo / Descripción
-            </label>
-            <textarea
-              rows={2}
-              value={section.subtitle || ""}
-              onChange={(e) =>
-                onUpdateContent(section.id, { subtitle: e.target.value })
-              }
-              placeholder="Breve explicación visible debajo del título..."
-              className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-navy-600 text-slate-800 resize-none"
-            />
-          </div>
+          {/* Subtítulo únicamente para secciones que efectivamente lo usan en portada (Hero, Promociones y FAQ) */}
+          {(section.type === "hero" ||
+            section.type === "promo_banner" ||
+            section.type === "faq") && (
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                {section.type === "hero"
+                  ? "Descripción o Mensaje del Banner"
+                  : "Subtítulo de la Sección"}
+              </label>
+              <textarea
+                rows={2}
+                value={section.subtitle || ""}
+                onChange={(e) =>
+                  onUpdateContent(section.id, { subtitle: e.target.value })
+                }
+                placeholder={
+                  section.type === "hero"
+                    ? "Texto explicativo principal visible debajo del título..."
+                    : "Breve explicación visible debajo del título..."
+                }
+                className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800 resize-none"
+              />
+            </div>
+          )}
+
+          {/* Información específica para Productos Destacados */}
+          {section.type === "featured_catalog" && (
+            <div className="pt-2.5 border-t border-slate-200/80">
+              <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-200 text-blue-900 text-xs space-y-1">
+                <div className="flex items-center gap-1.5 font-bold text-[11px]">
+                  <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
+                  <span>Productos Destacados en Portada</span>
+                </div>
+                <p className="text-[10px] text-blue-800 leading-relaxed">
+                  Esta sección muestra automáticamente los productos marcados con la estrella de <strong>Destacado</strong> en el panel de Catálogo.
+                </p>
+                <p className="text-[10px] text-blue-700 leading-relaxed font-semibold">
+                  Si no hay ningún producto marcado como destacado, la sección se oculta automáticamente de la página.
+                </p>
+              </div>
+            </div>
+          )}
 
           {section.type === "hero" && (
             <div className="pt-3 border-t border-slate-200/80 space-y-3.5">

@@ -1,4 +1,12 @@
-import { HeroIconPackKey, ThemeConfig, ThemePalette } from "@/types";
+import {
+  AutoThemeScheduleConfig,
+  HeroFallingIconsConfig,
+  HeroIconPackKey,
+  SeasonalDatePoint,
+  SeasonalThemeRule,
+  ThemeConfig,
+  ThemePalette,
+} from "@/types";
 
 export const PRESET_PALETTES: Record<
   string,
@@ -389,6 +397,26 @@ export const PRESET_PALETTES: Record<
       border: "#cbd5e1",
     },
   },
+  ano_nuevo: {
+    label: "Año Nuevo",
+    category: "temporada",
+    mode: "dark",
+    palette: {
+      background: "#0a0e1a",
+      foreground: "#f8fafc",
+      primary: "#172554",
+      primaryForeground: "#ffffff",
+      secondary: "#1e293b",
+      secondaryForeground: "#fde047",
+      accent: "#eab308",
+      accentForeground: "#0a0e1a",
+      card: "#111827",
+      cardForeground: "#f8fafc",
+      muted: "#1e293b",
+      mutedForeground: "#94a3b8",
+      border: "#334155",
+    },
+  },
 };
 
 export function themeToCssVars(theme: ThemeConfig): Record<string, string> {
@@ -436,6 +464,7 @@ export const THEME_DEFAULT_ICON_PACK: Record<string, HeroIconPackKey> = {
   dorado: "sparkles",
   glaciar: "winter",
   navidad: "christmas",
+  ano_nuevo: "new_year",
   halloween: "halloween",
   patrio: "patrio",
   otono: "autumn",
@@ -477,9 +506,16 @@ export function resolveHeroIconPack(
     return THEME_DEFAULT_ICON_PACK[presetKey];
   }
 
-  // 2. Intento por nombre del tema (ej. "Navidad", "Halloween")
+  // 2. Intento por nombre del tema (ej. "Navidad", "Año Nuevo", "Halloween")
   if (themeName) {
     const lowerName = themeName.toLowerCase();
+    if (
+      lowerName.includes("año nuevo") ||
+      lowerName.includes("ano nuevo") ||
+      lowerName.includes("new year")
+    ) {
+      return "new_year";
+    }
     if (lowerName.includes("navidad")) return "christmas";
     if (lowerName.includes("halloween")) return "halloween";
     if (lowerName.includes("espacial") || lowerName.includes("space")) return "space";
@@ -494,6 +530,325 @@ export function resolveHeroIconPack(
   }
 
   return "tech";
+}
+
+export const MONTH_NAMES_ES: Record<number, string> = {
+  1: "Enero",
+  2: "Febrero",
+  3: "Marzo",
+  4: "Abril",
+  5: "Mayo",
+  6: "Junio",
+  7: "Julio",
+  8: "Agosto",
+  9: "Septiembre",
+  10: "Octubre",
+  11: "Noviembre",
+  12: "Diciembre",
+};
+
+/**
+ * Calcula dinámicamente a qué año pasamos o estamos recibiendo en Año Nuevo.
+ * - Si la fecha está en noviembre o diciembre (meses 11 o 12), el año nuevo al que pasamos es `year + 1`.
+ * - Si la fecha está en enero o resto del año, el año nuevo en curso es `year`.
+ */
+export function getNewYearTargetYear(
+  date: Date = new Date(),
+  mode: "auto" | "custom" = "auto",
+  customYear?: number
+): number {
+  if (
+    mode === "custom" &&
+    typeof customYear === "number" &&
+    Number.isFinite(customYear) &&
+    customYear >= 2020 &&
+    customYear <= 2100
+  ) {
+    return Math.floor(customYear);
+  }
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  return month >= 11 ? year + 1 : year;
+}
+
+/**
+ * Reemplaza marcadores {year} o {año} por el año calculado de transición.
+ */
+export function formatNewYearText(template: string, targetYear: number): string {
+  if (!template) return "";
+  return template.replace(/\{(year|año|ano)\}/gi, String(targetYear));
+}
+
+/**
+ * Verifica si una fecha cae dentro de un rango [start, end] (día y mes),
+ * soportando rangos que cruzan el fin de año (ej. Noviembre a Enero o Diciembre a Enero).
+ */
+export function isDateInSeasonalRange(
+  date: Date,
+  start: SeasonalDatePoint,
+  end: SeasonalDatePoint
+): boolean {
+  const currentMd = (date.getMonth() + 1) * 100 + date.getDate();
+  const startMd = start.month * 100 + start.day;
+  const endMd = end.month * 100 + end.day;
+
+  if (startMd <= endMd) {
+    return currentMd >= startMd && currentMd <= endMd;
+  }
+  // Rango que cruza de fin de año a principio del siguiente
+  return currentMd >= startMd || currentMd <= endMd;
+}
+
+export const DEFAULT_SEASONAL_RULES: SeasonalThemeRule[] = [
+  {
+    id: "season-new-year",
+    name: "Año Nuevo",
+    presetKey: "ano_nuevo",
+    startDate: { month: 12, day: 27 },
+    endDate: { month: 1, day: 6 },
+    enabled: true,
+    fallingIconsEnabled: true,
+    fallingIconsPack: "new_year",
+    heroBadgeTemplate: "¡Feliz Año Nuevo {year} — Catálogo Oficial y Servicios!",
+    newYearMode: "auto",
+  },
+  {
+    id: "season-christmas",
+    name: "Temporada Navideña",
+    presetKey: "navidad",
+    startDate: { month: 11, day: 15 },
+    endDate: { month: 1, day: 10 },
+    enabled: true,
+    fallingIconsEnabled: true,
+    fallingIconsPack: "christmas",
+  },
+  {
+    id: "season-valentine",
+    name: "Amor y Amistad",
+    presetKey: "febrero",
+    startDate: { month: 2, day: 1 },
+    endDate: { month: 2, day: 28 },
+    enabled: true,
+    fallingIconsEnabled: true,
+    fallingIconsPack: "romance",
+  },
+  {
+    id: "season-spring",
+    name: "Primavera",
+    presetKey: "primavera",
+    startDate: { month: 3, day: 21 },
+    endDate: { month: 5, day: 31 },
+    enabled: true,
+    fallingIconsEnabled: true,
+    fallingIconsPack: "spring",
+  },
+  {
+    id: "season-patrio",
+    name: "Fiestas Patrias",
+    presetKey: "patrio",
+    startDate: { month: 9, day: 1 },
+    endDate: { month: 9, day: 30 },
+    enabled: true,
+    fallingIconsEnabled: true,
+    fallingIconsPack: "patrio",
+  },
+  {
+    id: "season-halloween",
+    name: "Halloween y Día de Muertos",
+    presetKey: "halloween",
+    startDate: { month: 10, day: 20 },
+    endDate: { month: 11, day: 4 },
+    enabled: true,
+    fallingIconsEnabled: true,
+    fallingIconsPack: "halloween",
+  },
+];
+
+export const DEFAULT_AUTO_SCHEDULE: AutoThemeScheduleConfig = {
+  enabled: false,
+  defaultPresetKey: "chavonauta_navy",
+  rules: DEFAULT_SEASONAL_RULES,
+};
+
+/**
+ * Encuentra la regla de temporada activa para una fecha dada, respetando el orden de prioridad
+ */
+export function findMatchingSeasonalRule(
+  schedule?: AutoThemeScheduleConfig,
+  date: Date = new Date()
+): SeasonalThemeRule | null {
+  if (!schedule || !schedule.enabled || !Array.isArray(schedule.rules)) {
+    return null;
+  }
+
+  for (const rule of schedule.rules) {
+    if (!rule || !rule.enabled) continue;
+    if (isDateInSeasonalRange(date, rule.startDate, rule.endDate)) {
+      return rule;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Resuelve el tema efectivo aplicando programación automática por fecha si está activa,
+ * así como el cálculo dinámico del año entrante en el tema de Año Nuevo.
+ */
+export function resolveEffectiveTheme(
+  theme: ThemeConfig,
+  date: Date = new Date()
+): ThemeConfig {
+  const schedule = theme.autoSchedule;
+  const customPresets = theme.customPresets || [];
+
+  // Si el modo automático NO está habilitado, aún resolvemos {year} y targetYear si el tema activo es Año Nuevo
+  if (!schedule?.enabled) {
+    const currentKey = getThemePresetKey(theme.palette);
+    const isNewYearTheme =
+      currentKey === "ano_nuevo" ||
+      theme.name.toLowerCase().includes("año nuevo") ||
+      theme.name.toLowerCase().includes("ano nuevo");
+
+    const targetYear = getNewYearTargetYear(date, "auto");
+
+    const updatedSections = theme.sections.map((sec) => {
+      if (sec.type !== "hero") return sec;
+      const content = { ...(sec.content || {}) };
+      const falling = (content.fallingIcons as HeroFallingIconsConfig | undefined) || {
+        enabled: false,
+        pack: "auto",
+      };
+
+      if (typeof content.badgeText === "string" && /\{(year|año|ano)\}/i.test(content.badgeText)) {
+        content.badgeText = formatNewYearText(content.badgeText, targetYear);
+      }
+
+      if (isNewYearTheme || falling.pack === "new_year") {
+        content.fallingIcons = {
+          ...falling,
+          targetYear,
+        };
+      }
+
+      return { ...sec, content };
+    });
+
+    return {
+      ...theme,
+      sections: updatedSections,
+    };
+  }
+
+  // Modo automático habilitado
+  const matchedRule = findMatchingSeasonalRule(schedule, date);
+  const targetPresetKey = matchedRule
+    ? matchedRule.presetKey
+    : schedule.defaultPresetKey || "chavonauta_navy";
+
+  let resolvedPalette = theme.palette;
+  let resolvedMode = theme.mode;
+  let resolvedName = theme.name;
+  let presetFallingEnabled: boolean | undefined = undefined;
+  let presetFallingPack: HeroIconPackKey | undefined = undefined;
+
+  if (targetPresetKey.startsWith("custom:")) {
+    const customId = targetPresetKey.replace("custom:", "");
+    const foundCustom = customPresets.find((cp) => cp.id === customId);
+    if (foundCustom) {
+      resolvedPalette = { ...foundCustom.palette };
+      resolvedMode = foundCustom.mode;
+      resolvedName = foundCustom.label;
+      presetFallingEnabled = foundCustom.fallingIconsEnabled;
+      presetFallingPack = foundCustom.fallingIconsPack;
+    }
+  } else if (PRESET_PALETTES[targetPresetKey]) {
+    const foundOfficial = PRESET_PALETTES[targetPresetKey];
+    resolvedPalette = { ...foundOfficial.palette };
+    resolvedMode = foundOfficial.mode;
+    resolvedName = foundOfficial.label;
+    presetFallingPack = THEME_DEFAULT_ICON_PACK[targetPresetKey] || "auto";
+  }
+
+  const targetYear = getNewYearTargetYear(
+    date,
+    matchedRule?.newYearMode || "auto",
+    matchedRule?.customYear
+  );
+
+  const isNewYearRule =
+    targetPresetKey === "ano_nuevo" ||
+    matchedRule?.fallingIconsPack === "new_year" ||
+    resolvedName.toLowerCase().includes("año nuevo");
+
+  if (isNewYearRule) {
+    resolvedName = `Año Nuevo ${targetYear}`;
+  }
+
+  const updatedSections = theme.sections.map((sec) => {
+    if (sec.type !== "hero") return sec;
+    const content = { ...(sec.content || {}) };
+    const currentFalling = (content.fallingIcons as HeroFallingIconsConfig | undefined) || {
+      enabled: true,
+      pack: "auto",
+      density: "balanced",
+      speed: "normal",
+    };
+
+    const nextFallingEnabled =
+      matchedRule?.fallingIconsEnabled !== undefined
+        ? matchedRule.fallingIconsEnabled
+        : presetFallingEnabled !== undefined
+        ? presetFallingEnabled
+        : currentFalling.enabled;
+
+    const nextFallingPack: HeroIconPackKey =
+      matchedRule?.fallingIconsPack ||
+      presetFallingPack ||
+      THEME_DEFAULT_ICON_PACK[targetPresetKey] ||
+      currentFalling.pack ||
+      "auto";
+
+    content.fallingIcons = {
+      ...currentFalling,
+      enabled: nextFallingEnabled,
+      pack: nextFallingPack,
+      targetYear,
+    };
+
+    if (matchedRule?.heroBadgeTemplate?.trim()) {
+      content.badgeText = formatNewYearText(
+        matchedRule.heroBadgeTemplate.trim(),
+        targetYear
+      );
+    } else if (isNewYearRule) {
+      const existingBadge =
+        typeof content.badgeText === "string" ? content.badgeText : "";
+      if (/\{(year|año|ano)\}/i.test(existingBadge)) {
+        content.badgeText = formatNewYearText(existingBadge, targetYear);
+      } else {
+        content.badgeText = `¡Feliz Año Nuevo ${targetYear} — Catálogo Oficial y Servicios!`;
+      }
+    } else if (
+      typeof content.badgeText === "string" &&
+      /\{(year|año|ano)\}/i.test(content.badgeText)
+    ) {
+      content.badgeText = formatNewYearText(content.badgeText, targetYear);
+    }
+
+    return {
+      ...sec,
+      content,
+    };
+  });
+
+  return {
+    ...theme,
+    name: resolvedName,
+    mode: resolvedMode,
+    palette: resolvedPalette,
+    sections: updatedSections,
+  };
 }
 
 export interface HeroParticle {

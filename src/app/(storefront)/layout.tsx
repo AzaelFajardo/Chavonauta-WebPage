@@ -1,7 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
 import { repository } from "@/lib/data/repository";
-import { themeToCssVars } from "@/lib/theme-engine";
+import { resolveEffectiveTheme, themeToCssVars } from "@/lib/theme-engine";
 import { getSiteUrl } from "@/lib/site-url";
 import { Navbar } from "@/components/storefront/Navbar";
 import { Footer } from "@/components/storefront/Footer";
@@ -53,11 +53,12 @@ export default async function StorefrontLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [theme, categories, items] = await Promise.all([
+  const [rawTheme, categories, items] = await Promise.all([
     repository.getThemeConfig(),
     repository.getCategories(),
     repository.getCatalogItems(),
   ]);
+  const theme = resolveEffectiveTheme(rawTheme);
   const cssVars = themeToCssVars(theme);
 
   return (

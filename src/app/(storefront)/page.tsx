@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { repository } from "@/lib/data/repository";
+import { resolveEffectiveTheme } from "@/lib/theme-engine";
 import { SectionRenderer } from "@/components/sections/SectionRenderer";
 
 export const metadata: Metadata = {
@@ -7,12 +8,13 @@ export const metadata: Metadata = {
 };
 
 export default async function StorefrontHomePage() {
-  const [theme, items, categories] = await Promise.all([
+  const [rawTheme, items, categories] = await Promise.all([
     repository.getThemeConfig(),
     repository.getCatalogItems(),
     repository.getCategories(),
   ]);
 
+  const theme = resolveEffectiveTheme(rawTheme);
   const orderedSections = [...theme.sections].sort((a, b) => a.order - b.order);
 
   return (

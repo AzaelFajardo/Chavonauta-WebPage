@@ -2,7 +2,12 @@
 
 import React, { useMemo } from "react";
 import { HeroFallingIconsConfig, HeroIconPackKey, ThemePalette } from "@/types";
-import { getParticlesForDensity, HeroParticle, resolveHeroIconPack } from "@/lib/theme-engine";
+import {
+  getNewYearTargetYear,
+  getParticlesForDensity,
+  HeroParticle,
+  resolveHeroIconPack,
+} from "@/lib/theme-engine";
 
 export { getParticlesForDensity };
 
@@ -294,11 +299,47 @@ const Firework: IconRenderer = (p) => (
   </svg>
 );
 
+// 14. Año Nuevo (Brindis, Reloj de Medianoche e Insignia del Año Dinámico)
+const ChampagneToast: IconRenderer = (p) => (
+  <svg {...commonSvgProps} {...p}>
+    <path d="M8 22h8M12 15v7M7 3h10l-1.5 7.5a3.5 3.5 0 0 1-7 0L7 3z" />
+    <path d="M6.5 7h11M10 2v1M14 1.5v1.5" />
+  </svg>
+);
+const MidnightClock: IconRenderer = (p) => (
+  <svg {...commonSvgProps} {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l2.5-1.5M12 3v1M21 12h-1M12 21v-1M4 12H3" />
+  </svg>
+);
+function createYearBadgeIcon(year: number): IconRenderer {
+  const YearBadge: IconRenderer = (p) => (
+    <svg {...commonSvgProps} viewBox="0 0 36 24" {...p}>
+      <rect x="2" y="5" width="32" height="14" rx="4" strokeWidth={1.6} />
+      <path d="M6 2l1 2M30 2l-1 2M6 22l1-2M30 22l-1-2" strokeWidth={1.5} />
+      <text
+        x="18"
+        y="15"
+        textAnchor="middle"
+        fill="currentColor"
+        stroke="none"
+        fontSize="8.5"
+        fontWeight="800"
+        fontFamily="sans-serif"
+      >
+        {year}
+      </text>
+    </svg>
+  );
+  return YearBadge;
+}
+
 // ----------------------------------------------------
 // Diccionario de Paquetes de Iconos
 // ----------------------------------------------------
 const ICON_PACK_COMPONENTS: Record<string, IconRenderer[]> = {
   christmas: [ChristmasTree, Snowflake, GiftBox, ChristmasBell, CandyCane],
+  new_year: [Firework, ChampagneToast, MidnightClock, SparkleStar, MagicTwinkle],
   halloween: [Pumpkin, Ghost, Bat, Skull],
   space: [Rocket, Planet, Satellite, SparkleStar, Ufo],
   tech: [Laptop, MonitorIcon, CpuChip, WifiIcon, Bolt],
@@ -330,9 +371,23 @@ export function HeroFallingIcons({
     return resolveHeroIconPack(config?.pack, themePalette, themeName);
   }, [config?.pack, themePalette, themeName]);
 
+  const targetYear = useMemo(() => {
+    return config?.targetYear || getNewYearTargetYear();
+  }, [config?.targetYear]);
+
   const icons = useMemo(() => {
+    if (resolvedPackKey === "new_year") {
+      return [
+        Firework,
+        ChampagneToast,
+        createYearBadgeIcon(targetYear),
+        MidnightClock,
+        SparkleStar,
+        MagicTwinkle,
+      ];
+    }
     return ICON_PACK_COMPONENTS[resolvedPackKey] || ICON_PACK_COMPONENTS.tech;
-  }, [resolvedPackKey]);
+  }, [resolvedPackKey, targetYear]);
 
   // Generar partículas distribuidas en todo el ancho según densidad
   const density = config?.density || "balanced";

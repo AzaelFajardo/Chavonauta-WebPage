@@ -13,6 +13,7 @@ export type HeroIconPackKey =
   | "tech"
   | "gaming"
   | "christmas"
+  | "new_year"
   | "halloween"
   | "romance"
   | "autumn"
@@ -28,6 +29,8 @@ export interface HeroFallingIconsConfig {
   pack: HeroIconPackKey;
   density?: "subtle" | "balanced" | "lively";
   speed?: "slow" | "normal" | "fast";
+  /** Año dinámico opcional para el paquete de iconos de Año Nuevo */
+  targetYear?: number;
 }
 
 export interface HeroCtaButton {
@@ -129,6 +132,33 @@ export interface CustomPreset {
   createdAt?: string;
 }
 
+export interface SeasonalDatePoint {
+  month: number; // 1 (Enero) a 12 (Diciembre)
+  day: number; // 1 a 31
+}
+
+export interface SeasonalThemeRule {
+  id: string;
+  name: string;
+  presetKey: string;
+  startDate: SeasonalDatePoint;
+  endDate: SeasonalDatePoint;
+  enabled: boolean;
+  fallingIconsEnabled?: boolean;
+  fallingIconsPack?: HeroIconPackKey;
+  /** Plantilla opcional para la etiqueta superior del Hero (soporta {year} / {año}) */
+  heroBadgeTemplate?: string;
+  /** Modo de cálculo del año para Año Nuevo: "auto" calcula el año entrante según fecha, "custom" usa customYear */
+  newYearMode?: "auto" | "custom";
+  customYear?: number;
+}
+
+export interface AutoThemeScheduleConfig {
+  enabled: boolean;
+  defaultPresetKey: string;
+  rules: SeasonalThemeRule[];
+}
+
 export interface ThemeConfig {
   id: string;
   name: string;
@@ -142,6 +172,7 @@ export interface ThemeConfig {
   business: BusinessInfo;
   sections: SectionBlock[];
   customPresets?: CustomPreset[];
+  autoSchedule?: AutoThemeScheduleConfig;
   updatedAt: string;
 }
 

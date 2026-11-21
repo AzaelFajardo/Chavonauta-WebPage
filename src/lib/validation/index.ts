@@ -33,6 +33,7 @@ const ALLOWED_ICON_PACKS = [
   "tech",
   "gaming",
   "christmas",
+  "new_year",
   "halloween",
   "romance",
   "autumn",
@@ -415,6 +416,15 @@ function validateSections(value: unknown, errors: string[]): void {
           `sections[${index}].content.fallingIcons.speed: valor no permitido`,
           errors
         );
+        collectErrors(
+          falling.targetYear === undefined ||
+            (isFiniteNumber(falling.targetYear) &&
+              Number.isInteger(falling.targetYear) &&
+              falling.targetYear >= 2020 &&
+              falling.targetYear <= 2100),
+          `sections[${index}].content.fallingIcons.targetYear: año inválido`,
+          errors
+        );
       }
     }
 
@@ -666,8 +676,143 @@ export function validateThemeConfig(value: unknown): ValidationResult {
   validateBusiness(value.business, errors);
   validateSections(value.sections, errors);
   validateCustomPresets(value.customPresets, errors);
+  validateAutoSchedule(value.autoSchedule, errors);
 
   return { valid: errors.length === 0, errors: errors.slice(0, 12) };
+}
+
+function validateDatePoint(
+  value: unknown,
+  pathLabel: string,
+  errors: string[]
+): void {
+  if (!isRecord(value)) {
+    errors.push(`${pathLabel}: estructura inválida`);
+    return;
+  }
+  collectErrors(
+    isFiniteNumber(value.month) &&
+      Number.isInteger(value.month) &&
+      value.month >= 1 &&
+      value.month <= 12,
+    `${pathLabel}.month: mes inválido (1-12)`,
+    errors
+  );
+  collectErrors(
+    isFiniteNumber(value.day) &&
+      Number.isInteger(value.day) &&
+      value.day >= 1 &&
+      value.day <= 31,
+    `${pathLabel}.day: día inválido (1-31)`,
+    errors
+  );
+}
+
+function validateAutoSchedule(value: unknown, errors: string[]): void {
+  if (value === undefined) return;
+  if (!isRecord(value)) {
+    errors.push("autoSchedule: debe ser un objeto");
+    return;
+  }
+
+  collectErrors(
+    typeof value.enabled === "boolean",
+    "autoSchedule.enabled: debe ser booleano",
+    errors
+  );
+  collectErrors(
+    isString(value.defaultPresetKey, 100, false),
+    "autoSchedule.defaultPresetKey: obligatorio",
+    errors
+  );
+
+  if (!Array.isArray(value.rules)) {
+    errors.push("autoSchedule.rules: debe ser una lista");
+    return;
+  }
+
+  collectErrors(
+    value.rules.length <= 30,
+    "autoSchedule.rules: máximo 30 reglas de temporada",
+    errors
+  );
+
+  value.rules.forEach((rule, idx) => {
+    if (!isRecord(rule)) {
+      errors.push(`autoSchedule.rules[${idx}]: estructura inválida`);
+      return;
+    }
+    collectErrors(
+      isString(rule.id, 80, false),
+      `autoSchedule.rules[${idx}].id: obligatorio`,
+      errors
+    );
+    collectErrors(
+      isString(rule.name, 80, false),
+      `autoSchedule.rules[${idx}].name: obligatorio`,
+      errors
+    );
+    collectErrors(
+      isString(rule.presetKey, 100, false),
+      `autoSchedule.rules[${idx}].presetKey: obligatorio`,
+      errors
+    );
+    collectErrors(
+      typeof rule.enabled === "boolean",
+      `autoSchedule.rules[${idx}].enabled: debe ser booleano`,
+      errors
+    );
+    validateDatePoint(
+      rule.startDate,
+      `autoSchedule.rules[${idx}].startDate`,
+      errors
+    );
+    validateDatePoint(
+      rule.endDate,
+      `autoSchedule.rules[${idx}].endDate`,
+      errors
+    );
+
+    if (rule.fallingIconsEnabled !== undefined) {
+      collectErrors(
+        typeof rule.fallingIconsEnabled === "boolean",
+        `autoSchedule.rules[${idx}].fallingIconsEnabled: debe ser booleano`,
+        errors
+      );
+    }
+    if (rule.fallingIconsPack !== undefined) {
+      collectErrors(
+        typeof rule.fallingIconsPack === "string" &&
+          ALLOWED_ICON_PACKS.includes(rule.fallingIconsPack),
+        `autoSchedule.rules[${idx}].fallingIconsPack: paquete no permitido`,
+        errors
+      );
+    }
+    if (rule.heroBadgeTemplate !== undefined) {
+      collectErrors(
+        isString(rule.heroBadgeTemplate, 120),
+        `autoSchedule.rules[${idx}].heroBadgeTemplate: demasiado largo`,
+        errors
+      );
+    }
+    if (rule.newYearMode !== undefined) {
+      collectErrors(
+        rule.newYearMode === "auto" || rule.newYearMode === "custom",
+        `autoSchedule.rules[${idx}].newYearMode: inválido`,
+        errors
+      );
+    }
+    if (rule.customYear !== undefined) {
+      collectErrors(
+        isFiniteNumber(rule.customYear) &&
+          Number.isInteger(rule.customYear) &&
+          rule.customYear >= 2020 &&
+          rule.customYear <= 2100,
+        `autoSchedule.rules[${idx}].customYear: año fuera de rango (2020-2100)`,
+        errors
+      );
+    }
+  });
 }
 
 export function validateCatalogItemInput(

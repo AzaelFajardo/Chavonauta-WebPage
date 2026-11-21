@@ -3,7 +3,7 @@
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { CatalogItem, Category, ThemeConfig } from "@/types";
-import { themeToCssVars } from "@/lib/theme-engine";
+import { resolveEffectiveTheme, themeToCssVars } from "@/lib/theme-engine";
 import { Navbar } from "@/components/storefront/Navbar";
 import { Footer } from "@/components/storefront/Footer";
 import { SectionRenderer } from "@/components/sections/SectionRenderer";
@@ -22,11 +22,12 @@ export function LivePreview({
   categories,
   viewport,
 }: LivePreviewProps) {
-  const cssVars = useMemo(() => themeToCssVars(theme), [theme]);
+  const effectiveTheme = useMemo(() => resolveEffectiveTheme(theme), [theme]);
+  const cssVars = useMemo(() => themeToCssVars(effectiveTheme), [effectiveTheme]);
 
   const orderedSections = useMemo(() => {
-    return [...theme.sections].sort((a, b) => a.order - b.order);
-  }, [theme.sections]);
+    return [...effectiveTheme.sections].sort((a, b) => a.order - b.order);
+  }, [effectiveTheme.sections]);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
@@ -275,9 +276,9 @@ export function LivePreview({
                   section={section}
                   items={items}
                   categories={categories}
-                  business={theme.business}
-                  themeName={theme.name}
-                  themePalette={theme.palette}
+                  business={effectiveTheme.business}
+                  themeName={effectiveTheme.name}
+                  themePalette={effectiveTheme.palette}
                 />
               ))}
             </main>

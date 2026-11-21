@@ -94,6 +94,7 @@ function isSafeAppHref(value: unknown): boolean {
   if (value === undefined || value === "") return true;
   if (typeof value !== "string") return false;
   if (value.startsWith("/") && !value.startsWith("//")) return true;
+  if (value.startsWith("#")) return true;
   return isHttpUrl(value);
 }
 
@@ -466,6 +467,39 @@ function validateSections(value: unknown, errors: string[]): void {
           `sections[${index}].content.sideImageUseRate: debe ser booleano`,
           errors
         );
+        collectErrors(
+          section.content.showWhatsAppButton === undefined ||
+            typeof section.content.showWhatsAppButton === "boolean",
+          `sections[${index}].content.showWhatsAppButton: debe ser booleano`,
+          errors
+        );
+        if (section.content.customButtons !== undefined) {
+          if (!Array.isArray(section.content.customButtons)) {
+            errors.push(`sections[${index}].content.customButtons: debe ser una lista`);
+          } else {
+            section.content.customButtons.forEach((btn, bIdx) => {
+              if (!isRecord(btn)) {
+                errors.push(`sections[${index}].content.customButtons[${bIdx}]: estructura inválida`);
+              } else {
+                collectErrors(
+                  btn.label === undefined || isString(btn.label, 50),
+                  `sections[${index}].content.customButtons[${bIdx}].label: inválido`,
+                  errors
+                );
+                collectErrors(
+                  btn.destination === undefined || isString(btn.destination, 200),
+                  `sections[${index}].content.customButtons[${bIdx}].destination: inválido`,
+                  errors
+                );
+                collectErrors(
+                  isSafeAppHref(btn.customUrl),
+                  `sections[${index}].content.customButtons[${bIdx}].customUrl: URL no permitida`,
+                  errors
+                );
+              }
+            });
+          }
+        }
       }
 
       validateShowcaseCards(

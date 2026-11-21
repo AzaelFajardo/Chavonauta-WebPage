@@ -3,6 +3,7 @@
 import React from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { ShowcaseCard, ShowcaseGridItem } from "@/types";
+import { ImageUploader } from "@/components/ui/ImageUploader";
 
 interface CardsEditorProps {
   cards: ShowcaseCard[];
@@ -209,16 +210,15 @@ export function CardsEditor({ cards, onChange }: CardsEditorProps) {
                         placeholder="Etiqueta"
                         className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
                       />
-                      <input
-                        type="text"
+                      <ImageUploader
+                        compact={true}
                         value={item.imageUrl || ""}
-                        onChange={(e) =>
+                        onChange={(url) =>
                           updateGridItem(index, itemIndex, {
-                            imageUrl: e.target.value,
+                            imageUrl: url,
                           })
                         }
-                        placeholder="URL de la imagen"
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                        label="Foto del elemento"
                       />
                       <input
                         type="text"
@@ -236,20 +236,15 @@ export function CardsEditor({ cards, onChange }: CardsEditorProps) {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <div>
-                    <label className="block text-[10px] font-semibold text-slate-600 mb-1">
-                      URL de la imagen
-                    </label>
-                    <input
-                      type="text"
-                      value={card.imageUrl || ""}
-                      onChange={(e) =>
-                        updateCard(index, { imageUrl: e.target.value })
-                      }
-                      placeholder="https://... o /uploads/..."
-                      className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
-                    />
-                  </div>
+                  <ImageUploader
+                    compact={true}
+                    value={card.imageUrl || ""}
+                    onChange={(url) =>
+                      updateCard(index, { imageUrl: url })
+                    }
+                    label="Imagen o fotografía de la tarjeta"
+                    helperText="Selecciona un archivo desde tu equipo (JPG, PNG, JFIF, WEBP, GIF, etc.)."
+                  />
                   <label className="flex items-center gap-2 text-[10px] text-slate-600 cursor-pointer select-none">
                     <input
                       type="checkbox"

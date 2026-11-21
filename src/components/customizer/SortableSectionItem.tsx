@@ -19,11 +19,11 @@ import {
   Sparkles,
   Plus,
   Trash2,
+  MessageCircle,
 } from "lucide-react";
 import {
   FaqItem,
-  HeroFallingIconsConfig,
-  HeroIconPackKey,
+  HeroCtaButton,
   SectionBlock,
   SectionType,
   ShowcaseCard,
@@ -33,6 +33,17 @@ import {
   DEFAULT_SERVICES_CARDS,
 } from "@/lib/content-defaults";
 import { CardsEditor } from "./CardsEditor";
+import { ImageUploader } from "@/components/ui/ImageUploader";
+
+const HERO_DESTINATIONS = [
+  { value: "/catalogo", label: "Catálogo completo de productos y servicios" },
+  { value: "#sec-services", label: "Bajar a: Servicios del Cyber" },
+  { value: "#sec-rates", label: "Bajar a: Tarifas de Equipos y Consolas" },
+  { value: "#sec-location", label: "Bajar a: Ubicación y Horarios" },
+  { value: "#sec-promo-banner", label: "Bajar a: Promociones y Avisos" },
+  { value: "#sec-faq", label: "Bajar a: Preguntas Frecuentes" },
+  { value: "custom", label: "Enlace web externo personalizado..." },
+];
 
 interface SortableSectionItemProps {
   section: SectionBlock;
@@ -164,6 +175,54 @@ export function SortableSectionItem({
       ? section.content.sideImageBadge
       : "";
   const heroSideImageUseRate = section.content?.sideImageUseRate !== false;
+  const showWhatsAppButton = section.content?.showWhatsAppButton !== false;
+
+  const heroCustomButtons: HeroCtaButton[] = Array.isArray(section.content?.customButtons)
+    ? (section.content.customButtons as HeroCtaButton[])
+    : [
+        {
+          id: "btn-primary",
+          label: heroPrimaryCtaText || "Ver Todo el Catálogo",
+          destination: heroPrimaryCtaHref || "/catalogo",
+        },
+      ];
+
+  const updateHeroButtons = (newButtons: HeroCtaButton[]) => {
+    const primary = newButtons[0];
+    onUpdateContent(section.id, {
+      content: {
+        ...section.content,
+        customButtons: newButtons,
+        primaryCtaText: primary ? primary.label : "",
+        primaryCtaHref: primary
+          ? primary.destination === "custom"
+            ? primary.customUrl || ""
+            : primary.destination
+          : "",
+      },
+    });
+  };
+
+  const addHeroButton = () => {
+    if (heroCustomButtons.length >= 4) return;
+    const newBtn: HeroCtaButton = {
+      id: `btn-${Date.now()}`,
+      label: "Nuevo Botón",
+      destination: "/catalogo",
+    };
+    updateHeroButtons([...heroCustomButtons, newBtn]);
+  };
+
+  const removeHeroButton = (id: string) => {
+    updateHeroButtons(heroCustomButtons.filter((b) => b.id !== id));
+  };
+
+  const updateHeroButton = (id: string, updates: Partial<HeroCtaButton>) => {
+    const next = heroCustomButtons.map((b) =>
+      b.id === id ? { ...b, ...updates } : b
+    );
+    updateHeroButtons(next);
+  };
 
   const updateContentField = (key: string, value: unknown) => {
     onUpdateContent(section.id, {
@@ -337,14 +396,15 @@ export function SortableSectionItem({
           </div>
 
           {section.type === "hero" && (
-            <div className="pt-3 border-t border-slate-200/80 space-y-2">
-              <span className="text-[11px] font-bold text-slate-800">
-                Banner principal
+            <div className="pt-3 border-t border-slate-200/80 space-y-3.5">
+              <span className="text-[11px] font-bold text-slate-800 block">
+                Contenido del Banner Principal (Hero)
               </span>
 
+              {/* Etiqueta superior */}
               <div>
                 <label className="block text-[10px] font-semibold text-slate-600 mb-1">
-                  Texto de la etiqueta superior
+                  Texto de la etiqueta superior (Badge)
                 </label>
                 <input
                   type="text"
@@ -352,111 +412,204 @@ export function SortableSectionItem({
                   onChange={(e) =>
                     updateContentField("badgeText", e.target.value)
                   }
-                  placeholder="Catálogo Oficial y Servicios en Sucursal"
+                  placeholder="Ej. Catálogo Oficial y Servicios en Sucursal"
                   className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-[10px] font-semibold text-slate-600 mb-1">
-                    Botón principal
+              {/* Botón directo de WhatsApp */}
+              <div className="p-3 bg-emerald-50/70 border border-emerald-200/80 rounded-xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                    <MessageCircle className="w-4 h-4 text-emerald-600" />
+                    <span>Botón directo de WhatsApp</span>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={showWhatsAppButton}
+                      onChange={(e) =>
+                        updateContentField("showWhatsAppButton", e.target.checked)
+                      }
+                      className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                    />
+                    <span className="text-[11px] font-semibold text-slate-700">
+                      {showWhatsAppButton ? "Visible" : "Oculto"}
+                    </span>
                   </label>
-                  <input
-                    type="text"
-                    value={heroPrimaryCtaText}
-                    onChange={(e) =>
-                      updateContentField("primaryCtaText", e.target.value)
-                    }
-                    placeholder="Ver Todo el Catálogo"
-                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
-                  />
                 </div>
-                <div>
-                  <label className="block text-[10px] font-semibold text-slate-600 mb-1">
-                    Enlace del botón principal
-                  </label>
-                  <input
-                    type="text"
-                    value={heroPrimaryCtaHref}
-                    onChange={(e) =>
-                      updateContentField("primaryCtaHref", e.target.value)
-                    }
-                    placeholder="/catalogo"
-                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
-                  />
+                <p className="text-[11px] text-slate-500">
+                  Muestra un botón destacado en el hero que abre directamente WhatsApp para consultas rápidas.
+                </p>
+                {showWhatsAppButton && (
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                      Texto del botón de WhatsApp
+                    </label>
+                    <input
+                      type="text"
+                      value={heroSecondaryCtaText || "Contactar por WhatsApp"}
+                      onChange={(e) =>
+                        updateContentField("secondaryCtaText", e.target.value)
+                      }
+                      placeholder="Contactar por WhatsApp"
+                      className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-600 text-slate-800"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Botones de Acción Personalizados */}
+              <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="block text-xs font-bold text-slate-800">
+                      Botones de Acción ({heroCustomButtons.length})
+                    </span>
+                    <span className="text-[10px] text-slate-500">
+                      Configura hacia dónde llevan los botones del banner
+                    </span>
+                  </div>
+                  {heroCustomButtons.length < 4 && (
+                    <button
+                      type="button"
+                      onClick={addHeroButton}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-blue-700 bg-white hover:bg-blue-50 border border-slate-200 rounded-lg transition-all shadow-2xs cursor-pointer active:scale-95"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Añadir botón</span>
+                    </button>
+                  )}
                 </div>
-                <div>
-                  <label className="block text-[10px] font-semibold text-slate-600 mb-1">
-                    Botón secundario
-                  </label>
-                  <input
-                    type="text"
-                    value={heroSecondaryCtaText}
-                    onChange={(e) =>
-                      updateContentField("secondaryCtaText", e.target.value)
-                    }
-                    placeholder="Contactar por WhatsApp"
-                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-semibold text-slate-600 mb-1">
-                    Enlace secundario
-                  </label>
-                  <input
-                    type="text"
-                    value={heroSecondaryCtaHref}
-                    onChange={(e) =>
-                      updateContentField("secondaryCtaHref", e.target.value)
-                    }
-                    placeholder="Vacío = WhatsApp"
-                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
-                  />
+
+                <div className="space-y-2">
+                  {heroCustomButtons.map((btn, idx) => {
+                    const isKnownDest = HERO_DESTINATIONS.some((d) => d.value === btn.destination && d.value !== "custom");
+                    const isCustom = btn.destination === "custom" || !isKnownDest;
+
+                    return (
+                      <div
+                        key={btn.id || idx}
+                        className="p-2.5 bg-white border border-slate-200 rounded-lg space-y-2 shadow-2xs"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                            Botón {idx + 1} {idx === 0 && "(Principal)"}
+                          </span>
+                          {heroCustomButtons.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeHeroButton(btn.id)}
+                              className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                              title="Eliminar botón"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                              Texto del botón
+                            </label>
+                            <input
+                              type="text"
+                              value={btn.label}
+                              onChange={(e) =>
+                                updateHeroButton(btn.id, { label: e.target.value })
+                              }
+                              placeholder="Ej. Ver Todo el Catálogo"
+                              className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                              Destino del botón
+                            </label>
+                            <select
+                              value={isCustom ? "custom" : btn.destination}
+                              onChange={(e) => {
+                                const dest = e.target.value;
+                                updateHeroButton(btn.id, {
+                                  destination: dest,
+                                  customUrl: dest === "custom" ? (btn.customUrl || "") : undefined,
+                                });
+                              }}
+                              className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800 cursor-pointer"
+                            >
+                              {HERO_DESTINATIONS.map((dest) => (
+                                <option key={dest.value} value={dest.value}>
+                                  {dest.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+
+                        {isCustom && (
+                          <div>
+                            <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                              URL personalizada (ej: https://... o enlace externo)
+                            </label>
+                            <input
+                              type="text"
+                              value={btn.customUrl ?? btn.destination}
+                              onChange={(e) =>
+                                updateHeroButton(btn.id, {
+                                  destination: "custom",
+                                  customUrl: e.target.value,
+                                })
+                              }
+                              placeholder="https://..."
+                              className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-semibold text-slate-600 mb-1">
-                  Imagen lateral
-                </label>
-                <input
-                  type="text"
+              {/* Fotografía de la Sucursal (Lado Derecho del Banner) */}
+              <div className="p-3 bg-white border border-slate-200/80 rounded-xl space-y-2.5 shadow-2xs">
+                <ImageUploader
                   value={heroSideImageUrl}
-                  onChange={(e) =>
-                    updateContentField("sideImageUrl", e.target.value)
-                  }
-                  placeholder="https://... o /uploads/..."
-                  className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                  onChange={(url) => updateContentField("sideImageUrl", url)}
+                  label="Fotografía del cybercafé (Lado derecho del banner)"
+                  helperText="Se muestra al lado derecho del banner principal en computadoras. Sube una foto de tus computadoras, consolas o instalaciones."
+                  placeholderText="Haz clic o arrastra una foto desde tu equipo"
                 />
-              </div>
 
-              <div>
-                <label className="block text-[10px] font-semibold text-slate-600 mb-1">
-                  Texto sobre la imagen lateral
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                    Texto sobre la fotografía (opcional)
+                  </label>
+                  <input
+                    type="text"
+                    value={heroSideImageBadge}
+                    onChange={(e) =>
+                      updateContentField("sideImageBadge", e.target.value)
+                    }
+                    placeholder="Ej. Equipos Gamer, Renta de PC, Alta Velocidad..."
+                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                  />
+                </div>
+
+                <label className="flex items-center gap-2 text-[10px] text-slate-600 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={heroSideImageUseRate}
+                    onChange={(e) =>
+                      updateContentField("sideImageUseRate", e.target.checked)
+                    }
+                    className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span>Mostrar automáticamente la tarifa actual de renta de PC ($X / hora)</span>
                 </label>
-                <input
-                  type="text"
-                  value={heroSideImageBadge}
-                  onChange={(e) =>
-                    updateContentField("sideImageBadge", e.target.value)
-                  }
-                  placeholder="Opcional si no usas la tarifa automática"
-                  className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
-                />
               </div>
-
-              <label className="flex items-center gap-2 text-[10px] text-slate-600 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={heroSideImageUseRate}
-                  onChange={(e) =>
-                    updateContentField("sideImageUseRate", e.target.checked)
-                  }
-                  className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span>Mostrar la tarifa actual de renta de PC sobre la imagen</span>
-              </label>
             </div>
           )}
 
@@ -594,147 +747,6 @@ export function SortableSectionItem({
               )}
             </div>
           )}
-
-          {/* Configuración de Cascada de Iconos Animados para el Hero Banner */}
-          {section.type === "hero" && (() => {
-            const fallingIcons = (section.content?.fallingIcons as HeroFallingIconsConfig | undefined) || {
-              enabled: true,
-              pack: "auto",
-              density: "balanced",
-              speed: "normal",
-            };
-
-            const updateFallingIcons = (updates: Partial<HeroFallingIconsConfig>) => {
-              onUpdateContent(section.id, {
-                content: {
-                  ...section.content,
-                  fallingIcons: {
-                    ...fallingIcons,
-                    ...updates,
-                  },
-                },
-              });
-            };
-
-            return (
-              <div className="pt-3 border-t border-slate-200/80 space-y-3">
-                {/* Casilla de verificación (Check) para activar la cascada de forma opcional */}
-                <div className="p-2.5 bg-slate-100/70 rounded-xl border border-slate-200">
-                  <label className="flex items-center gap-2 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={fallingIcons.enabled === true}
-                      onChange={(e) => updateFallingIcons({ enabled: e.target.checked })}
-                      className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                    />
-                    <span className="text-xs font-bold text-slate-800">
-                      Activar Cascada
-                    </span>
-                  </label>
-                </div>
-
-                {fallingIcons.enabled === true && (
-                  <div className="space-y-3 pt-2 bg-slate-100/70 p-3 rounded-xl border border-slate-200 animate-in fade-in duration-150">
-                    {/* Selector de Paquete de Iconos */}
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                        Paquete de Iconos Alegóricos
-                      </label>
-                      <select
-                        value={fallingIcons.pack || "auto"}
-                        onChange={(e) =>
-                          updateFallingIcons({
-                            pack: e.target.value as HeroIconPackKey,
-                          })
-                        }
-                        className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-900 cursor-pointer shadow-2xs"
-                      >
-                        <option value="auto">Automático (Según el tema activo)</option>
-                        <option value="space">Espacial & Chavonauta (Cohetes, Planetas, Satélites, Estrellas)</option>
-                        <option value="tech">Cómputo & Tech (Laptops, Chips, Wi-Fi, Monitores, Rayos)</option>
-                        <option value="gaming">Gaming & Arcade (Mandos, Joysticks, Trofeos, Cartuchos)</option>
-                        <option value="christmas">Navidad (Árboles de navidad, Copos, Regalos, Campanas)</option>
-                        <option value="halloween">Halloween (Calabazas, Fantasmas, Murciélagos, Calaveras)</option>
-                        <option value="ocean">Océano & Gotas (Olas, Gotas, Anclas)</option>
-                        <option value="sparkles">Destellos Minimalistas (Estrellas de 4 y 8 puntas)</option>
-                        <option value="winter">Invierno & Hielo (Copos de nieve cristalinos)</option>
-                        <option value="autumn">Otoño (Hojas secas, Bellotas, Viento)</option>
-                        <option value="spring">Primavera (Flores, Mariposas, Brotes)</option>
-                        <option value="coffee">Café & Relax (Tazas de café, Granos, Tetera)</option>
-                        <option value="romance">Romance & Amor (Corazones, Rosas, Cartas)</option>
-                        <option value="patrio">Fiestas Patrias (Sombreros, Campanas, Destellos)</option>
-                      </select>
-                    </div>
-
-                    {/* Densidad y Velocidad en 2 columnas */}
-                    <div className="grid grid-cols-2 gap-2.5">
-                      {/* Densidad */}
-                      <div>
-                        <label className="block text-[10px] font-semibold text-slate-600 mb-1">
-                          Cantidad de Iconos
-                        </label>
-                        <div className="grid grid-cols-3 gap-1">
-                          {[
-                            { key: "subtle", label: "Suave" },
-                            { key: "balanced", label: "Media" },
-                            { key: "lively", label: "Viva" },
-                          ].map((d) => (
-                            <button
-                              key={d.key}
-                              type="button"
-                              onClick={() =>
-                                updateFallingIcons({
-                                  density: d.key as "subtle" | "balanced" | "lively",
-                                })
-                              }
-                              className={`py-1 text-[10px] font-semibold rounded-md border text-center transition-all ${
-                                (fallingIcons.density || "balanced") === d.key
-                                  ? "border-blue-600 bg-blue-50 text-blue-900 font-bold shadow-2xs"
-                                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-                              }`}
-                            >
-                              {d.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Velocidad */}
-                      <div>
-                        <label className="block text-[10px] font-semibold text-slate-600 mb-1">
-                          Velocidad de Caída
-                        </label>
-                        <div className="grid grid-cols-3 gap-1">
-                          {[
-                            { key: "slow", label: "Serena" },
-                            { key: "normal", label: "Normal" },
-                            { key: "fast", label: "Rápida" },
-                          ].map((s) => (
-                            <button
-                              key={s.key}
-                              type="button"
-                              onClick={() =>
-                                updateFallingIcons({
-                                  speed: s.key as "slow" | "normal" | "fast",
-                                })
-                              }
-                              className={`py-1 text-[10px] font-semibold rounded-md border text-center transition-all ${
-                                (fallingIcons.speed || "normal") === s.key
-                                  ? "border-blue-600 bg-blue-50 text-blue-900 font-bold shadow-2xs"
-                                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-                              }`}
-                            >
-                              {s.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })()}
 
           {/* Configuración específica para tarifas de renta de computadoras */}
           {section.type === "rates" && (

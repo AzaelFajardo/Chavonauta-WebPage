@@ -39,10 +39,9 @@ export function detectImageType(
   }
 
   if (
-    buffer.length >= 3 &&
+    buffer.length >= 2 &&
     buffer[0] === 0xff &&
-    buffer[1] === 0xd8 &&
-    buffer[2] === 0xff
+    buffer[1] === 0xd8
   ) {
     return { extension: "jpg", mime: "image/jpeg" };
   }

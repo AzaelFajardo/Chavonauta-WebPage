@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "El contenido no corresponde a una imagen válida (PNG, JPG, WEBP, GIF, AVIF, BMP, ICO o SVG seguro).",
+            "El contenido no corresponde a una imagen válida (PNG, JPG, JFIF, WEBP, GIF, AVIF, BMP, ICO o SVG seguro).",
         },
         { status: 400 }
       );

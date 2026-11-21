@@ -7,7 +7,6 @@ import {
   Trash2,
   CheckCircle2,
   AlertCircle,
-  Link as LinkIcon,
   RefreshCw,
 } from "lucide-react";
 
@@ -17,28 +16,33 @@ interface ImageUploaderProps {
   label?: string;
   helperText?: string;
   placeholderText?: string;
+  compact?: boolean;
 }
 
 export function ImageUploader({
   value,
   onChange,
-  label = "Logotipo de la Tienda",
-  helperText = "Sube tu logotipo en formato PNG, JPG, SVG, WEBP, GIF o AVIF (hasta 10 MB).",
-  placeholderText = "Arrastra 1 imagen aquí o haz clic para seleccionarla",
+  label,
+  helperText = "Sube una imagen desde tu equipo en formato PNG, JPG, JFIF, WEBP, GIF, AVIF o SVG (hasta 10 MB).",
+  placeholderText = "Arrastra 1 imagen aquí o haz clic para seleccionarla desde tu equipo",
+  compact = false,
 }: ImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [showUrlInput, setShowUrlInput] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
     setErrorMessage(null);
 
-    // Validación básica de imagen
-    if (!file.type.startsWith("image/")) {
+    // Validación permisiva de tipos de imagen (incluyendo jfif, webp, avif, etc.)
+    const isImage =
+      file.type.startsWith("image/") ||
+      /\.(jpe?g|png|webp|gif|jfif|avif|bmp|svg|ico)$/i.test(file.name);
+
+    if (!isImage) {
       setErrorMessage(
-        "Por favor selecciona un archivo de imagen válido (PNG, JPG, SVG, WEBP, GIF, AVIF, etc.)."
+        "Por favor selecciona un archivo de imagen válido (PNG, JPG, JFIF, WEBP, GIF, AVIF, etc.)."
       );
       return;
     }
@@ -116,51 +120,101 @@ export function ImageUploader({
     }
   };
 
+  if (compact) {
+    return (
+      <div className="space-y-1.5">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.jfif,.avif,.bmp,.svg,.ico"
+          multiple={false}
+          onChange={handleInputChange}
+          className="hidden"
+        />
+
+        {label && (
+          <label className="block text-[10px] font-semibold text-slate-700">
+            {label}
+          </label>
+        )}
+
+        {isUploading ? (
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-600">
+            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin shrink-0" />
+            <span className="text-[11px]">Subiendo imagen...</span>
+          </div>
+        ) : value ? (
+          <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200 gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-10 h-8 rounded bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center p-0.5">
+                <img
+                  src={value}
+                  alt={label || "Imagen"}
+                  className="w-full h-full object-cover rounded"
+                />
+              </div>
+              <span className="text-[10px] font-mono text-slate-500 truncate max-w-[130px]">
+                {value.split("/").pop()}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="px-2 py-1 text-[10px] font-semibold rounded bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 transition-colors"
+                title="Cambiar imagen"
+              >
+                Cambiar
+              </button>
+              <button
+                type="button"
+                onClick={handleRemove}
+                className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                title="Eliminar imagen"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full flex items-center justify-center gap-1.5 p-2 rounded-lg border border-dashed border-slate-300 hover:border-blue-500 bg-white hover:bg-blue-50/50 text-slate-600 hover:text-blue-700 text-[11px] font-semibold transition-all cursor-pointer"
+          >
+            <Upload className="w-3.5 h-3.5 text-blue-600" />
+            <span>Seleccionar imagen desde tu equipo</span>
+          </button>
+        )}
+
+        {errorMessage && (
+          <p className="text-[10px] text-red-600 flex items-center gap-1">
+            <AlertCircle className="w-3 h-3 shrink-0" />
+            <span>{errorMessage}</span>
+          </p>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-2.5">
-      {/* Input de archivo oculto para disparar la selección */}
+    <div className="space-y-2">
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.jfif,.avif,.bmp,.svg,.ico"
         multiple={false}
         onChange={handleInputChange}
         className="hidden"
       />
 
-      <div className="flex items-center justify-between">
+      {label && (
         <label className="block text-[11px] font-semibold text-slate-700">
           {label}
         </label>
-        <button
-          type="button"
-          onClick={() => {
-            setShowUrlInput(!showUrlInput);
-            setErrorMessage(null);
-          }}
-          className="text-[10px] font-semibold text-blue-700 hover:text-blue-900 flex items-center gap-1 transition-colors"
-        >
-          <LinkIcon className="w-3 h-3" />
-          <span>{showUrlInput ? "Usar subida de archivo" : "Usar URL directa"}</span>
-        </button>
-      </div>
+      )}
 
-      {/* Modo URL directa */}
-      {showUrlInput ? (
-        <div className="space-y-1.5">
-          <input
-            type="url"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="https://..."
-            className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-800"
-          />
-          <p className="text-[10px] text-slate-400">
-            Ingresa una URL pública válida (solo 1 imagen activa a la vez).
-          </p>
-        </div>
-      ) : isUploading ? (
-        /* Estado de Carga / Spinner */
+      {isUploading ? (
         <div className="border border-slate-200 bg-slate-50/80 rounded-xl p-5 flex flex-col items-center justify-center space-y-2">
           <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
           <span className="text-xs font-semibold text-slate-700">
@@ -168,32 +222,28 @@ export function ImageUploader({
           </span>
         </div>
       ) : value ? (
-        /* Tarjeta de Imagen/Logotipo Activo: Solo 1 a la vez con opción para reemplazar o eliminar */
         <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200 gap-3 animate-in fade-in duration-150">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-16 h-12 bg-white rounded-lg border border-slate-200 p-1 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
               <img
                 src={value}
-                alt={label}
+                alt={label || "Imagen"}
                 className="max-h-full max-w-full object-contain"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src =
-                    "https://placehold.co/120x60?text=Error+Logo";
+                    "https://placehold.co/120x60?text=Error";
                 }}
               />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="text-xs font-bold text-slate-800 truncate">
-                  {label} Activo
+                  {label || "Imagen"} Cargada
                 </span>
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
-                  1 archivo cargado
-                </span>
               </div>
               <p className="text-[11px] text-slate-500 font-mono truncate max-w-xs sm:max-w-md mt-0.5">
-                {value}
+                {value.split("/").pop()}
               </p>
             </div>
           </div>
@@ -202,16 +252,16 @@ export function ImageUploader({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5 shadow-2xs"
+              className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer"
               title="Seleccionar otra imagen para reemplazar la actual"
             >
               <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
-              <span>Cambiar</span>
+              <span>Cambiar imagen</span>
             </button>
             <button
               type="button"
               onClick={handleRemove}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors cursor-pointer"
               title="Quitar imagen actual"
             >
               <Trash2 className="w-4 h-4" />
@@ -219,7 +269,6 @@ export function ImageUploader({
           </div>
         </div>
       ) : (
-        /* Zona Drag & Drop cuando NO hay imagen cargada */
         <div
           onDragOver={(e) => {
             e.preventDefault();
@@ -242,7 +291,7 @@ export function ImageUploader({
               {placeholderText}
             </div>
             <p className="text-[10px] text-slate-400">
-              Formatos válidos: PNG, JPG, SVG, WEBP, GIF, AVIF (Máx. 10 MB • Solo 1 archivo)
+              Formatos compatibles: PNG, JPG, JFIF, WEBP, GIF, AVIF, BMP, SVG (Hasta 10 MB)
             </p>
           </div>
         </div>
@@ -255,9 +304,11 @@ export function ImageUploader({
         </div>
       )}
 
-      <p className="text-[11px] text-slate-400 leading-relaxed">
-        {helperText}
-      </p>
+      {helperText && (
+        <p className="text-[11px] text-slate-400 leading-relaxed">
+          {helperText}
+        </p>
+      )}
     </div>
   );
 }

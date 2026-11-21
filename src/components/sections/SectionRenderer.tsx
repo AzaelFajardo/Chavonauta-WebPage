@@ -80,6 +80,11 @@ export function SectionRenderer({
         ? (content.cards as ShowcaseCard[])
         : DEFAULT_HERO_CARDS;
 
+      const showWhatsAppButton = content.showWhatsAppButton !== false;
+      const customButtons = Array.isArray(content.customButtons) && content.customButtons.length > 0
+        ? (content.customButtons as Array<{ id: string; label: string; destination: string; customUrl?: string }>)
+        : null;
+
       const waHero = `https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(
         `Hola ${business.name}, deseo consultar la disponibilidad de un producto o servicio.`
       )}`;
@@ -91,7 +96,7 @@ export function SectionRenderer({
         : sideImageBadge;
 
       return (
-        <section className="relative pb-10 bg-background text-foreground transition-colors duration-200">
+        <section id={section.id || "sec-hero"} className="relative pb-10 bg-background text-foreground transition-colors duration-200">
           <div
             style={{
               backgroundColor: "var(--primary, #1a2f85)",
@@ -136,30 +141,61 @@ export function SectionRenderer({
                 </p>
 
                 <div className="mt-7 flex flex-wrap items-center gap-3">
-                  <Link
-                    href={primaryCtaHref}
-                    {...(primaryCtaHref.startsWith("/")
-                      ? {}
-                      : { target: "_blank", rel: "noopener noreferrer" })}
-                    style={{
-                      backgroundColor: "var(--accent)",
-                      color: "var(--accent-foreground)",
-                      borderRadius: "var(--radius)",
-                    }}
-                    className="px-6 py-3 font-extrabold text-sm shadow-md transition-opacity hover:opacity-90"
-                  >
-                    {primaryCtaText}
-                  </Link>
-                  <a
-                    href={secondaryHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ borderRadius: "var(--radius)" }}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-md transition-colors"
-                  >
-                    <MessageCircle className="w-4 h-4 text-white" />
-                    <span>{secondaryCtaText}</span>
-                  </a>
+                  {customButtons ? (
+                    customButtons.map((btn, bIdx) => {
+                      const rawHref = btn.destination === "custom" ? (btn.customUrl || "/catalogo") : btn.destination;
+                      const href = getSafeHref(rawHref) || "/catalogo";
+                      const isInternal = href.startsWith("/") || href.startsWith("#");
+                      const isFirst = bIdx === 0;
+
+                      return (
+                        <Link
+                          key={btn.id || bIdx}
+                          href={href}
+                          {...(isInternal ? {} : { target: "_blank", rel: "noopener noreferrer" })}
+                          style={{
+                            backgroundColor: isFirst ? "var(--accent)" : "rgba(255, 255, 255, 0.15)",
+                            color: isFirst ? "var(--accent-foreground)" : "#ffffff",
+                            borderRadius: "var(--radius)",
+                            border: isFirst ? "none" : "1px solid rgba(255, 255, 255, 0.35)",
+                          }}
+                          className={`px-6 py-3 font-extrabold text-sm shadow-md transition-all hover:opacity-90 ${
+                            !isFirst ? "hover:bg-white/25" : ""
+                          }`}
+                        >
+                          {btn.label || "Ver más"}
+                        </Link>
+                      );
+                    })
+                  ) : (
+                    <Link
+                      href={primaryCtaHref}
+                      {...(primaryCtaHref.startsWith("/") || primaryCtaHref.startsWith("#")
+                        ? {}
+                        : { target: "_blank", rel: "noopener noreferrer" })}
+                      style={{
+                        backgroundColor: "var(--accent)",
+                        color: "var(--accent-foreground)",
+                        borderRadius: "var(--radius)",
+                      }}
+                      className="px-6 py-3 font-extrabold text-sm shadow-md transition-opacity hover:opacity-90"
+                    >
+                      {primaryCtaText}
+                    </Link>
+                  )}
+
+                  {showWhatsAppButton && (
+                    <a
+                      href={secondaryHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ borderRadius: "var(--radius)" }}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-md transition-colors"
+                    >
+                      <MessageCircle className="w-4 h-4 text-white" />
+                      <span>{secondaryCtaText || "Contactar por WhatsApp"}</span>
+                    </a>
+                  )}
                 </div>
               </div>
 
@@ -215,7 +251,7 @@ export function SectionRenderer({
       const products = items.filter((item) => item.type === "product");
 
       return (
-        <section className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
+        <section id={section.id || "sec-featured"} className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
           <div
             style={{
               backgroundColor: "var(--card)",
@@ -337,7 +373,7 @@ export function SectionRenderer({
         : DEFAULT_SERVICES_CARDS;
 
       return (
-        <section className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
+        <section id={section.id || "sec-services"} className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
           <div className="max-w-[1440px] mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
               {serviceCards.map((card, index) => (
@@ -365,8 +401,9 @@ export function SectionRenderer({
       const halfHourRate = computerRates.halfHour ?? 4;
 
       return (
-        <section id="tarifas" className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
+        <section id={section.id || "sec-rates"} className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
           <div
+            id="tarifas"
             style={{
               backgroundColor: "var(--card)",
               color: "var(--card-foreground)",
@@ -466,8 +503,9 @@ export function SectionRenderer({
         )}`;
 
       return (
-        <section id="ubicacion" className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
+        <section id={section.id || "sec-location"} className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
           <div
+            id="ubicacion"
             style={{
               backgroundColor: "var(--card)",
               color: "var(--card-foreground)",
@@ -616,7 +654,7 @@ export function SectionRenderer({
       if (!text && !section.title) return null;
 
       return (
-        <section className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
+        <section id={section.id || "sec-promo-banner"} className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
           <div
             style={{
               backgroundColor: "var(--primary)",
@@ -697,7 +735,7 @@ export function SectionRenderer({
       if (items.length === 0) return null;
 
       return (
-        <section className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
+        <section id={section.id || "sec-faq"} className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
           <div
             style={{
               backgroundColor: "var(--card)",

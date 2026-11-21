@@ -9,5 +9,6 @@ export function getSafeHref(value: unknown): string | null {
   const trimmed = value.trim();
   if (!trimmed) return null;
   if (trimmed.startsWith("/") && !trimmed.startsWith("//")) return trimmed;
+  if (trimmed.startsWith("#")) return trimmed;
   return getSafeExternalUrl(trimmed);
 }

@@ -30,6 +30,13 @@ export interface HeroFallingIconsConfig {
   speed?: "slow" | "normal" | "fast";
 }
 
+export interface HeroCtaButton {
+  id: string;
+  label: string;
+  destination: string;
+  customUrl?: string;
+}
+
 export interface SectionBlock {
   id: string;
   type: SectionType;

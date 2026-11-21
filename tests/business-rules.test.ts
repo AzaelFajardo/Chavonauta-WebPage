@@ -329,7 +329,7 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
     // 5. Verificar que la cascada sea opcional (solo se renderiza cuando enabled === true)
     expect(componentContent).toContain("config?.enabled === true");
 
-    // 6. Verificar que SortableSectionItem expone el checkbox (check) de activación opcional y selector de paquetes
+    // 6. Verificar que SortableSectionItem NO contiene la configuración de cascada (reservada exclusivamente a la pestaña de colores)
     const sortablePath = path.join(
       process.cwd(),
       "src",
@@ -338,11 +338,7 @@ describe("Business Rules & AGENTS.md Compliance - Automated Tests", () => {
       "SortableSectionItem.tsx"
     );
     const sortableContent = fs.readFileSync(sortablePath, "utf-8");
-    expect(sortableContent).toContain('type="checkbox"');
-    expect(sortableContent).toContain("Activar Cascada");
-    expect(sortableContent).toContain("Paquete de Iconos Alegóricos");
-    expect(sortableContent).toContain("christmas");
-    expect(sortableContent).toContain("halloween");
+    expect(sortableContent).not.toContain("Activar Cascada");
 
     // 7. Verificar que ColorPaletteEditor incluye el check opcional y selector completo de cascada
     const paletteEditorPath = path.join(

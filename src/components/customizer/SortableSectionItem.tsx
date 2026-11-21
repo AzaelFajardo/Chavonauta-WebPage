@@ -51,6 +51,7 @@ interface SortableSectionItemProps {
   onToggleEnabled: (id: string) => void;
   onUpdateContent: (id: string, updates: Partial<SectionBlock>) => void;
   onRemove?: (id: string) => void;
+  featuredProductsCount?: number;
 }
 
 const SECTION_METADATA: Record<
@@ -99,9 +100,13 @@ export function SortableSectionItem({
   onToggleEnabled,
   onUpdateContent,
   onRemove,
+  featuredProductsCount,
 }: SortableSectionItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const isOptional = section.type === "promo_banner" || section.type === "faq";
+  const isFeaturedSection = section.type === "featured_catalog";
+  const hasNoFeaturedProducts = isFeaturedSection && featuredProductsCount === 0;
+  const isEffectivelyEnabled = hasNoFeaturedProducts ? false : section.enabled;
 
   const {
     attributes,
@@ -291,8 +296,8 @@ export function SortableSectionItem({
         {/* Ícono de sección */}
         <div
           className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-            section.enabled
-              ? "bg-navy-50 text-navy-800"
+            isEffectivelyEnabled
+              ? "bg-blue-50 text-blue-800"
               : "bg-slate-200 text-slate-500"
           }`}
         >
@@ -305,7 +310,7 @@ export function SortableSectionItem({
             <span className="text-xs font-semibold text-slate-900 truncate">
               {meta.label}
             </span>
-            {!section.enabled && (
+            {!isEffectivelyEnabled && (
               <span className="text-[10px] font-medium text-slate-400 bg-slate-200/80 px-1.5 py-0.2 rounded">
                 Oculto
               </span>
@@ -320,14 +325,20 @@ export function SortableSectionItem({
         <button
           type="button"
           onClick={() => onToggleEnabled(section.id)}
-          title={section.enabled ? "Ocultar sección" : "Mostrar sección"}
+          title={
+            hasNoFeaturedProducts
+              ? "Oculto automáticamente porque no hay productos destacados en el catálogo"
+              : section.enabled
+              ? "Ocultar sección"
+              : "Mostrar sección"
+          }
           className={`p-1.5 rounded-lg transition-colors ${
-            section.enabled
+            isEffectivelyEnabled
               ? "text-emerald-600 hover:bg-emerald-50"
               : "text-slate-400 hover:bg-slate-200"
           }`}
         >
-          {section.enabled ? (
+          {isEffectivelyEnabled ? (
             <Eye className="w-4 h-4" />
           ) : (
             <EyeOff className="w-4 h-4" />
@@ -407,18 +418,18 @@ export function SortableSectionItem({
             </div>
           )}
 
-          {/* Información específica para Productos Destacados */}
-          {section.type === "featured_catalog" && (
+          {/* Información específica para Productos Destacados: SOLO aparece si no hay ninguno */}
+          {isFeaturedSection && hasNoFeaturedProducts && (
             <div className="pt-2.5 border-t border-slate-200/80">
-              <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-200 text-blue-900 text-xs space-y-1">
-                <div className="flex items-center gap-1.5 font-bold text-[11px]">
+              <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-900 text-xs space-y-1">
+                <div className="flex items-center gap-1.5 font-bold text-[11px] text-amber-900">
                   <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
                   <span>Productos Destacados en Portada</span>
                 </div>
-                <p className="text-[10px] text-blue-800 leading-relaxed">
+                <p className="text-[10px] text-amber-800 leading-relaxed">
                   Esta sección muestra automáticamente los productos marcados con la estrella de <strong>Destacado</strong> en el panel de Catálogo.
                 </p>
-                <p className="text-[10px] text-blue-700 leading-relaxed font-semibold">
+                <p className="text-[10px] text-amber-900 font-semibold leading-relaxed">
                   Si no hay ningún producto marcado como destacado, la sección se oculta automáticamente de la página.
                 </p>
               </div>

@@ -394,6 +394,7 @@ export function AdminCustomizerManager({
               <SectionManager
                 sections={theme.sections}
                 onChange={handleSectionsChange}
+                items={items}
               />
             )}
           </div>

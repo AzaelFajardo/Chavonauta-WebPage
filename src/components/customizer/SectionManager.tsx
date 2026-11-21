@@ -16,7 +16,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { SectionBlock } from "@/types";
+import { CatalogItem, SectionBlock } from "@/types";
 import { SortableSectionItem } from "./SortableSectionItem";
 import { HelpCircle, Layers, Megaphone, Plus } from "lucide-react";
 
@@ -58,9 +58,15 @@ const OPTIONAL_SECTIONS: Array<Omit<SectionBlock, "order">> = [
 interface SectionManagerProps {
   sections: SectionBlock[];
   onChange: (sections: SectionBlock[]) => void;
+  items?: CatalogItem[];
 }
 
-export function SectionManager({ sections, onChange }: SectionManagerProps) {
+export function SectionManager({ sections, onChange, items }: SectionManagerProps) {
+  const featuredProductsCount = items
+    ? items.filter(
+        (i) => i.type === "product" && i.featured === true && i.active !== false
+      ).length
+    : undefined;
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -186,6 +192,7 @@ export function SectionManager({ sections, onChange }: SectionManagerProps) {
                 onToggleEnabled={handleToggleEnabled}
                 onUpdateContent={handleUpdateContent}
                 onRemove={handleRemoveSection}
+                featuredProductsCount={featuredProductsCount}
               />
             ))}
           </div>

@@ -1301,12 +1301,12 @@ export function ColorPaletteEditor({
         </div>
       </div>
 
-      {/* Modal Pop-up Simplificado de Temas Automáticos por Fecha */}
+      {/* Modal Pop-up Simplificado y Responsivo de Temas Automáticos por Fecha */}
       {mounted &&
         isAutoModalOpen &&
         createPortal(
           <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-2.5 sm:p-5 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150"
             onClick={(e) => {
               if (e.target === e.currentTarget) setIsAutoModalOpen(false);
             }}
@@ -1315,31 +1315,31 @@ export function ColorPaletteEditor({
               role="dialog"
               aria-modal="true"
               aria-labelledby="auto-theme-modal-title"
-              className="w-full max-w-2xl max-h-[88vh] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
+              className="w-full max-w-2xl max-h-[90vh] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Cabecera limpia */}
-              <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-white">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+              {/* Cabecera limpia y responsiva */}
+              <div className="flex items-center justify-between gap-2 px-4 sm:px-5 py-3.5 sm:py-4 border-b border-slate-100 bg-white shrink-0">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
                     <Calendar className="w-4 h-4" />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <h3
                       id="auto-theme-modal-title"
-                      className="font-bold text-sm sm:text-base text-slate-900 leading-tight"
+                      className="font-bold text-sm sm:text-base text-slate-900 leading-tight truncate"
                     >
                       Temas Automáticos por Temporada
                     </h3>
-                    <p className="text-[11px] text-slate-500 mt-0.5">
-                      Elige qué tema se pondrá solo en cada época del año.
+                    <p className="text-[11px] text-slate-500 mt-0.5 truncate">
+                      Elige qué tema se activará solo en cada época del año.
                     </p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsAutoModalOpen(false)}
-                  className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                  className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors shrink-0"
                   title="Cerrar"
                 >
                   <X className="w-4 h-4" />
@@ -1347,19 +1347,19 @@ export function ColorPaletteEditor({
               </div>
 
               {/* Cuerpo del Modal */}
-              <div className="flex-1 overflow-y-auto p-5 space-y-5 text-xs">
+              <div className="flex-1 overflow-y-auto p-3.5 sm:p-5 space-y-4 text-xs">
                 {/* 1. Tema normal para el resto del año */}
-                <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
+                <div className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
+                  <div className="min-w-0">
                     <span className="block font-bold text-xs text-slate-800">
                       Tema normal (Resto del año)
                     </span>
                     <span className="block text-[11px] text-slate-500 mt-0.5">
-                      Se muestra automáticamente cuando no es ninguna fecha festiva.
+                      Se usa automáticamente cuando no es ninguna fecha festiva.
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 w-full sm:w-56 shrink-0">
                     <span
                       className="w-4 h-4 rounded-full border border-slate-300 shrink-0"
                       style={{
@@ -1373,7 +1373,7 @@ export function ColorPaletteEditor({
                       onChange={(e) =>
                         updateAutoSchedule({ defaultPresetKey: e.target.value })
                       }
-                      className="w-full sm:w-52 px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer"
+                      className="flex-1 min-w-0 px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer"
                     >
                       <optgroup label="Temas Oficiales">
                         {Object.entries(PRESET_PALETTES).map(([key, p]) => (
@@ -1395,9 +1395,9 @@ export function ColorPaletteEditor({
                   </div>
                 </div>
 
-                {/* 2. Lista simple de fechas festivas */}
+                {/* 2. Lista alineada y responsiva de fechas festivas */}
                 <div className="space-y-2.5">
-                  <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
                     <span className="font-bold text-xs text-slate-800">
                       Fechas festivas programadas
                     </span>
@@ -1408,7 +1408,7 @@ export function ColorPaletteEditor({
                       className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 hover:text-blue-600 transition-colors cursor-pointer"
                     >
                       <RotateCcw className="w-3 h-3" />
-                      <span>Restaurar fechas originales</span>
+                      <span>Restaurar fechas</span>
                     </button>
                   </div>
 
@@ -1417,122 +1417,122 @@ export function ColorPaletteEditor({
                       const rulePalette = getPresetPalette(rule.presetKey);
                       const isActiveToday =
                         matchedRuleToday?.id === rule.id && rule.enabled;
-                      const isNewYear = rule.presetKey === "ano_nuevo";
 
                       return (
                         <div
                           key={rule.id}
-                          className={`p-3 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                          className={`p-2.5 sm:p-3 rounded-xl border transition-all grid grid-cols-1 md:grid-cols-[190px_1fr_auto] items-center gap-2.5 sm:gap-3 ${
                             !rule.enabled
                               ? "border-slate-200 bg-slate-50/50 opacity-60"
                               : isActiveToday
-                              ? "border-blue-300 bg-blue-50/30"
+                              ? "border-blue-300 bg-blue-50/25"
                               : "border-slate-200 bg-white"
                           }`}
                         >
-                          {/* Izquierda: Check + Selector de Tema */}
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <input
-                              type="checkbox"
-                              checked={rule.enabled}
-                              onChange={(e) =>
-                                updateSeasonalRule(index, {
-                                  enabled: e.target.checked,
-                                })
-                              }
-                              className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
-                              title={
-                                rule.enabled
-                                  ? "Desactivar fecha"
-                                  : "Activar fecha"
-                              }
-                            />
+                          {/* Columna 1: Check + Puntos de color + Selector de Tema ( más botón eliminar visible en móvil ) */}
+                          <div className="flex items-center justify-between md:justify-start gap-2 min-w-0">
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <input
+                                type="checkbox"
+                                checked={rule.enabled}
+                                onChange={(e) =>
+                                  updateSeasonalRule(index, {
+                                    enabled: e.target.checked,
+                                  })
+                                }
+                                className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
+                                title={
+                                  rule.enabled
+                                    ? "Desactivar fecha"
+                                    : "Activar fecha"
+                                }
+                              />
 
-                            <div className="flex items-center -space-x-1 shrink-0">
-                              <span
-                                className="w-4 h-4 rounded-full border border-white shadow-2xs"
-                                style={{
-                                  backgroundColor: rulePalette.primary,
+                              <div className="flex items-center -space-x-1 shrink-0">
+                                <span
+                                  className="w-3.5 h-3.5 rounded-full border border-white shadow-2xs"
+                                  style={{
+                                    backgroundColor: rulePalette.primary,
+                                  }}
+                                />
+                                <span
+                                  className="w-3.5 h-3.5 rounded-full border border-white shadow-2xs"
+                                  style={{
+                                    backgroundColor: rulePalette.accent,
+                                  }}
+                                />
+                              </div>
+
+                              <select
+                                value={rule.presetKey}
+                                onChange={(e) => {
+                                  const nextKey = e.target.value;
+                                  const nextLabel = getPresetLabel(nextKey);
+                                  const suggestedPack =
+                                    THEME_DEFAULT_ICON_PACK[nextKey] || "auto";
+                                  updateSeasonalRule(index, {
+                                    presetKey: nextKey,
+                                    name: nextLabel,
+                                    fallingIconsEnabled: true,
+                                    fallingIconsPack: suggestedPack,
+                                    newYearMode: "auto",
+                                    heroBadgeTemplate:
+                                      nextKey === "ano_nuevo"
+                                        ? "¡Feliz Año Nuevo {year} — Catálogo Oficial y Servicios!"
+                                        : undefined,
+                                  });
                                 }}
-                              />
-                              <span
-                                className="w-4 h-4 rounded-full border border-white shadow-2xs"
-                                style={{
-                                  backgroundColor: rulePalette.accent,
-                                }}
-                              />
+                                className="flex-1 min-w-0 px-2 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-slate-50/80 hover:bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600 cursor-pointer truncate"
+                              >
+                                <optgroup label="Temas Festivos">
+                                  {Object.entries(PRESET_PALETTES)
+                                    .filter(([, p]) => p.category === "temporada")
+                                    .map(([k, p]) => (
+                                      <option key={k} value={k}>
+                                        {p.label}
+                                      </option>
+                                    ))}
+                                </optgroup>
+                                <optgroup label="Otros Temas">
+                                  {Object.entries(PRESET_PALETTES)
+                                    .filter(([, p]) => p.category !== "temporada")
+                                    .map(([k, p]) => (
+                                      <option key={k} value={k}>
+                                        {p.label}
+                                      </option>
+                                    ))}
+                                </optgroup>
+                                {customPresets.length > 0 && (
+                                  <optgroup label="Mis Paletas">
+                                    {customPresets.map((cp) => (
+                                      <option
+                                        key={cp.id}
+                                        value={`custom:${cp.id}`}
+                                      >
+                                        {cp.label}
+                                      </option>
+                                    ))}
+                                  </optgroup>
+                                )}
+                              </select>
                             </div>
 
-                            <select
-                              value={rule.presetKey}
-                              onChange={(e) => {
-                                const nextKey = e.target.value;
-                                const nextLabel = getPresetLabel(nextKey);
-                                const suggestedPack =
-                                  THEME_DEFAULT_ICON_PACK[nextKey] || "auto";
-                                updateSeasonalRule(index, {
-                                  presetKey: nextKey,
-                                  name: nextLabel,
-                                  fallingIconsEnabled: true,
-                                  fallingIconsPack: suggestedPack,
-                                  newYearMode: "auto",
-                                  heroBadgeTemplate:
-                                    nextKey === "ano_nuevo"
-                                      ? "¡Feliz Año Nuevo {year} — Catálogo Oficial y Servicios!"
-                                      : undefined,
-                                });
-                              }}
-                              className="px-2.5 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-slate-50/80 hover:bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600 cursor-pointer"
+                            {/* Botón eliminar en móvil (arriba a la derecha) */}
+                            <button
+                              type="button"
+                              onClick={() => removeSeasonalRule(index)}
+                              className="md:hidden p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+                              title="Quitar fecha"
                             >
-                              <optgroup label="Temas Festivos">
-                                {Object.entries(PRESET_PALETTES)
-                                  .filter(([, p]) => p.category === "temporada")
-                                  .map(([k, p]) => (
-                                    <option key={k} value={k}>
-                                      {p.label}
-                                    </option>
-                                  ))}
-                              </optgroup>
-                              <optgroup label="Otros Temas">
-                                {Object.entries(PRESET_PALETTES)
-                                  .filter(([, p]) => p.category !== "temporada")
-                                  .map(([k, p]) => (
-                                    <option key={k} value={k}>
-                                      {p.label}
-                                    </option>
-                                  ))}
-                              </optgroup>
-                              {customPresets.length > 0 && (
-                                <optgroup label="Mis Paletas">
-                                  {customPresets.map((cp) => (
-                                    <option
-                                      key={cp.id}
-                                      value={`custom:${cp.id}`}
-                                    >
-                                      {cp.label}
-                                    </option>
-                                  ))}
-                                </optgroup>
-                              )}
-                            </select>
-
-                            {isNewYear && (
-                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 whitespace-nowrap">
-                                Año {getNewYearTargetYear(now, "auto")} auto
-                              </span>
-                            )}
-
-                            {isActiveToday && (
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">
-                                Activo hoy
-                              </span>
-                            )}
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
                           </div>
 
-                          {/* Derecha: Rango de fechas en lenguaje natural (Del X de Mes al Y de Mes) + Eliminar */}
-                          <div className="flex items-center justify-between sm:justify-end gap-2 pl-6 sm:pl-0">
-                            <div className="flex items-center gap-1.5 flex-wrap text-[11px] text-slate-600">
-                              <span className="font-medium text-slate-400">
+                          {/* Columna 2: Rango de fechas perfectamente alineado en columnas */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-6 md:pl-0">
+                            {/* Fecha inicio (Del) */}
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span className="w-6 text-[11px] font-medium text-slate-400 shrink-0">
                                 Del
                               </span>
                               <select
@@ -1545,7 +1545,7 @@ export function ColorPaletteEditor({
                                     },
                                   })
                                 }
-                                className="px-1.5 py-1 text-xs font-semibold rounded-md border border-slate-200 bg-white text-slate-800 cursor-pointer"
+                                className="w-14 px-1.5 py-1 text-xs font-semibold rounded-md border border-slate-200 bg-white text-slate-800 cursor-pointer shrink-0"
                               >
                                 {Array.from(
                                   { length: 31 },
@@ -1566,7 +1566,7 @@ export function ColorPaletteEditor({
                                     },
                                   })
                                 }
-                                className="px-2 py-1 text-xs font-semibold rounded-md border border-slate-200 bg-white text-slate-800 cursor-pointer"
+                                className="flex-1 min-w-0 px-2 py-1 text-xs font-semibold rounded-md border border-slate-200 bg-white text-slate-800 cursor-pointer truncate"
                               >
                                 {Object.entries(MONTH_NAMES_ES).map(
                                   ([mKey, mName]) => (
@@ -1576,11 +1576,13 @@ export function ColorPaletteEditor({
                                   )
                                 )}
                               </select>
+                            </div>
 
-                              <span className="font-medium text-slate-400 px-0.5">
+                            {/* Fecha fin (Al) */}
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span className="w-6 sm:w-5 text-[11px] font-medium text-slate-400 shrink-0 sm:text-center">
                                 al
                               </span>
-
                               <select
                                 value={rule.endDate.day}
                                 onChange={(e) =>
@@ -1591,7 +1593,7 @@ export function ColorPaletteEditor({
                                     },
                                   })
                                 }
-                                className="px-1.5 py-1 text-xs font-semibold rounded-md border border-slate-200 bg-white text-slate-800 cursor-pointer"
+                                className="w-14 px-1.5 py-1 text-xs font-semibold rounded-md border border-slate-200 bg-white text-slate-800 cursor-pointer shrink-0"
                               >
                                 {Array.from(
                                   { length: 31 },
@@ -1612,7 +1614,7 @@ export function ColorPaletteEditor({
                                     },
                                   })
                                 }
-                                className="px-2 py-1 text-xs font-semibold rounded-md border border-slate-200 bg-white text-slate-800 cursor-pointer"
+                                className="flex-1 min-w-0 px-2 py-1 text-xs font-semibold rounded-md border border-slate-200 bg-white text-slate-800 cursor-pointer truncate"
                               >
                                 {Object.entries(MONTH_NAMES_ES).map(
                                   ([mKey, mName]) => (
@@ -1623,16 +1625,17 @@ export function ColorPaletteEditor({
                                 )}
                               </select>
                             </div>
-
-                            <button
-                              type="button"
-                              onClick={() => removeSeasonalRule(index)}
-                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
-                              title="Quitar fecha"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
                           </div>
+
+                          {/* Columna 3: Botón eliminar en escritorio */}
+                          <button
+                            type="button"
+                            onClick={() => removeSeasonalRule(index)}
+                            className="hidden md:inline-flex p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+                            title="Quitar fecha"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       );
                     })}
@@ -1650,15 +1653,11 @@ export function ColorPaletteEditor({
               </div>
 
               {/* Pie del Modal */}
-              <div className="flex items-center justify-between px-5 py-3.5 border-t border-slate-100 bg-slate-50/80">
-                <span className="text-[11px] text-slate-500">
-                  En Año Nuevo el número de año se actualiza solo automáticamente.
-                </span>
-
+              <div className="flex items-center justify-end px-4 sm:px-5 py-3 border-t border-slate-100 bg-slate-50/80 shrink-0">
                 <button
                   type="button"
                   onClick={() => setIsAutoModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                  className="w-full sm:w-auto justify-center px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <Check className="w-4 h-4" />
                   <span>Listo</span>

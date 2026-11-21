@@ -38,6 +38,7 @@ interface SortableSectionItemProps {
   section: SectionBlock;
   onToggleEnabled: (id: string) => void;
   onUpdateContent: (id: string, updates: Partial<SectionBlock>) => void;
+  onRemove?: (id: string) => void;
 }
 
 const SECTION_METADATA: Record<
@@ -85,8 +86,10 @@ export function SortableSectionItem({
   section,
   onToggleEnabled,
   onUpdateContent,
+  onRemove,
 }: SortableSectionItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const isOptional = section.type === "promo_banner" || section.type === "faq";
 
   const {
     attributes,
@@ -270,6 +273,21 @@ export function SortableSectionItem({
             <EyeOff className="w-4 h-4" />
           )}
         </button>
+
+        {/* Botón Eliminar Sección Opcional */}
+        {isOptional && onRemove && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove(section.id);
+            }}
+            title="Eliminar bloque (volverá a recomendadas)"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        )}
 
         {/* Botón expandir editor */}
         <button
@@ -781,6 +799,19 @@ export function SortableSectionItem({
                   />
                 </div>
               </div>
+            </div>
+          )}
+          {/* Botón inferior para eliminar bloque opcional */}
+          {isOptional && onRemove && (
+            <div className="pt-2 border-t border-slate-200/80 flex justify-end">
+              <button
+                type="button"
+                onClick={() => onRemove(section.id)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 rounded-lg transition-colors cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Eliminar bloque de la página</span>
+              </button>
             </div>
           )}
         </div>

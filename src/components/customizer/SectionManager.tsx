@@ -26,12 +26,12 @@ const OPTIONAL_SECTIONS: Array<Omit<SectionBlock, "order">> = [
     type: "promo_banner",
     title: "Promociones y Avisos",
     subtitle: "Ofertas y novedades temporales de la sucursal.",
-    enabled: false,
+    enabled: true,
     content: {
-      text: "",
-      buttonLabel: "",
+      text: "Aprovecha nuestras promociones especiales en tienda y servicios digitales.",
+      buttonLabel: "Consultar por WhatsApp",
       buttonHref: "",
-      badge: "",
+      badge: "Promoción Especial",
     },
   },
   {
@@ -39,9 +39,18 @@ const OPTIONAL_SECTIONS: Array<Omit<SectionBlock, "order">> = [
     type: "faq",
     title: "Preguntas Frecuentes",
     subtitle: "Resolvemos las dudas más comunes antes de tu visita.",
-    enabled: false,
+    enabled: true,
     content: {
-      items: [],
+      items: [
+        {
+          question: "¿Cuáles son los horarios de atención del cyber?",
+          answer: "Lunes a Viernes de 8:00 a 22:00, Sábados y Domingos de 12:00 a 22:00.",
+        },
+        {
+          question: "¿Tienen servicio de impresiones y trámites digitales?",
+          answer: "Sí, contamos con impresiones a color y blanco/negro, escaneo, trámites y soporte.",
+        },
+      ],
     },
   },
 ];
@@ -102,6 +111,16 @@ export function SectionManager({ sections, onChange }: SectionManagerProps) {
     onChange([...sections, { ...template, order: nextOrder }]);
   };
 
+  const handleRemoveSection = (id: string) => {
+    const updated = sections
+      .filter((s) => s.id !== id)
+      .map((sec, index) => ({
+        ...sec,
+        order: index + 1,
+      }));
+    onChange(updated);
+  };
+
   const availableSections = OPTIONAL_SECTIONS.filter(
     (template) => !sections.some((section) => section.type === template.type)
   );
@@ -111,7 +130,7 @@ export function SectionManager({ sections, onChange }: SectionManagerProps) {
       <div className="flex items-center justify-between pb-2 border-b border-slate-200">
         <div>
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-            <Layers className="w-4 h-4 text-navy-800" />
+            <Layers className="w-4 h-4 text-slate-700" />
             <span>Bloques de la Página de Inicio</span>
           </h3>
           <p className="text-[11px] text-slate-500 mt-0.5">
@@ -121,27 +140,32 @@ export function SectionManager({ sections, onChange }: SectionManagerProps) {
       </div>
 
       {availableSections.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {availableSections.map((template) => {
-            const Icon =
-              template.type === "promo_banner" ? Megaphone : HelpCircle;
-            return (
-              <button
-                key={template.id}
-                type="button"
-                onClick={() => handleAddSection(template)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <Icon className="w-3.5 h-3.5" />
-                <span>
-                  {template.type === "promo_banner"
-                    ? "Añadir promociones"
-                    : "Añadir preguntas frecuentes"}
-                </span>
-              </button>
-            );
-          })}
+        <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-2">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+            Bloques recomendados para añadir:
+          </span>
+          <div className="flex flex-wrap gap-2">
+            {availableSections.map((template) => {
+              const Icon =
+                template.type === "promo_banner" ? Megaphone : HelpCircle;
+              return (
+                <button
+                  key={template.id}
+                  type="button"
+                  onClick={() => handleAddSection(template)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-700 bg-white hover:bg-blue-50 hover:border-blue-300 border border-slate-200 rounded-lg transition-all shadow-xs cursor-pointer active:scale-95"
+                >
+                  <Plus className="w-3.5 h-3.5 text-blue-600" />
+                  <Icon className="w-3.5 h-3.5 text-blue-600" />
+                  <span>
+                    {template.type === "promo_banner"
+                      ? "Añadir Promociones"
+                      : "Añadir Preguntas Frecuentes"}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -161,6 +185,7 @@ export function SectionManager({ sections, onChange }: SectionManagerProps) {
                 section={section}
                 onToggleEnabled={handleToggleEnabled}
                 onUpdateContent={handleUpdateContent}
+                onRemove={handleRemoveSection}
               />
             ))}
           </div>

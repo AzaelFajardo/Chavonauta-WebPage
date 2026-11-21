@@ -313,7 +313,7 @@ export function Navbar({ business, categories, items }: NavbarProps) {
         className="hidden md:block text-xs font-medium border-t border-black/10 transition-colors duration-200"
       >
         <div className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-1 sm:gap-2 h-10 overflow-x-auto no-scrollbar">
-          {/* Botón "Todo" con icono de menú */}
+          {/* Botón "Todo" con icono de menú (solo visible en tablet; oculto en PC >= lg) */}
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
@@ -322,7 +322,7 @@ export function Navbar({ business, categories, items }: NavbarProps) {
               color: "var(--primary-foreground)",
               borderRadius: "var(--radius)",
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 font-bold transition-all shrink-0 hover:opacity-90 shadow-2xs"
+            className="flex lg:hidden items-center gap-1.5 px-3 py-1.5 font-bold transition-all shrink-0 hover:opacity-90 shadow-2xs"
           >
             <Menu className="w-4 h-4" />
             <span>Todo</span>
@@ -348,7 +348,7 @@ export function Navbar({ business, categories, items }: NavbarProps) {
                 : "hover:bg-current/10 opacity-85 hover:opacity-100"
             }`}
           >
-            Renta de PC (${oneHourRate}/hr)
+            Renta de PC
           </Link>
 
           <Link

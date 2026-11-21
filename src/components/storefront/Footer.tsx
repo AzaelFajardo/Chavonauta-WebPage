@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MessageCircle, Mail, Clock, Lock } from "lucide-react";
+import { MessageCircle, Mail, Clock } from "lucide-react";
 import { BusinessInfo, Category } from "@/types";
 import { getWhatsAppDisplay } from "@/lib/business";
 
@@ -240,17 +240,6 @@ export function Footer({ business, categories }: FooterProps) {
 
           <div className="opacity-75 text-[11px] max-w-xl">
             © {new Date().getFullYear()}, {business.name}. Catálogo digital y plataforma informativa. Precios y disponibilidad en mostrador.
-          </div>
-
-          <div className="pt-2 flex items-center justify-center">
-            <Link
-              href="/admin"
-              className="p-1.5 rounded-lg opacity-20 hover:opacity-80 transition-all text-current"
-              title="Panel Administrativo"
-              aria-label="Acceso privado de administración"
-            >
-              <Lock className="w-3.5 h-3.5" />
-            </Link>
           </div>
         </div>
       </div>

@@ -566,8 +566,7 @@ export function ColorPaletteEditor({
       {/* 1. Selector de Presets */}
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-2">
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-blue-600" />
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-800">
             <span>Paletas Prediseñadas</span>
           </label>
 

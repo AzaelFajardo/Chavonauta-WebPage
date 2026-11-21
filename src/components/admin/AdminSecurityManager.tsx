@@ -182,9 +182,9 @@ export function AdminSecurityManager() {
   const hasLetter = /[a-zA-Z]/.test(newPassword);
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Barra Superior Fija */}
-      <div className="sticky top-[58px] sm:top-[68px] z-30 bg-slate-100/95 backdrop-blur-md py-2.5 sm:py-3.5 mb-2 sm:mb-4 border-b border-slate-200/80 flex items-center justify-between gap-3">
+    <div className="space-y-5 max-w-5xl mx-auto pt-1">
+      {/* Cabecera Superior Limpia (sin sticky desfasado que recorte las tarjetas al hacer scroll) */}
+      <div className="bg-white px-4 py-3.5 sm:px-5 sm:py-4 rounded-2xl border border-slate-200/90 shadow-xs flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-base sm:text-xl font-heading font-black tracking-tight text-slate-900 uppercase">
@@ -195,7 +195,7 @@ export function AdminSecurityManager() {
               <span>Control de Acceso Activo</span>
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5 hidden md:block">
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
             Administra la lista blanca de personal autorizado y actualiza la contraseña de acceso al panel.
           </p>
         </div>

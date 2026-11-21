@@ -24,7 +24,7 @@ const NAV_ITEMS = [
     description: "Productos, servicios y categorías",
   },
   {
-    label: "PERSONALIZADOR",
+    label: "PERSONALIZAR",
     href: "/admin/personalizador",
     icon: Palette,
     description: "Colores, fuentes y secciones",

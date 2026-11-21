@@ -38,7 +38,7 @@ import { ImageUploader } from "@/components/ui/ImageUploader";
 
 const HERO_DESTINATIONS = [
   { value: "/catalogo", label: "Catálogo completo de productos y servicios" },
-  { value: "#sec-services", label: "Bajar a: Servicios Digitales" },
+  { value: "#sec-services", label: "Bajar a: Servicios" },
   { value: "#sec-rates", label: "Bajar a: Tarifas de Equipos y Consolas" },
   { value: "#sec-location", label: "Bajar a: Ubicación y Horarios" },
   { value: "#sec-promo-banner", label: "Bajar a: Promociones y Avisos" },
@@ -69,7 +69,7 @@ const SECTION_METADATA: Record<
     description: "Vitrina de artículos seleccionados en el inicio.",
   },
   services: {
-    label: "Servicios Digitales",
+    label: "Servicios",
     icon: Monitor,
     description: "Cuadrícula informativa de servicios ofrecidos.",
   },

@@ -70,7 +70,7 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
     {
       id: "sec-services",
       type: "services",
-      title: "Servicios Digitales y Soporte",
+      title: "Servicios",
       subtitle: "Soluciones ágiles para estudiantes, profesionales y público en general.",
       enabled: true,
       order: 3,
@@ -170,7 +170,7 @@ export const SEED_CATEGORIES: Category[] = [
   {
     id: "cat-servicios",
     slug: "servicios-digitales",
-    name: "Servicios Digitales",
+    name: "Servicios",
     description: "Impresiones, trámites, escaneo, enmicados y reparación de equipos.",
     icon: "Monitor",
   },

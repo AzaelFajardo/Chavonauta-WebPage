@@ -127,7 +127,7 @@ export function Navbar({ business, categories, items }: NavbarProps) {
                 aria-label="Seleccionar categoría"
               >
                 <option value="todas">Departamentos</option>
-                <option value="servicios-digitales">Servicios Digitales</option>
+                <option value="servicios-digitales">Servicios</option>
                 {categories
                   .filter((c) => c.slug !== "servicios-digitales")
                   .map((cat) => (
@@ -264,7 +264,7 @@ export function Navbar({ business, categories, items }: NavbarProps) {
             style={{ borderRadius: "var(--radius)" }}
             className="px-2.5 py-1.5 hover:bg-current/10 transition-all shrink-0 font-bold"
           >
-            Servicios Digitales
+            Servicios
           </Link>
           <Link
             href="/#tarifas"
@@ -382,14 +382,14 @@ export function Navbar({ business, categories, items }: NavbarProps) {
                 </a>
               </div>
 
-              {/* Sección de Servicios Digitales */}
+              {/* Sección de Servicios */}
               <div>
                 <div
                   style={{ color: "var(--card-foreground)" }}
                   className="flex items-center gap-1.5 font-bold text-xs mb-2.5 uppercase tracking-wider"
                 >
                   <Monitor className="w-4 h-4" style={{ color: "var(--primary)" }} />
-                  <span>Servicios en Sucursal</span>
+                  <span>Servicios</span>
                 </div>
                 <ul className="space-y-1 text-xs">
                   <li>
@@ -398,7 +398,7 @@ export function Navbar({ business, categories, items }: NavbarProps) {
                       onClick={() => setDrawerOpen(false)}
                       className="block py-2 px-2.5 rounded hover:bg-current/10 font-semibold transition-colors"
                     >
-                      Todos los Servicios Digitales
+                      Todos los Servicios
                     </Link>
                   </li>
                   <li>

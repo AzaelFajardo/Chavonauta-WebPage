@@ -235,15 +235,16 @@ function migrateThemeCards(db: Database.Database): void {
 
     const migratedThemeJson = JSON.stringify({ ...theme, sections })
       .replace(/servicios-cyber/g, "servicios-digitales")
-      .replace(/Servicios del Cyber/gi, "Servicios Digitales");
+      .replace(/Servicios del Cyber/gi, "Servicios")
+      .replace(/Servicios Digitales/gi, "Servicios");
 
     db.prepare(
       "UPDATE theme_config SET data = ?, updated_at = ? WHERE id = 'default-theme'"
     ).run(migratedThemeJson, new Date().toISOString());
 
-    // Migrar nombres y slugs de categorías o servicios antiguos para no usar la palabra cyber/ciber
+    // Migrar nombres y slugs de categorías o servicios antiguos para dejar simplemente "Servicios"
     db.prepare(
-      "UPDATE categories SET slug = 'servicios-digitales', name = 'Servicios Digitales' WHERE slug = 'servicios-cyber' OR name = 'Servicios del Cyber'"
+      "UPDATE categories SET slug = 'servicios-digitales', name = 'Servicios' WHERE slug = 'servicios-cyber' OR slug = 'servicios-digitales' OR name = 'Servicios del Cyber' OR name = 'Servicios Digitales'"
     ).run();
     db.prepare(
       "UPDATE catalog_items SET category_slug = 'servicios-digitales' WHERE category_slug = 'servicios-cyber'"

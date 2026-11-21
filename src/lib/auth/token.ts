@@ -1,8 +1,7 @@
 export const SESSION_COOKIE_NAME = "chavonauta_session";
 
-const DEV_SESSION_SECRET = `dev-${Date.now()}-${Math.random()
-  .toString(36)
-  .slice(2)}-${Math.random().toString(36).slice(2)}`;
+const DEV_SESSION_SECRET =
+  "chavonauta-dev-fallback-session-secret-key-32chars-deterministic";
 
 let cachedSessionSecret: string | null = null;
 

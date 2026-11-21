@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import {
   AutoThemeScheduleConfig,
@@ -15,11 +15,9 @@ import {
   DEFAULT_AUTO_SCHEDULE,
   DEFAULT_SEASONAL_RULES,
   findMatchingSeasonalRule,
-  formatNewYearText,
-  getNewYearTargetYear,
-  isDateInSeasonalRange,
   MONTH_NAMES_ES,
   PRESET_PALETTES,
+  sortSeasonalRulesByDate,
   THEME_DEFAULT_ICON_PACK,
 } from "@/lib/theme-engine";
 import {
@@ -339,22 +337,27 @@ export function ColorPaletteEditor({
   // ----------------------------------------------------
   const [mounted, setMounted] = useState(false);
   const [isAutoModalOpen, setIsAutoModalOpen] = useState(false);
+  const [pinnedNewRuleId, setPinnedNewRuleId] = useState<string | null>(null);
+  const datesListRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isAutoModalOpen) {
-        setIsAutoModalOpen(false);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isAutoModalOpen]);
+  const sortRulesWithOptionalPinnedTop = (
+    rules: SeasonalThemeRule[],
+    pinnedId: string | null
+  ): SeasonalThemeRule[] => {
+    if (!pinnedId) {
+      return sortSeasonalRulesByDate(rules);
+    }
+    const pinned = rules.find((r) => r.id === pinnedId);
+    const others = rules.filter((r) => r.id !== pinnedId);
+    const sortedOthers = sortSeasonalRulesByDate(others);
+    return pinned ? [pinned, ...sortedOthers] : sortedOthers;
+  };
 
-  const autoSchedule: AutoThemeScheduleConfig = useMemo(() => {
+  const rawAutoSchedule: AutoThemeScheduleConfig = useMemo(() => {
     if (theme.autoSchedule && Array.isArray(theme.autoSchedule.rules)) {
       return theme.autoSchedule;
     }
@@ -364,68 +367,145 @@ export function ColorPaletteEditor({
     };
   }, [theme.autoSchedule, activePresetKey]);
 
+  // Lista siempre organizada por fecha (manteniendo la recién creada arriba hasta que se ajuste su fecha o se cierre)
+  const autoSchedule: AutoThemeScheduleConfig = useMemo(() => {
+    return {
+      ...rawAutoSchedule,
+      rules: sortRulesWithOptionalPinnedTop(
+        rawAutoSchedule.rules,
+        pinnedNewRuleId
+      ),
+    };
+  }, [rawAutoSchedule, pinnedNewRuleId]);
+
+  const handleCloseAutoModal = () => {
+    setPinnedNewRuleId(null);
+    if (rawAutoSchedule.rules.length > 0) {
+      onChange({
+        autoSchedule: {
+          ...rawAutoSchedule,
+          rules: sortSeasonalRulesByDate(rawAutoSchedule.rules),
+        },
+      });
+    }
+    setIsAutoModalOpen(false);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isAutoModalOpen) {
+        handleCloseAutoModal();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isAutoModalOpen, rawAutoSchedule]);
+
   const now = useMemo(() => new Date(), []);
 
-  const updateAutoSchedule = (updates: Partial<AutoThemeScheduleConfig>) => {
+  const updateAutoSchedule = (
+    updates: Partial<AutoThemeScheduleConfig>,
+    keepPinnedId: string | null = pinnedNewRuleId
+  ) => {
+    const baseRules = updates.rules ?? rawAutoSchedule.rules;
     const next: AutoThemeScheduleConfig = {
-      ...autoSchedule,
+      ...rawAutoSchedule,
       ...updates,
+      rules: sortRulesWithOptionalPinnedTop(baseRules, keepPinnedId),
     };
     onChange({ autoSchedule: next });
   };
 
   const handleToggleAutoMode = (enabled: boolean) => {
+    const initialRules =
+      rawAutoSchedule.rules && rawAutoSchedule.rules.length > 0
+        ? sortSeasonalRulesByDate(rawAutoSchedule.rules)
+        : sortSeasonalRulesByDate(DEFAULT_SEASONAL_RULES);
     const nextSchedule: AutoThemeScheduleConfig = {
-      ...autoSchedule,
+      ...rawAutoSchedule,
       enabled,
       defaultPresetKey:
-        autoSchedule.defaultPresetKey || activePresetKey || "chavonauta_navy",
-      rules:
-        autoSchedule.rules && autoSchedule.rules.length > 0
-          ? autoSchedule.rules
-          : DEFAULT_SEASONAL_RULES,
+        rawAutoSchedule.defaultPresetKey ||
+        activePresetKey ||
+        "chavonauta_navy",
+      rules: initialRules,
     };
     onChange({ autoSchedule: nextSchedule });
   };
 
   const updateSeasonalRule = (
-    index: number,
+    ruleId: string,
     updates: Partial<SeasonalThemeRule>
   ) => {
-    const nextRules = [...autoSchedule.rules];
-    nextRules[index] = { ...nextRules[index], ...updates };
-    updateAutoSchedule({ rules: nextRules });
+    // Si el usuario modifica la fecha, se libera el pin superior para que se ordene cronológicamente por fecha
+    const isDateUpdate =
+      updates.startDate !== undefined || updates.endDate !== undefined;
+    const nextPinnedId = isDateUpdate ? null : pinnedNewRuleId;
+    if (isDateUpdate && pinnedNewRuleId) {
+      setPinnedNewRuleId(null);
+    }
+
+    const nextRules = autoSchedule.rules.map((r) =>
+      r.id === ruleId ? { ...r, ...updates } : r
+    );
+    updateAutoSchedule({ rules: nextRules }, nextPinnedId);
   };
 
   const addSeasonalRule = () => {
-    if (autoSchedule.rules.length >= 20) return;
+    if (autoSchedule.rules.length >= 30) return;
+    const newId = `season-custom-${Date.now()}`;
     const newRule: SeasonalThemeRule = {
-      id: `season-custom-${Date.now()}`,
-      name: "Navidad",
-      presetKey: "navidad",
-      startDate: { month: 12, day: 1 },
-      endDate: { month: 12, day: 25 },
+      id: newId,
+      name: "Oficial",
+      presetKey: "chavonauta_navy",
+      startDate: { month: 1, day: 1 },
+      endDate: { month: 1, day: 15 },
       enabled: true,
       fallingIconsEnabled: true,
-      fallingIconsPack: "christmas",
+      fallingIconsPack: "tech",
       newYearMode: "auto",
     };
-    updateAutoSchedule({ rules: [...autoSchedule.rules, newRule] });
+    setPinnedNewRuleId(newId);
+    updateAutoSchedule(
+      {
+        rules: [newRule, ...sortSeasonalRulesByDate(rawAutoSchedule.rules)],
+      },
+      newId
+    );
+    // Desplazar automáticamente la lista al inicio para ver la nueva fecha hasta arriba
+    setTimeout(() => {
+      datesListRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    }, 20);
   };
 
-  const removeSeasonalRule = (index: number) => {
-    const nextRules = autoSchedule.rules.filter((_, i) => i !== index);
-    updateAutoSchedule({ rules: nextRules });
+  const removeSeasonalRule = (ruleId: string) => {
+    if (pinnedNewRuleId === ruleId) {
+      setPinnedNewRuleId(null);
+    }
+    const nextRules = rawAutoSchedule.rules.filter((r) => r.id !== ruleId);
+    updateAutoSchedule(
+      { rules: nextRules },
+      pinnedNewRuleId === ruleId ? null : pinnedNewRuleId
+    );
   };
 
   const resetSeasonalRulesToDefault = () => {
-    updateAutoSchedule({
-      rules: DEFAULT_SEASONAL_RULES.map((r) => ({
-        ...r,
-        startDate: { ...r.startDate },
-        endDate: { ...r.endDate },
-      })),
-    });
+    setPinnedNewRuleId(null);
+    updateAutoSchedule(
+      {
+        rules: sortSeasonalRulesByDate(
+          DEFAULT_SEASONAL_RULES.map((r) => ({
+            ...r,
+            startDate: { ...r.startDate },
+            endDate: { ...r.endDate },
+          }))
+        ),
+      },
+      null
+    );
+    setTimeout(() => {
+      datesListRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    }, 20);
   };
 
   const getPresetLabel = (presetKey: string): string => {
@@ -1308,7 +1388,7 @@ export function ColorPaletteEditor({
           <div
             className="fixed inset-0 z-[9999] flex items-center justify-center p-2.5 sm:p-5 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150"
             onClick={(e) => {
-              if (e.target === e.currentTarget) setIsAutoModalOpen(false);
+              if (e.target === e.currentTarget) handleCloseAutoModal();
             }}
           >
             <div
@@ -1332,13 +1412,13 @@ export function ColorPaletteEditor({
                       Temas Automáticos por Temporada
                     </h3>
                     <p className="text-[11px] text-slate-500 mt-0.5 truncate">
-                      Elige qué tema se activará solo en cada época del año.
+                      Las fechas se ordenan automáticamente por calendario (Enero a Diciembre).
                     </p>
                   </div>
                 </div>
                 <button
                   type="button"
-                  onClick={() => setIsAutoModalOpen(false)}
+                  onClick={handleCloseAutoModal}
                   className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors shrink-0"
                   title="Cerrar"
                 >
@@ -1346,10 +1426,10 @@ export function ColorPaletteEditor({
                 </button>
               </div>
 
-              {/* Cuerpo del Modal */}
-              <div className="flex-1 overflow-y-auto p-3.5 sm:p-5 space-y-4 text-xs">
-                {/* 1. Tema normal para el resto del año */}
-                <div className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
+              {/* Cuerpo del Modal con Cabecera Fija y Lista con Scroll Independiente */}
+              <div className="flex-1 flex flex-col min-h-0 p-3.5 sm:p-5 space-y-4 text-xs overflow-hidden">
+                {/* 1. Tema normal para el resto del año (Fijo arriba) */}
+                <div className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 shrink-0">
                   <div className="min-w-0">
                     <span className="block font-bold text-xs text-slate-800">
                       Tema normal (Resto del año)
@@ -1395,260 +1475,298 @@ export function ColorPaletteEditor({
                   </div>
                 </div>
 
-                {/* 2. Lista alineada y responsiva de fechas festivas */}
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <span className="font-bold text-xs text-slate-800">
-                      Fechas festivas programadas
-                    </span>
+                {/* 2. Barra de acciones fija + Contenedor scrollable para listas largas de fechas */}
+                <div className="flex-1 flex flex-col min-h-0 space-y-2.5">
+                  <div className="flex items-center justify-between gap-2 flex-wrap shrink-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-xs text-slate-800">
+                        Fechas especiales programadas
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                        {autoSchedule.rules.length}
+                      </span>
+                    </div>
 
-                    <button
-                      type="button"
-                      onClick={resetSeasonalRulesToDefault}
-                      className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 hover:text-blue-600 transition-colors cursor-pointer"
-                    >
-                      <RotateCcw className="w-3 h-3" />
-                      <span>Restaurar fechas</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={resetSeasonalRulesToDefault}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 rounded-lg transition-colors cursor-pointer"
+                        title="Restaurar fechas originales"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span>Restaurar</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={addSeasonalRule}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 text-[11px] font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-2xs transition-colors cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Agregar fecha especial</span>
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="space-y-2">
-                    {autoSchedule.rules.map((rule, index) => {
-                      const rulePalette = getPresetPalette(rule.presetKey);
-                      const isActiveToday =
-                        matchedRuleToday?.id === rule.id && rule.enabled;
+                  {/* Contenedor con scroll interno suave para soportar listas largas sin perder los controles superiores */}
+                  <div
+                    ref={datesListRef}
+                    className="flex-1 min-h-0 max-h-[45vh] sm:max-h-[48vh] overflow-y-auto pr-1 space-y-2 overscroll-contain"
+                  >
+                    {autoSchedule.rules.length === 0 ? (
+                      <div className="p-6 text-center rounded-xl border border-dashed border-slate-200 text-slate-400 text-xs">
+                        No hay fechas especiales configuradas. Haz clic en &quot;Agregar fecha especial&quot;.
+                      </div>
+                    ) : (
+                      autoSchedule.rules.map((rule) => {
+                        const rulePalette = getPresetPalette(rule.presetKey);
+                        const isActiveToday =
+                          matchedRuleToday?.id === rule.id && rule.enabled;
+                        const isNewlyPinned = pinnedNewRuleId === rule.id;
 
-                      return (
-                        <div
-                          key={rule.id}
-                          className={`p-2.5 sm:p-3 rounded-xl border transition-all grid grid-cols-1 md:grid-cols-[190px_1fr_auto] items-center gap-2.5 sm:gap-3 ${
-                            !rule.enabled
-                              ? "border-slate-200 bg-slate-50/50 opacity-60"
-                              : isActiveToday
-                              ? "border-blue-300 bg-blue-50/25"
-                              : "border-slate-200 bg-white"
-                          }`}
-                        >
-                          {/* Columna 1: Check + Puntos de color + Selector de Tema ( más botón eliminar visible en móvil ) */}
-                          <div className="flex items-center justify-between md:justify-start gap-2 min-w-0">
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                              <input
-                                type="checkbox"
-                                checked={rule.enabled}
-                                onChange={(e) =>
-                                  updateSeasonalRule(index, {
-                                    enabled: e.target.checked,
-                                  })
-                                }
-                                className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
-                                title={
-                                  rule.enabled
-                                    ? "Desactivar fecha"
-                                    : "Activar fecha"
-                                }
-                              />
+                        return (
+                          <div
+                            key={rule.id}
+                            className={`p-2.5 sm:px-3 sm:py-2.5 rounded-xl border transition-all grid grid-cols-1 md:grid-cols-[190px_1fr_auto] items-center gap-2.5 sm:gap-3 ${
+                              !rule.enabled
+                                ? "border-slate-200 bg-slate-50/50 opacity-60"
+                                : isNewlyPinned
+                                ? "border-blue-500 bg-blue-50/40 ring-1 ring-blue-500/20"
+                                : isActiveToday
+                                ? "border-blue-300 bg-blue-50/25"
+                                : "border-slate-200 bg-white hover:border-slate-300"
+                            }`}
+                          >
+                            {/* Columna 1: Check + Puntos de color + Selector de Tema */}
+                            <div className="flex items-center justify-between md:justify-start gap-2 min-w-0">
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                <input
+                                  type="checkbox"
+                                  checked={rule.enabled}
+                                  onChange={(e) =>
+                                    updateSeasonalRule(rule.id, {
+                                      enabled: e.target.checked,
+                                    })
+                                  }
+                                  className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
+                                  title={
+                                    rule.enabled
+                                      ? "Desactivar fecha"
+                                      : "Activar fecha"
+                                  }
+                                />
 
-                              <div className="flex items-center -space-x-1 shrink-0">
-                                <span
-                                  className="w-3.5 h-3.5 rounded-full border border-white shadow-2xs"
-                                  style={{
-                                    backgroundColor: rulePalette.primary,
+                                <div className="flex items-center -space-x-1 shrink-0">
+                                  <span
+                                    className="w-3.5 h-3.5 rounded-full border border-white shadow-2xs"
+                                    style={{
+                                      backgroundColor: rulePalette.primary,
+                                    }}
+                                  />
+                                  <span
+                                    className="w-3.5 h-3.5 rounded-full border border-white shadow-2xs"
+                                    style={{
+                                      backgroundColor: rulePalette.accent,
+                                    }}
+                                  />
+                                </div>
+
+                                <select
+                                  value={rule.presetKey}
+                                  onChange={(e) => {
+                                    const nextKey = e.target.value;
+                                    const nextLabel = getPresetLabel(nextKey);
+                                    const suggestedPack =
+                                      THEME_DEFAULT_ICON_PACK[nextKey] ||
+                                      "auto";
+                                    updateSeasonalRule(rule.id, {
+                                      presetKey: nextKey,
+                                      name: nextLabel,
+                                      fallingIconsEnabled: true,
+                                      fallingIconsPack: suggestedPack,
+                                      newYearMode: "auto",
+                                      heroBadgeTemplate:
+                                        nextKey === "ano_nuevo"
+                                          ? "¡Feliz Año Nuevo {year} — Catálogo Oficial y Servicios!"
+                                          : undefined,
+                                    });
                                   }}
-                                />
-                                <span
-                                  className="w-3.5 h-3.5 rounded-full border border-white shadow-2xs"
-                                  style={{
-                                    backgroundColor: rulePalette.accent,
-                                  }}
-                                />
+                                  className="flex-1 min-w-0 px-2 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-slate-50/80 hover:bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600 cursor-pointer truncate"
+                                >
+                                  <optgroup label="Temas Festivos">
+                                    {Object.entries(PRESET_PALETTES)
+                                      .filter(
+                                        ([, p]) => p.category === "temporada"
+                                      )
+                                      .map(([k, p]) => (
+                                        <option key={k} value={k}>
+                                          {p.label}
+                                        </option>
+                                      ))}
+                                  </optgroup>
+                                  <optgroup label="Otros Temas">
+                                    {Object.entries(PRESET_PALETTES)
+                                      .filter(
+                                        ([, p]) => p.category !== "temporada"
+                                      )
+                                      .map(([k, p]) => (
+                                        <option key={k} value={k}>
+                                          {p.label}
+                                        </option>
+                                      ))}
+                                  </optgroup>
+                                  {customPresets.length > 0 && (
+                                    <optgroup label="Mis Paletas">
+                                      {customPresets.map((cp) => (
+                                        <option
+                                          key={cp.id}
+                                          value={`custom:${cp.id}`}
+                                        >
+                                          {cp.label}
+                                        </option>
+                                      ))}
+                                    </optgroup>
+                                  )}
+                                </select>
                               </div>
 
-                              <select
-                                value={rule.presetKey}
-                                onChange={(e) => {
-                                  const nextKey = e.target.value;
-                                  const nextLabel = getPresetLabel(nextKey);
-                                  const suggestedPack =
-                                    THEME_DEFAULT_ICON_PACK[nextKey] || "auto";
-                                  updateSeasonalRule(index, {
-                                    presetKey: nextKey,
-                                    name: nextLabel,
-                                    fallingIconsEnabled: true,
-                                    fallingIconsPack: suggestedPack,
-                                    newYearMode: "auto",
-                                    heroBadgeTemplate:
-                                      nextKey === "ano_nuevo"
-                                        ? "¡Feliz Año Nuevo {year} — Catálogo Oficial y Servicios!"
-                                        : undefined,
-                                  });
-                                }}
-                                className="flex-1 min-w-0 px-2 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-slate-50/80 hover:bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600 cursor-pointer truncate"
+                              {/* Botón eliminar en móvil */}
+                              <button
+                                type="button"
+                                onClick={() => removeSeasonalRule(rule.id)}
+                                className="md:hidden p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+                                title="Quitar fecha"
                               >
-                                <optgroup label="Temas Festivos">
-                                  {Object.entries(PRESET_PALETTES)
-                                    .filter(([, p]) => p.category === "temporada")
-                                    .map(([k, p]) => (
-                                      <option key={k} value={k}>
-                                        {p.label}
-                                      </option>
-                                    ))}
-                                </optgroup>
-                                <optgroup label="Otros Temas">
-                                  {Object.entries(PRESET_PALETTES)
-                                    .filter(([, p]) => p.category !== "temporada")
-                                    .map(([k, p]) => (
-                                      <option key={k} value={k}>
-                                        {p.label}
-                                      </option>
-                                    ))}
-                                </optgroup>
-                                {customPresets.length > 0 && (
-                                  <optgroup label="Mis Paletas">
-                                    {customPresets.map((cp) => (
-                                      <option
-                                        key={cp.id}
-                                        value={`custom:${cp.id}`}
-                                      >
-                                        {cp.label}
-                                      </option>
-                                    ))}
-                                  </optgroup>
-                                )}
-                              </select>
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
                             </div>
 
-                            {/* Botón eliminar en móvil (arriba a la derecha) */}
+                            {/* Columna 2: Rango de fechas perfectamente alineado en columnas */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-6 md:pl-0">
+                              {/* Fecha inicio (Del) */}
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <span className="w-6 text-[11px] font-medium text-slate-400 shrink-0">
+                                  Del
+                                </span>
+                                <select
+                                  value={rule.startDate.day}
+                                  onChange={(e) =>
+                                    updateSeasonalRule(rule.id, {
+                                      startDate: {
+                                        ...rule.startDate,
+                                        day: Number(e.target.value),
+                                      },
+                                    })
+                                  }
+                                  className="w-14 px-1.5 py-1 text-xs font-semibold rounded-md border border-slate-200 bg-white text-slate-800 cursor-pointer shrink-0"
+                                >
+                                  {Array.from(
+                                    { length: 31 },
+                                    (_, i) => i + 1
+                                  ).map((d) => (
+                                    <option key={d} value={d}>
+                                      {d}
+                                    </option>
+                                  ))}
+                                </select>
+                                <select
+                                  value={rule.startDate.month}
+                                  onChange={(e) => {
+                                    const nextMonth = Number(e.target.value);
+                                    const shouldSyncEndMonth =
+                                      pinnedNewRuleId === rule.id &&
+                                      rule.endDate.month === 1;
+                                    updateSeasonalRule(rule.id, {
+                                      startDate: {
+                                        ...rule.startDate,
+                                        month: nextMonth,
+                                      },
+                                      ...(shouldSyncEndMonth
+                                        ? {
+                                            endDate: {
+                                              ...rule.endDate,
+                                              month: nextMonth,
+                                            },
+                                          }
+                                        : {}),
+                                    });
+                                  }}
+                                  className="flex-1 min-w-0 px-2 py-1 text-xs font-semibold rounded-md border border-slate-200 bg-white text-slate-800 cursor-pointer truncate"
+                                >
+                                  {Object.entries(MONTH_NAMES_ES).map(
+                                    ([mKey, mName]) => (
+                                      <option key={mKey} value={Number(mKey)}>
+                                        {mName}
+                                      </option>
+                                    )
+                                  )}
+                                </select>
+                              </div>
+
+                              {/* Fecha fin (Al) */}
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <span className="w-6 sm:w-5 text-[11px] font-medium text-slate-400 shrink-0 sm:text-center">
+                                  al
+                                </span>
+                                <select
+                                  value={rule.endDate.day}
+                                  onChange={(e) =>
+                                    updateSeasonalRule(rule.id, {
+                                      endDate: {
+                                        ...rule.endDate,
+                                        day: Number(e.target.value),
+                                      },
+                                    })
+                                  }
+                                  className="w-14 px-1.5 py-1 text-xs font-semibold rounded-md border border-slate-200 bg-white text-slate-800 cursor-pointer shrink-0"
+                                >
+                                  {Array.from(
+                                    { length: 31 },
+                                    (_, i) => i + 1
+                                  ).map((d) => (
+                                    <option key={d} value={d}>
+                                      {d}
+                                    </option>
+                                  ))}
+                                </select>
+                                <select
+                                  value={rule.endDate.month}
+                                  onChange={(e) =>
+                                    updateSeasonalRule(rule.id, {
+                                      endDate: {
+                                        ...rule.endDate,
+                                        month: Number(e.target.value),
+                                      },
+                                    })
+                                  }
+                                  className="flex-1 min-w-0 px-2 py-1 text-xs font-semibold rounded-md border border-slate-200 bg-white text-slate-800 cursor-pointer truncate"
+                                >
+                                  {Object.entries(MONTH_NAMES_ES).map(
+                                    ([mKey, mName]) => (
+                                      <option key={mKey} value={Number(mKey)}>
+                                        {mName}
+                                      </option>
+                                    )
+                                  )}
+                                </select>
+                              </div>
+                            </div>
+
+                            {/* Columna 3: Botón eliminar en escritorio */}
                             <button
                               type="button"
-                              onClick={() => removeSeasonalRule(index)}
-                              className="md:hidden p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+                              onClick={() => removeSeasonalRule(rule.id)}
+                              className="hidden md:inline-flex p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
                               title="Quitar fecha"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
-
-                          {/* Columna 2: Rango de fechas perfectamente alineado en columnas */}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-6 md:pl-0">
-                            {/* Fecha inicio (Del) */}
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <span className="w-6 text-[11px] font-medium text-slate-400 shrink-0">
-                                Del
-                              </span>
-                              <select
-                                value={rule.startDate.day}
-                                onChange={(e) =>
-                                  updateSeasonalRule(index, {
-                                    startDate: {
-                                      ...rule.startDate,
-                                      day: Number(e.target.value),
-                                    },
-                                  })
-                                }
-                                className="w-14 px-1.5 py-1 text-xs font-semibold rounded-md border border-slate-200 bg-white text-slate-800 cursor-pointer shrink-0"
-                              >
-                                {Array.from(
-                                  { length: 31 },
-                                  (_, i) => i + 1
-                                ).map((d) => (
-                                  <option key={d} value={d}>
-                                    {d}
-                                  </option>
-                                ))}
-                              </select>
-                              <select
-                                value={rule.startDate.month}
-                                onChange={(e) =>
-                                  updateSeasonalRule(index, {
-                                    startDate: {
-                                      ...rule.startDate,
-                                      month: Number(e.target.value),
-                                    },
-                                  })
-                                }
-                                className="flex-1 min-w-0 px-2 py-1 text-xs font-semibold rounded-md border border-slate-200 bg-white text-slate-800 cursor-pointer truncate"
-                              >
-                                {Object.entries(MONTH_NAMES_ES).map(
-                                  ([mKey, mName]) => (
-                                    <option key={mKey} value={Number(mKey)}>
-                                      {mName}
-                                    </option>
-                                  )
-                                )}
-                              </select>
-                            </div>
-
-                            {/* Fecha fin (Al) */}
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <span className="w-6 sm:w-5 text-[11px] font-medium text-slate-400 shrink-0 sm:text-center">
-                                al
-                              </span>
-                              <select
-                                value={rule.endDate.day}
-                                onChange={(e) =>
-                                  updateSeasonalRule(index, {
-                                    endDate: {
-                                      ...rule.endDate,
-                                      day: Number(e.target.value),
-                                    },
-                                  })
-                                }
-                                className="w-14 px-1.5 py-1 text-xs font-semibold rounded-md border border-slate-200 bg-white text-slate-800 cursor-pointer shrink-0"
-                              >
-                                {Array.from(
-                                  { length: 31 },
-                                  (_, i) => i + 1
-                                ).map((d) => (
-                                  <option key={d} value={d}>
-                                    {d}
-                                  </option>
-                                ))}
-                              </select>
-                              <select
-                                value={rule.endDate.month}
-                                onChange={(e) =>
-                                  updateSeasonalRule(index, {
-                                    endDate: {
-                                      ...rule.endDate,
-                                      month: Number(e.target.value),
-                                    },
-                                  })
-                                }
-                                className="flex-1 min-w-0 px-2 py-1 text-xs font-semibold rounded-md border border-slate-200 bg-white text-slate-800 cursor-pointer truncate"
-                              >
-                                {Object.entries(MONTH_NAMES_ES).map(
-                                  ([mKey, mName]) => (
-                                    <option key={mKey} value={Number(mKey)}>
-                                      {mName}
-                                    </option>
-                                  )
-                                )}
-                              </select>
-                            </div>
-                          </div>
-
-                          {/* Columna 3: Botón eliminar en escritorio */}
-                          <button
-                            type="button"
-                            onClick={() => removeSeasonalRule(index)}
-                            className="hidden md:inline-flex p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
-                            title="Quitar fecha"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      );
-                    })}
+                        );
+                      })
+                    )}
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={addSeasonalRule}
-                    className="w-full py-2.5 rounded-xl border border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50/40 text-xs font-semibold text-slate-600 hover:text-blue-700 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Agregar otra fecha especial</span>
-                  </button>
                 </div>
               </div>
 
@@ -1656,7 +1774,7 @@ export function ColorPaletteEditor({
               <div className="flex items-center justify-end px-4 sm:px-5 py-3 border-t border-slate-100 bg-slate-50/80 shrink-0">
                 <button
                   type="button"
-                  onClick={() => setIsAutoModalOpen(false)}
+                  onClick={handleCloseAutoModal}
                   className="w-full sm:w-auto justify-center px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <Check className="w-4 h-4" />

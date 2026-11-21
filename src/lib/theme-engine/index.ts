@@ -599,32 +599,49 @@ export function isDateInSeasonalRange(
   return currentMd >= startMd || currentMd <= endMd;
 }
 
+const DAYS_BEFORE_MONTH = [0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+
+function dayOfYear(pt: SeasonalDatePoint): number {
+  return (DAYS_BEFORE_MONTH[pt.month] || 0) + pt.day;
+}
+
+/**
+ * Calcula la duración en días de un rango de temporada (1 a 366).
+ * Permite dar prioridad automática a celebraciones más específicas cuando dos rangos se superponen
+ * (ej. Año Nuevo de 11 días dentro de una temporada navideña de 55 días).
+ */
+export function getSeasonalRangeDurationDays(
+  start: SeasonalDatePoint,
+  end: SeasonalDatePoint
+): number {
+  const startDay = dayOfYear(start);
+  const endDay = dayOfYear(end);
+  if (endDay >= startDay) {
+    return endDay - startDay + 1;
+  }
+  return 365 - startDay + endDay + 1;
+}
+
+/**
+ * Ordena las reglas de temporada cronológicamente por fecha de inicio (Enero a Diciembre)
+ */
+export function sortSeasonalRulesByDate(
+  rules: SeasonalThemeRule[]
+): SeasonalThemeRule[] {
+  return [...rules].sort((a, b) => {
+    const startA = a.startDate.month * 100 + a.startDate.day;
+    const startB = b.startDate.month * 100 + b.startDate.day;
+    if (startA !== startB) return startA - startB;
+    const endA = a.endDate.month * 100 + a.endDate.day;
+    const endB = b.endDate.month * 100 + b.endDate.day;
+    return endA - endB;
+  });
+}
+
 export const DEFAULT_SEASONAL_RULES: SeasonalThemeRule[] = [
   {
-    id: "season-new-year",
-    name: "Año Nuevo",
-    presetKey: "ano_nuevo",
-    startDate: { month: 12, day: 27 },
-    endDate: { month: 1, day: 6 },
-    enabled: true,
-    fallingIconsEnabled: true,
-    fallingIconsPack: "new_year",
-    heroBadgeTemplate: "¡Feliz Año Nuevo {year} — Catálogo Oficial y Servicios!",
-    newYearMode: "auto",
-  },
-  {
-    id: "season-christmas",
-    name: "Temporada Navideña",
-    presetKey: "navidad",
-    startDate: { month: 11, day: 15 },
-    endDate: { month: 1, day: 10 },
-    enabled: true,
-    fallingIconsEnabled: true,
-    fallingIconsPack: "christmas",
-  },
-  {
     id: "season-valentine",
-    name: "Amor y Amistad",
+    name: "Romance",
     presetKey: "febrero",
     startDate: { month: 2, day: 1 },
     endDate: { month: 2, day: 28 },
@@ -644,7 +661,7 @@ export const DEFAULT_SEASONAL_RULES: SeasonalThemeRule[] = [
   },
   {
     id: "season-patrio",
-    name: "Fiestas Patrias",
+    name: "Patrio",
     presetKey: "patrio",
     startDate: { month: 9, day: 1 },
     endDate: { month: 9, day: 30 },
@@ -654,13 +671,35 @@ export const DEFAULT_SEASONAL_RULES: SeasonalThemeRule[] = [
   },
   {
     id: "season-halloween",
-    name: "Halloween y Día de Muertos",
+    name: "Halloween",
     presetKey: "halloween",
     startDate: { month: 10, day: 20 },
     endDate: { month: 11, day: 4 },
     enabled: true,
     fallingIconsEnabled: true,
     fallingIconsPack: "halloween",
+  },
+  {
+    id: "season-christmas",
+    name: "Navidad",
+    presetKey: "navidad",
+    startDate: { month: 11, day: 15 },
+    endDate: { month: 1, day: 10 },
+    enabled: true,
+    fallingIconsEnabled: true,
+    fallingIconsPack: "christmas",
+  },
+  {
+    id: "season-new-year",
+    name: "Año Nuevo",
+    presetKey: "ano_nuevo",
+    startDate: { month: 12, day: 27 },
+    endDate: { month: 1, day: 6 },
+    enabled: true,
+    fallingIconsEnabled: true,
+    fallingIconsPack: "new_year",
+    heroBadgeTemplate: "¡Feliz Año Nuevo {year} — Catálogo Oficial y Servicios!",
+    newYearMode: "auto",
   },
 ];
 
@@ -671,7 +710,9 @@ export const DEFAULT_AUTO_SCHEDULE: AutoThemeScheduleConfig = {
 };
 
 /**
- * Encuentra la regla de temporada activa para una fecha dada, respetando el orden de prioridad
+ * Encuentra la regla de temporada activa para una fecha dada.
+ * Si dos rangos coinciden en la misma fecha (ej. Navidad de Nov a Ene y Año Nuevo a fin de Dic),
+ * selecciona automáticamente la celebración más específica (menor duración en días).
  */
 export function findMatchingSeasonalRule(
   schedule?: AutoThemeScheduleConfig,
@@ -681,14 +722,21 @@ export function findMatchingSeasonalRule(
     return null;
   }
 
-  for (const rule of schedule.rules) {
-    if (!rule || !rule.enabled) continue;
-    if (isDateInSeasonalRange(date, rule.startDate, rule.endDate)) {
-      return rule;
-    }
-  }
+  const matchingRules = schedule.rules.filter(
+    (rule) =>
+      rule &&
+      rule.enabled &&
+      isDateInSeasonalRange(date, rule.startDate, rule.endDate)
+  );
 
-  return null;
+  if (matchingRules.length === 0) return null;
+  if (matchingRules.length === 1) return matchingRules[0];
+
+  return [...matchingRules].sort(
+    (a, b) =>
+      getSeasonalRangeDurationDays(a.startDate, a.endDate) -
+      getSeasonalRangeDurationDays(b.startDate, b.endDate)
+  )[0];
 }
 
 /**

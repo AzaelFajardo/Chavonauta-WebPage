@@ -61,7 +61,7 @@ export default async function ItemDetailPage({
   const whatsappHref = `https://wa.me/${theme.business.whatsappNumber}?text=${whatsappMessage}`;
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 py-6">
+    <div className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Migas de pan */}
       <div className="text-xs opacity-80 mb-4 flex items-center gap-1.5 transition-colors">
         <Link

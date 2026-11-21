@@ -16,24 +16,24 @@ export function getShowcaseGridConfig(count: number): ShowcaseGridConfig {
   if (count <= 1) {
     return {
       containerClass: "max-w-md mx-auto",
-      gridClass: "grid grid-cols-1 gap-4 sm:gap-5",
+      gridClass: "grid grid-cols-1 gap-4 sm:gap-5 xl:gap-6",
     };
   }
   if (count === 2) {
     return {
-      containerClass: "max-w-3xl mx-auto",
-      gridClass: "grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5",
+      containerClass: "max-w-3xl xl:max-w-4xl mx-auto",
+      gridClass: "grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 xl:gap-6",
     };
   }
   if (count === 3) {
     return {
-      containerClass: "max-w-5xl mx-auto",
-      gridClass: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5",
+      containerClass: "max-w-5xl xl:max-w-6xl mx-auto",
+      gridClass: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 xl:gap-6",
     };
   }
   // 4 o más tarjetas: máximo 4 por fila, acumulándose por debajo
   return {
-    containerClass: "max-w-[1440px] mx-auto",
-    gridClass: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5",
+    containerClass: "max-w-[1440px] 2xl:max-w-[1560px] mx-auto",
+    gridClass: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 xl:gap-6",
   };
 }

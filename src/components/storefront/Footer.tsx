@@ -41,7 +41,7 @@ export function Footer({ business, categories }: FooterProps) {
       </button>
 
       {/* Contenido Principal del Footer en 4 Columnas */}
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+      <div className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 xl:gap-12">
         {/* Columna 1: Conócenos */}
         <div>
           <h4 className="font-bold text-sm mb-3">Conócenos</h4>

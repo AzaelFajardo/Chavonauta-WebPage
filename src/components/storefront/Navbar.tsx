@@ -59,7 +59,7 @@ export function Navbar({ business, categories, items }: NavbarProps) {
         }}
         className="transition-colors duration-200"
       >
-        <div className="max-w-[1500px] mx-auto px-3 sm:px-4 h-[60px] flex items-center justify-between gap-2 sm:gap-4">
+        <div className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 h-[60px] flex items-center justify-between gap-2 sm:gap-4">
           
           <div className="flex items-center gap-2">
             {/* Botón de Menú Hamburguesa visible en Móviles */}
@@ -242,7 +242,7 @@ export function Navbar({ business, categories, items }: NavbarProps) {
         }}
         className="hidden md:block text-xs font-medium border-t border-black/10 transition-colors duration-200"
       >
-        <div className="max-w-[1500px] mx-auto px-3 sm:px-4 flex items-center gap-1 sm:gap-2 h-10 overflow-x-auto no-scrollbar">
+        <div className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-1 sm:gap-2 h-10 overflow-x-auto no-scrollbar">
           {/* Botón "Todo" con icono de menú */}
           <button
             type="button"

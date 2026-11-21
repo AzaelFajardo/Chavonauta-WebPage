@@ -182,7 +182,7 @@ export function AdminSecurityManager() {
   const hasLetter = /[a-zA-Z]/.test(newPassword);
 
   return (
-    <div className="space-y-5 max-w-5xl mx-auto pt-1">
+    <div className="space-y-6 max-w-[1480px] 2xl:max-w-[1640px] w-full mx-auto pt-1">
       {/* Cabecera Superior Limpia (sin sticky desfasado que recorte las tarjetas al hacer scroll) */}
       <div className="bg-white px-4 py-3.5 sm:px-5 sm:py-4 rounded-2xl border border-slate-200/90 shadow-xs flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
@@ -202,9 +202,9 @@ export function AdminSecurityManager() {
       </div>
 
       {/* Grid Principal */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 xl:gap-8 items-start">
         {/* Tarjeta 1: Whitelist de Correos */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+        <div className="bg-white p-5 sm:p-6 xl:p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center">
@@ -320,7 +320,7 @@ export function AdminSecurityManager() {
         </div>
 
         {/* Tarjeta 2: Cambio de Contraseña */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+        <div className="bg-white p-5 sm:p-6 xl:p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
             <div className="w-8 h-8 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center">
               <KeyRound className="w-4 h-4" />

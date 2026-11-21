@@ -245,7 +245,7 @@ export function AdminSettingsManager({
   const whatsappPreviewUrl = `https://wa.me/${business.whatsappNumber}`;
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6 max-w-[1480px] 2xl:max-w-[1640px] w-full mx-auto">
       {/* Toast Flotante */}
       {toastMessage && (
         <div
@@ -316,377 +316,383 @@ export function AdminSettingsManager({
         </div>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-4 sm:space-y-6">
-        {/* Bloque 1: Identidad y Sucursal */}
-        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
-          <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
-              <Building2 className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-slate-900">
-                Información de la Sucursal y Marca
-              </h2>
-              <p className="text-[11px] text-slate-500">
-                Datos generales que identifican a tu negocio en la cabecera y pie de página.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Nombre del Negocio *
-              </label>
-              <input
-                type="text"
-                value={business.name}
-                onChange={(e) => handleFieldChange("name", e.target.value)}
-                required
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Nombre de la Sucursal
-              </label>
-              <input
-                type="text"
-                value={business.branchName || ""}
-                onChange={(e) => handleFieldChange("branchName", e.target.value)}
-                placeholder="Ej. Haciendas de Aguascalientes"
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Eslogan / Lema Comercial
-              </label>
-              <input
-                type="text"
-                value={business.slogan}
-                onChange={(e) => handleFieldChange("slogan", e.target.value)}
-                placeholder="Ej. Tecnología, accesorios y soluciones digitales"
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
-              />
-            </div>
-
-            {/* Subida de Logotipo Oficial en Configuración */}
-            <div className="sm:col-span-2 pt-2 border-t border-slate-100">
-              <ImageUploader
-                value={business.logoUrl || ""}
-                onChange={(url) => handleFieldChange("logoUrl", url)}
-                label="Logotipo"
-                helperText="El logotipo aparecerá a 175px en la cabecera (con escalado responsivo para móviles) y en el pie de página de toda la web. Si no subes ninguno, se mostrará el nombre comercial con la tipografía de la marca."
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Bloque 2: Contacto y Ubicación */}
-        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
-          <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
-              <Phone className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-slate-900">
-                Contacto Directo y Ubicación
-              </h2>
-              <p className="text-[11px] text-slate-500">
-                Medios para que tus clientes te escriban o te encuentren fácilmente.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-semibold text-slate-700">
-                  WhatsApp Oficial *
-                </label>
-                <a
-                  href={whatsappPreviewUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
-                >
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  <span>Probar Chat</span>
-                </a>
+      <form onSubmit={handleSave} className="grid grid-cols-1 xl:grid-cols-12 gap-5 sm:gap-6 items-start">
+        {/* Columna Izquierda: Identidad + Contacto y Ubicación */}
+        <div className="xl:col-span-7 space-y-5 sm:space-y-6">
+          {/* Bloque 1: Identidad y Sucursal */}
+          <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+              <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
+                <Building2 className="w-4 h-4" />
               </div>
-              <input
-                type="text"
-                value={business.whatsappNumber}
-                onChange={(e) => handleFieldChange("whatsappNumber", e.target.value)}
-                placeholder="5214494022163"
-                required
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
-              />
-              <span className="text-[10px] text-slate-400 mt-1 block">
-                Incluye la clave de país (ej. 521 para México + número a 10 dígitos).
-              </span>
-              <div className="mt-3">
+              <div>
+                <h2 className="text-sm font-bold text-slate-900">
+                  Información de la Sucursal y Marca
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  Datos generales que identifican a tu negocio en la cabecera y pie de página.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Número visible (opcional)
+                  Nombre del Negocio *
                 </label>
                 <input
                   type="text"
-                  value={business.whatsappDisplay || ""}
-                  onChange={(e) =>
-                    handleFieldChange("whatsappDisplay", e.target.value)
-                  }
-                  placeholder="449 402 2163"
+                  value={business.name}
+                  onChange={(e) => handleFieldChange("name", e.target.value)}
+                  required
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Nombre de la Sucursal
+                </label>
+                <input
+                  type="text"
+                  value={business.branchName || ""}
+                  onChange={(e) => handleFieldChange("branchName", e.target.value)}
+                  placeholder="Ej. Haciendas de Aguascalientes"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Eslogan / Lema Comercial
+                </label>
+                <input
+                  type="text"
+                  value={business.slogan}
+                  onChange={(e) => handleFieldChange("slogan", e.target.value)}
+                  placeholder="Ej. Tecnología, accesorios y soluciones digitales"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
+                />
+              </div>
+
+              {/* Subida de Logotipo Oficial en Configuración */}
+              <div className="sm:col-span-2 pt-2 border-t border-slate-100">
+                <ImageUploader
+                  value={business.logoUrl || ""}
+                  onChange={(url) => handleFieldChange("logoUrl", url)}
+                  label="Logotipo"
+                  helperText="El logotipo aparecerá a 175px en la cabecera (con escalado responsivo para móviles) y en el pie de página de toda la web. Si no subes ninguno, se mostrará el nombre comercial con la tipografía de la marca."
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Bloque 2: Contacto y Ubicación */}
+          <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+              <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
+                <Phone className="w-4 h-4" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-900">
+                  Contacto Directo y Ubicación
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  Medios para que tus clientes te escriban o te encuentren fácilmente.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    WhatsApp Oficial *
+                  </label>
+                  <a
+                    href={whatsappPreviewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    <span>Probar Chat</span>
+                  </a>
+                </div>
+                <input
+                  type="text"
+                  value={business.whatsappNumber}
+                  onChange={(e) => handleFieldChange("whatsappNumber", e.target.value)}
+                  placeholder="5214494022163"
+                  required
                   className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
                 />
                 <span className="text-[10px] text-slate-400 mt-1 block">
-                  Se muestra en la cabecera, el pie y la sección de sucursal. Si
-                  se deja vacío, se usa el número técnico.
+                  Incluye la clave de país (ej. 521 para México + número a 10 dígitos).
                 </span>
+                <div className="mt-3">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Número visible (opcional)
+                  </label>
+                  <input
+                    type="text"
+                    value={business.whatsappDisplay || ""}
+                    onChange={(e) =>
+                      handleFieldChange("whatsappDisplay", e.target.value)
+                    }
+                    placeholder="449 402 2163"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
+                  />
+                  <span className="text-[10px] text-slate-400 mt-1 block">
+                    Se muestra en la cabecera, el pie y la sección de sucursal. Si
+                    se deja vacío, se usa el número técnico.
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Correo Electrónico
+                </label>
+                <input
+                  type="email"
+                  value={business.email || ""}
+                  onChange={(e) => handleFieldChange("email", e.target.value)}
+                  placeholder="contacto@chavonauta.com"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Dirección Física Completa
+                </label>
+                <input
+                  type="text"
+                  value={business.address}
+                  onChange={(e) => handleFieldChange("address", e.target.value)}
+                  placeholder="Calle, Número, Colonia, Ciudad, Estado"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Enlace de Google Maps
+                </label>
+                <input
+                  type="url"
+                  value={business.googleMapsUrl || ""}
+                  onChange={(e) => handleFieldChange("googleMapsUrl", e.target.value)}
+                  placeholder="https://maps.google.com/..."
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Columna Derecha: Tarifas + Horarios + Redes Sociales */}
+        <div className="xl:col-span-5 space-y-5 sm:space-y-6">
+          {/* Bloque 5: Tarifas de Renta de Equipos */}
+          <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+              <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
+                <Monitor className="w-4 h-4" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-900">
+                  Tarifas de Renta de Equipos (Computadoras)
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  Define el precio por hora y media hora. Se sincronizará automáticamente en la cabecera, pie de página y la sección de tarifas del escaparate.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1">
+                  <span>Tarifa 1 Hora (MXN) *</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                    $
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    value={business.computerRates?.oneHour ?? 7}
+                    onChange={(e) =>
+                      handleRatesChange("oneHour", parseFloat(e.target.value) || 0)
+                    }
+                    required
+                    className="w-full pl-7 pr-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
+                  />
+                </div>
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Precio visible en la cabecera (ej. &quot;Renta PC $7/hr&quot;) y tarjetas principales.
+                </span>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1">
+                  <span>Tarifa Media Hora / 30 min (MXN) *</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                    $
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    value={business.computerRates?.halfHour ?? 4}
+                    onChange={(e) =>
+                      handleRatesChange("halfHour", parseFloat(e.target.value) || 0)
+                    }
+                    required
+                    className="w-full pl-7 pr-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
+                  />
+                </div>
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Fracción estándar para usuarios con necesidades cortas (30 minutos).
+                </span>
+              </div>
+            </div>
+
+            {/* Previsualización en Vivo de Tarifas */}
+            <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+              <span className="text-slate-600 font-medium">Previsualización de Tarifas:</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-bold text-blue-900 bg-blue-100/70 border border-blue-200 px-2.5 py-0.5 rounded-lg">
+                  1 Hora: ${(business.computerRates?.oneHour ?? 7).toFixed(2)} MXN
+                </span>
+                <span className="font-bold text-slate-800 bg-slate-200/70 border border-slate-300 px-2.5 py-0.5 rounded-lg">
+                  Media Hora: ${(business.computerRates?.halfHour ?? 4).toFixed(2)} MXN
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bloque 3: Horarios de Atención */}
+          <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+              <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
+                <Clock className="w-4 h-4" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-900">
+                  Horarios de Sucursal
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  Horario general resumido y desglose día por día.
+                </p>
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Correo Electrónico
-              </label>
-              <input
-                type="email"
-                value={business.email || ""}
-                onChange={(e) => handleFieldChange("email", e.target.value)}
-                placeholder="contacto@chavonauta.com"
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Dirección Física Completa
+                Horario General (Visible en pie de página y cintillos)
               </label>
               <input
                 type="text"
-                value={business.address}
-                onChange={(e) => handleFieldChange("address", e.target.value)}
-                placeholder="Calle, Número, Colonia, Ciudad, Estado"
+                value={business.schedule}
+                onChange={(e) => handleFieldChange("schedule", e.target.value)}
+                placeholder="Lunes a Viernes: 8:00 - 22:00 | Sábado y Domingo: 12:00 - 22:00"
                 className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
               />
             </div>
 
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Enlace de Google Maps
-              </label>
-              <input
-                type="url"
-                value={business.googleMapsUrl || ""}
-                onChange={(e) => handleFieldChange("googleMapsUrl", e.target.value)}
-                placeholder="https://maps.google.com/..."
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
-              />
-            </div>
-          </div>
-        </div>
+            {/* Horario detallado día por día */}
+            <div className="pt-2">
+              <span className="block text-xs font-semibold text-slate-700 mb-2">
+                Horario Detallado por Día
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {DEFAULT_DAYS.map((day) => {
+                  const current = business.scheduleDetails?.find(
+                    (s) => s.day.toLowerCase() === day.toLowerCase()
+                  )?.hours || "";
 
-        {/* Bloque 3: Horarios de Atención */}
-        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
-          <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
-              <Clock className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-slate-900">
-                Horarios de Sucursal
-              </h2>
-              <p className="text-[11px] text-slate-500">
-                Horario general resumido y desglose día por día.
-              </p>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Horario General (Visible en pie de página y cintillos)
-            </label>
-            <input
-              type="text"
-              value={business.schedule}
-              onChange={(e) => handleFieldChange("schedule", e.target.value)}
-              placeholder="Lunes a Viernes: 8:00 - 22:00 | Sábado y Domingo: 12:00 - 22:00"
-              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
-            />
-          </div>
-
-          {/* Horario detallado día por día */}
-          <div className="pt-2">
-            <span className="block text-xs font-semibold text-slate-700 mb-2">
-              Horario Detallado por Día
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
-              {DEFAULT_DAYS.map((day) => {
-                const current = business.scheduleDetails?.find(
-                  (s) => s.day.toLowerCase() === day.toLowerCase()
-                )?.hours || "";
-
-                return (
-                  <div
-                    key={day}
-                    className="p-2.5 rounded-xl border border-slate-200 bg-slate-50/60"
-                  >
-                    <span className="block text-[11px] font-bold text-slate-800 mb-1">
-                      {day}
-                    </span>
-                    <input
-                      type="text"
-                      value={current}
-                      onChange={(e) => handleScheduleDetailChange(day, e.target.value)}
-                      placeholder="8:00 - 22:00 o Cerrado"
-                      className="w-full px-2.5 py-1 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Bloque 4: Redes Sociales */}
-        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
-          <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
-              <Share2 className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-slate-900">
-                Redes Sociales Oficiales
-              </h2>
-              <p className="text-[11px] text-slate-500">
-                Enlaces a tus perfiles que se integran en el pie de página.
-              </p>
+                  return (
+                    <div
+                      key={day}
+                      className="p-2.5 rounded-xl border border-slate-200 bg-slate-50/60"
+                    >
+                      <span className="block text-[11px] font-bold text-slate-800 mb-1">
+                        {day}
+                      </span>
+                      <input
+                        type="text"
+                        value={current}
+                        onChange={(e) => handleScheduleDetailChange(day, e.target.value)}
+                        placeholder="8:00 - 22:00 o Cerrado"
+                        className="w-full px-2.5 py-1 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-800"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Facebook URL
-              </label>
-              <input
-                type="url"
-                value={business.socialLinks?.facebook || ""}
-                onChange={(e) => handleSocialChange("facebook", e.target.value)}
-                placeholder="https://facebook.com/..."
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
-              />
+          {/* Bloque 4: Redes Sociales */}
+          <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+              <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
+                <Share2 className="w-4 h-4" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-900">
+                  Redes Sociales Oficiales
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  Enlaces a tus perfiles que se integran en el pie de página.
+                </p>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Instagram URL
-              </label>
-              <input
-                type="url"
-                value={business.socialLinks?.instagram || ""}
-                onChange={(e) => handleSocialChange("instagram", e.target.value)}
-                placeholder="https://instagram.com/..."
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                TikTok URL
-              </label>
-              <input
-                type="url"
-                value={business.socialLinks?.tiktok || ""}
-                onChange={(e) => handleSocialChange("tiktok", e.target.value)}
-                placeholder="https://tiktok.com/@..."
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Bloque 5: Tarifas de Renta de Equipos */}
-        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
-          <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
-              <Monitor className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-slate-900">
-                Tarifas de Renta de Equipos (Computadoras)
-              </h2>
-              <p className="text-[11px] text-slate-500">
-                Define el precio por hora y media hora. Se sincronizará automáticamente en la cabecera, pie de página y la sección de tarifas del escaparate.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1">
-                <span>Tarifa 1 Hora (MXN) *</span>
-              </label>
-              <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
-                  $
-                </span>
+            <div className="grid grid-cols-1 gap-3.5">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Facebook URL
+                </label>
                 <input
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  value={business.computerRates?.oneHour ?? 7}
-                  onChange={(e) =>
-                    handleRatesChange("oneHour", parseFloat(e.target.value) || 0)
-                  }
-                  required
-                  className="w-full pl-7 pr-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
+                  type="url"
+                  value={business.socialLinks?.facebook || ""}
+                  onChange={(e) => handleSocialChange("facebook", e.target.value)}
+                  placeholder="https://facebook.com/..."
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
                 />
               </div>
-              <span className="text-[10px] text-slate-400 mt-1 block">
-                Precio visible en la cabecera (ej. &quot;Renta PC $7/hr&quot;) y tarjetas principales.
-              </span>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1">
-                <span>Tarifa Media Hora / 30 min (MXN) *</span>
-              </label>
-              <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
-                  $
-                </span>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Instagram URL
+                </label>
                 <input
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  value={business.computerRates?.halfHour ?? 4}
-                  onChange={(e) =>
-                    handleRatesChange("halfHour", parseFloat(e.target.value) || 0)
-                  }
-                  required
-                  className="w-full pl-7 pr-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
+                  type="url"
+                  value={business.socialLinks?.instagram || ""}
+                  onChange={(e) => handleSocialChange("instagram", e.target.value)}
+                  placeholder="https://instagram.com/..."
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
                 />
               </div>
-              <span className="text-[10px] text-slate-400 mt-1 block">
-                Fracción estándar para usuarios con necesidades cortas (30 minutos).
-              </span>
-            </div>
-          </div>
 
-          {/* Previsualización en Vivo de Tarifas */}
-          <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-            <span className="text-slate-600 font-medium">Previsualización de Tarifas:</span>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-bold text-blue-900 bg-blue-100/70 border border-blue-200 px-2.5 py-0.5 rounded-lg">
-                1 Hora: ${(business.computerRates?.oneHour ?? 7).toFixed(2)} MXN
-              </span>
-              <span className="font-bold text-slate-800 bg-slate-200/70 border border-slate-300 px-2.5 py-0.5 rounded-lg">
-                Media Hora: ${(business.computerRates?.halfHour ?? 4).toFixed(2)} MXN
-              </span>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  TikTok URL
+                </label>
+                <input
+                  type="url"
+                  value={business.socialLinks?.tiktok || ""}
+                  onChange={(e) => handleSocialChange("tiktok", e.target.value)}
+                  placeholder="https://tiktok.com/@..."
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900"
+                />
+              </div>
             </div>
           </div>
         </div>

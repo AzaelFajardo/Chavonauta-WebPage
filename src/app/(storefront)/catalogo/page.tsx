@@ -88,7 +88,7 @@ export default async function CatalogPage({
   };
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 py-6">
+    <div className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Barra superior de resultados */}
       <div
         style={{
@@ -192,7 +192,7 @@ export default async function CatalogPage({
         {/* Grilla de Productos */}
         <main className="lg:col-span-4">
           {pagedItems.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-4 xl:gap-5">
               {pagedItems.map((item) => {
                 const waLink = `https://wa.me/${theme.business.whatsappNumber}?text=${encodeURIComponent(
                   `Hola Chavonauta, me interesa consultar el artículo: ${item.name}`

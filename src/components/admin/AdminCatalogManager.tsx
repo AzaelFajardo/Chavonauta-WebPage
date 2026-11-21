@@ -375,7 +375,7 @@ export function AdminCatalogManager({
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 max-w-[1480px] 2xl:max-w-[1640px] w-full mx-auto">
       {/* Toast Flotante */}
       {toastMessage && (
         <div

@@ -190,7 +190,7 @@ export function AdminCustomizerManager({
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4.5rem)] sm:h-[calc(100vh-5rem)] bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-4.5rem)] sm:h-[calc(100vh-5rem)] lg:h-[calc(100vh-3rem)] bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
       {/* Toast Flotante */}
       {toastMessage && (
         <div
@@ -348,7 +348,7 @@ export function AdminCustomizerManager({
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         {/* Panel de Controles / Sidebar del Editor */}
         <div
-          className={`w-full lg:w-[410px] border-b lg:border-b-0 lg:border-r border-slate-200 bg-white flex flex-col shrink-0 h-full overflow-hidden ${
+          className={`w-full lg:w-[400px] xl:w-[430px] 2xl:w-[460px] border-b lg:border-b-0 lg:border-r border-slate-200 bg-white flex flex-col shrink-0 h-full overflow-hidden ${
             mobileViewMode === "editor" ? "flex" : "hidden lg:flex"
           }`}
         >

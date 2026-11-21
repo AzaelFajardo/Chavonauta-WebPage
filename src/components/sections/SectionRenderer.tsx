@@ -103,7 +103,7 @@ export function SectionRenderer({
               backgroundColor: "var(--primary, #1a2f85)",
               color: "var(--primary-foreground, #ffffff)",
             }}
-            className="relative pt-10 pb-36 px-4 sm:px-8 overflow-hidden shadow-inner transition-colors duration-200"
+            className="relative pt-10 pb-36 px-4 sm:px-6 lg:px-8 overflow-hidden shadow-inner transition-colors duration-200"
           >
             <HeroFallingIcons
               config={
@@ -115,8 +115,8 @@ export function SectionRenderer({
               themePalette={themePalette}
             />
 
-            <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
-              <div className="max-w-2xl z-10">
+            <div className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12 xl:gap-16 relative z-10">
+              <div className="flex-1 max-w-2xl xl:max-w-[720px] z-10">
                 {badgeText && (
                   <span
                     style={{
@@ -203,7 +203,7 @@ export function SectionRenderer({
               {sideImageUrl && (
                 <div
                   style={{ borderRadius: "var(--radius)" }}
-                  className="hidden lg:block w-96 h-64 overflow-hidden border border-white/20 shadow-2xl relative"
+                  className="hidden lg:block w-[380px] xl:w-[450px] 2xl:w-[500px] h-64 xl:h-72 2xl:h-80 shrink-0 overflow-hidden border border-white/20 shadow-2xl relative"
                 >
                   <img
                     src={sideImageUrl}
@@ -232,7 +232,7 @@ export function SectionRenderer({
           {heroCards.length > 0 && (() => {
             const heroGrid = getShowcaseGridConfig(heroCards.length);
             return (
-              <div className={`mx-auto px-4 -mt-20 sm:-mt-24 relative z-20 ${heroGrid.containerClass}`}>
+              <div className={`mx-auto px-4 sm:px-6 lg:px-8 -mt-20 sm:-mt-24 relative z-20 ${heroGrid.containerClass}`}>
                 <div className={heroGrid.gridClass}>
                   {heroCards.map((card, index) => (
                     <ShowcaseCardView
@@ -264,7 +264,7 @@ export function SectionRenderer({
       }
 
       return (
-        <section id={section.id || "sec-featured"} className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
+        <section id={section.id || "sec-featured"} className="bg-background text-foreground py-6 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
           <div
             style={{
               backgroundColor: "var(--card)",
@@ -272,7 +272,7 @@ export function SectionRenderer({
               borderColor: "var(--border)",
               borderRadius: "var(--radius)",
             }}
-            className="max-w-[1440px] mx-auto p-5 sm:p-6 shadow-sm border transition-colors duration-200"
+            className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto p-5 sm:p-6 xl:p-8 shadow-sm border transition-colors duration-200"
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-heading font-bold text-xl sm:text-2xl" style={{ color: "var(--card-foreground)" }}>
@@ -387,7 +387,7 @@ export function SectionRenderer({
       const servicesGrid = getShowcaseGridConfig(serviceCards.length);
 
       return (
-        <section id={section.id || "sec-services"} className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
+        <section id={section.id || "sec-services"} className="bg-background text-foreground py-6 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
           <div className={`mx-auto ${servicesGrid.containerClass}`}>
             <div className={servicesGrid.gridClass}>
               {serviceCards.map((card, index) => (
@@ -415,7 +415,7 @@ export function SectionRenderer({
       const halfHourRate = computerRates.halfHour ?? 4;
 
       return (
-        <section id={section.id || "sec-rates"} className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
+        <section id={section.id || "sec-rates"} className="bg-background text-foreground py-6 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
           <div
             id="tarifas"
             style={{
@@ -424,7 +424,7 @@ export function SectionRenderer({
               borderColor: "var(--border)",
               borderRadius: "var(--radius)",
             }}
-            className="max-w-[1440px] mx-auto p-6 sm:p-8 shadow-sm border transition-colors duration-200 overflow-hidden"
+            className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto p-6 sm:p-8 shadow-sm border transition-colors duration-200 overflow-hidden"
           >
             <div className="max-w-2xl mb-6">
               <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--primary)" }}>
@@ -514,7 +514,7 @@ export function SectionRenderer({
         )}`;
 
       return (
-        <section id={section.id || "sec-location"} className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
+        <section id={section.id || "sec-location"} className="bg-background text-foreground py-6 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
           <div
             id="ubicacion"
             style={{
@@ -523,7 +523,7 @@ export function SectionRenderer({
               borderColor: "var(--border)",
               borderRadius: "var(--radius)",
             }}
-            className="max-w-[1440px] mx-auto p-6 sm:p-8 shadow-sm border transition-colors duration-200 overflow-hidden"
+            className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto p-6 sm:p-8 shadow-sm border transition-colors duration-200 overflow-hidden"
           >
             <div className="mb-6">
               <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--primary)" }}>
@@ -665,14 +665,14 @@ export function SectionRenderer({
       if (!text && !section.title) return null;
 
       return (
-        <section id={section.id || "sec-promo-banner"} className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
+        <section id={section.id || "sec-promo-banner"} className="bg-background text-foreground py-6 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
           <div
             style={{
               backgroundColor: "var(--primary)",
               color: "var(--primary-foreground)",
               borderRadius: "var(--radius)",
             }}
-            className="max-w-[1440px] mx-auto p-6 sm:p-8 shadow-md"
+            className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto p-6 sm:p-8 shadow-md"
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
               <div className="max-w-3xl">
@@ -746,7 +746,7 @@ export function SectionRenderer({
       if (items.length === 0) return null;
 
       return (
-        <section id={section.id || "sec-faq"} className="bg-background text-foreground py-6 px-4 transition-colors duration-200">
+        <section id={section.id || "sec-faq"} className="bg-background text-foreground py-6 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
           <div
             style={{
               backgroundColor: "var(--card)",
@@ -754,7 +754,7 @@ export function SectionRenderer({
               borderColor: "var(--border)",
               borderRadius: "var(--radius)",
             }}
-            className="max-w-[1440px] mx-auto p-6 sm:p-8 border shadow-sm"
+            className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto p-6 sm:p-8 border shadow-sm"
           >
             <h2 className="font-heading font-bold text-xl sm:text-2xl">
               {section.title}

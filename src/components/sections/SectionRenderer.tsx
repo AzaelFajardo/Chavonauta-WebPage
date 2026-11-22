@@ -288,8 +288,8 @@ export function SectionRenderer({
               </Link>
             </div>
 
-            {/* Fila de productos */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            {/* Fila de productos (horizontal compacta tipo app en móvil, vertical en tablet/PC) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-6">
               {featuredProducts.slice(0, 8).map((product) => {
                 const waLink = `https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(
                   `Hola Chavonauta, me interesa consultar disponibilidad del artículo: ${product.name}`
@@ -303,69 +303,71 @@ export function SectionRenderer({
                       borderColor: "var(--border)",
                       borderRadius: "var(--radius)",
                     }}
-                    className="flex flex-col justify-between border p-4 hover:shadow-md transition-all group"
+                    className="flex flex-row sm:flex-col justify-between gap-3.5 sm:gap-0 border p-3 sm:p-4 hover:shadow-md transition-all group"
                   >
-                    <div>
-                      {/* Imagen */}
-                      <Link
-                        href={`/item/${product.slug}`}
-                        style={{ borderRadius: "var(--radius)" }}
-                        className="relative block aspect-square w-full overflow-hidden bg-slate-50 mb-3"
-                      >
-                        <img
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
-                        />
-                        {product.badges.length > 0 && (
-                          <span
-                            style={{
-                              backgroundColor: "var(--secondary)",
-                              color: "var(--secondary-foreground)",
-                              borderColor: "var(--border)",
-                              borderRadius: "var(--radius)",
-                            }}
-                            className="absolute top-2 left-2 border text-[10px] font-bold px-2 py-0.5"
-                          >
-                            {product.badges[0]}
-                          </span>
-                        )}
-                      </Link>
-
-                      {/* Título */}
-                      <Link href={`/item/${product.slug}`}>
-                        <h3
-                          className="font-heading font-medium text-xs sm:text-sm line-clamp-2 transition-colors leading-snug"
-                          style={{ color: "var(--card-foreground)" }}
+                    {/* Imagen */}
+                    <Link
+                      href={`/item/${product.slug}`}
+                      style={{ borderRadius: "var(--radius)" }}
+                      className="relative block w-24 h-24 sm:w-full sm:h-auto sm:aspect-square shrink-0 overflow-hidden bg-slate-50 sm:mb-3 self-center sm:self-auto"
+                    >
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="w-full h-full object-contain p-1.5 sm:p-2 group-hover:scale-105 transition-transform duration-300"
+                      />
+                      {product.badges.length > 0 && (
+                        <span
+                          style={{
+                            backgroundColor: "var(--secondary)",
+                            color: "var(--secondary-foreground)",
+                            borderColor: "var(--border)",
+                            borderRadius: "var(--radius)",
+                          }}
+                          className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 border text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5"
                         >
-                          {product.name}
-                        </h3>
-                      </Link>
-
-                      {/* Precio */}
-                      <div className="mt-2 flex items-baseline gap-1">
-                        <span className="text-xl font-bold" style={{ color: "var(--card-foreground)" }}>
-                          {product.priceLabel}
+                          {product.badges[0]}
                         </span>
-                      </div>
-                    </div>
+                      )}
+                    </Link>
 
-                    {/* Botón WhatsApp en primary reactivo */}
-                    <div className="mt-4 pt-3 border-t border-black/5">
-                      <a
-                        href={waLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          backgroundColor: "var(--primary)",
-                          color: "var(--primary-foreground)",
-                          borderRadius: "var(--radius)",
-                        }}
-                        className="flex items-center justify-center gap-1.5 w-full py-2 px-3 text-xs font-bold shadow-xs transition-opacity hover:opacity-90"
-                      >
-                        <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>Consultar por WhatsApp</span>
-                      </a>
+                    <div className="flex-1 min-w-0 flex flex-col justify-between">
+                      <div>
+                        {/* Título */}
+                        <Link href={`/item/${product.slug}`}>
+                          <h3
+                            className="font-heading font-semibold sm:font-medium text-xs sm:text-sm line-clamp-2 transition-colors leading-snug"
+                            style={{ color: "var(--card-foreground)" }}
+                          >
+                            {product.name}
+                          </h3>
+                        </Link>
+
+                        {/* Precio */}
+                        <div className="mt-1 sm:mt-2 flex items-baseline gap-1">
+                          <span className="text-base sm:text-xl font-bold" style={{ color: "var(--card-foreground)" }}>
+                            {product.priceLabel}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Botón WhatsApp en primary reactivo */}
+                      <div className="mt-2 sm:mt-4 sm:pt-3 sm:border-t border-black/5">
+                        <a
+                          href={waLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            backgroundColor: "var(--primary)",
+                            color: "var(--primary-foreground)",
+                            borderRadius: "var(--radius)",
+                          }}
+                          className="flex items-center justify-center gap-1.5 w-full py-1.5 sm:py-2 px-2.5 sm:px-3 text-[11px] sm:text-xs font-bold shadow-xs transition-opacity hover:opacity-90"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          <span className="truncate">Consultar por WhatsApp</span>
+                        </a>
+                      </div>
                     </div>
                   </div>
                 );

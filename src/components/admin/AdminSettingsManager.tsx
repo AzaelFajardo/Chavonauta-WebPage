@@ -43,6 +43,9 @@ export function AdminSettingsManager({
 }: AdminSettingsManagerProps) {
   const router = useRouter();
   const [business, setBusiness] = useState<BusinessInfo>(initialTheme.business);
+  // Última versión confirmada por el servidor; "Descartar" vuelve aquí y no al
+  // estado con el que se abrió la página.
+  const [savedTheme, setSavedTheme] = useState<ThemeConfig>(initialTheme);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [toastMessage, setToastMessage] = useState<{
@@ -114,7 +117,7 @@ export function AdminSettingsManager({
   };
 
   const handleDiscard = () => {
-    setBusiness(initialTheme.business);
+    setBusiness(savedTheme.business);
     setHasChanges(false);
     showToast("Cambios descartados.");
   };
@@ -124,7 +127,7 @@ export function AdminSettingsManager({
     setIsSaving(true);
 
     try {
-      const updatedSections = (initialTheme.sections || []).map((sec) => {
+      const updatedSections = (savedTheme.sections || []).map((sec) => {
         if (sec.type === "rates") {
           return {
             ...sec,
@@ -138,7 +141,7 @@ export function AdminSettingsManager({
       });
 
       const payload: ThemeConfig = {
-        ...initialTheme,
+        ...savedTheme,
         business,
         sections: updatedSections,
       };
@@ -153,6 +156,9 @@ export function AdminSettingsManager({
         throw new Error("Error al guardar la configuración");
       }
 
+      const saved: ThemeConfig = await res.json();
+      setSavedTheme(saved);
+      setBusiness(saved.business);
       setHasChanges(false);
       showToast("¡Configuración guardada con éxito!");
       return true;

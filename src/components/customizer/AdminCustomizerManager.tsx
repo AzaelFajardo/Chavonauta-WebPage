@@ -39,6 +39,9 @@ export function AdminCustomizerManager({
   const router = useRouter();
 
   const [theme, setTheme] = useState<ThemeConfig>(initialTheme);
+  // Última versión confirmada por el servidor; "Descartar" vuelve aquí y no al
+  // estado con el que se abrió la página.
+  const [savedTheme, setSavedTheme] = useState<ThemeConfig>(initialTheme);
   const [activeTab, setActiveTab] = useState<"colors" | "sections">("colors");
   const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [mobileViewMode, setMobileViewMode] = useState<"editor" | "preview">("editor");
@@ -93,6 +96,7 @@ export function AdminCustomizerManager({
 
       const saved: ThemeConfig = await res.json();
       setTheme(saved);
+      setSavedTheme(saved);
       setHasChanges(false);
       showToast("¡Diseño y configuración guardados con éxito!");
       return true;
@@ -106,7 +110,7 @@ export function AdminCustomizerManager({
   };
 
   const handleDiscard = () => {
-    setTheme(initialTheme);
+    setTheme(savedTheme);
     setHasChanges(false);
     showToast("Cambios descartados.");
   };

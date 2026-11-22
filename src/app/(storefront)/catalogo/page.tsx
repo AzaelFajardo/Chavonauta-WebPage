@@ -47,7 +47,13 @@ export default async function CatalogPage({
     repository.getThemeConfig(),
   ]);
 
-  const queryClean = (q || "").trim().toLowerCase();
+  const normalizeText = (value: string) =>
+    (value || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+  const queryClean = normalizeText((q || "").trim());
 
   let filteredItems = items;
 
@@ -70,13 +76,13 @@ export default async function CatalogPage({
   }
 
   if (queryClean) {
-    filteredItems = filteredItems.filter(
-      (item) =>
-        item.name.toLowerCase().includes(queryClean) ||
-        item.shortDescription.toLowerCase().includes(queryClean) ||
-        item.description.toLowerCase().includes(queryClean) ||
-        item.categorySlug.toLowerCase().includes(queryClean)
-    );
+    const terms = queryClean.split(/\s+/).filter(Boolean);
+    filteredItems = filteredItems.filter((item) => {
+      const haystack = normalizeText(
+        `${item.name} ${item.shortDescription} ${item.description} ${item.categorySlug} ${(item.badges || []).join(" ")}`
+      );
+      return terms.every((term) => haystack.includes(term));
+    });
   }
 
   const currentCategory = isServicesCategory

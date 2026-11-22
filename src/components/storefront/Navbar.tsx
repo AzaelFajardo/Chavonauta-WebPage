@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, Suspense } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
@@ -13,6 +13,7 @@ import {
   Clock,
   Monitor,
   FolderOpen,
+  ArrowRight,
 } from "lucide-react";
 import { BusinessInfo, CatalogItem, Category } from "@/types";
 
@@ -22,16 +23,24 @@ interface NavbarProps {
   items: CatalogItem[];
 }
 
+function normalizeSearchText(text: string): string {
+  return (text || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 function NavbarSearchParamsSync({
-  onCategoryChange,
+  onParamsChange,
 }: {
-  onCategoryChange: (category: string) => void;
+  onParamsChange: (category: string, query: string) => void;
 }) {
   const searchParams = useSearchParams();
   useEffect(() => {
     const cat = searchParams.get("categoria") || "";
-    onCategoryChange(cat);
-  }, [searchParams, onCategoryChange]);
+    const q = searchParams.get("q") || "";
+    onParamsChange(cat, q);
+  }, [searchParams, onParamsChange]);
   return null;
 }
 
@@ -43,18 +52,116 @@ export function Navbar({ business, categories, items }: NavbarProps) {
   const [activeCategoryParam, setActiveCategoryParam] = useState("");
   const [activeHash, setActiveHash] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  const desktopSearchRef = useRef<HTMLDivElement>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
+  const liveFilterTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const oneHourRate = business.computerRates?.oneHour ?? 7;
   const halfHourRate = business.computerRates?.halfHour ?? 4;
 
-  const handleCategoryParamChange = useCallback((cat: string) => {
+  const handleParamsChange = useCallback((cat: string, q: string) => {
     setActiveCategoryParam(cat);
     if (cat) {
       setSelectedCategory(cat === "servicios-cyber" ? "servicios-digitales" : cat);
     } else {
       setSelectedCategory("todas");
     }
+    setSearchQuery((prev) => (prev !== q && q ? q : prev));
   }, []);
+
+  // Cerrar desplegable de sugerencias al hacer clic fuera o presionar Escape
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      const inDesktop = desktopSearchRef.current?.contains(target);
+      const inMobile = mobileSearchRef.current?.contains(target);
+      if (!inDesktop && !inMobile) {
+        setIsSearchOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsSearchOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  // Filtrado en tiempo real de posibles resultados conforme el usuario escribe
+  const liveSearchResults = useMemo(() => {
+    const cleanQuery = normalizeSearchText(searchQuery.trim());
+    if (!cleanQuery) return [];
+
+    return items.filter((item) => {
+      if (item.active === false) return false;
+
+      if (selectedCategory && selectedCategory !== "todas") {
+        if (selectedCategory === "servicios-digitales") {
+          const isServiceItem =
+            item.categorySlug === "servicios-digitales" ||
+            item.categorySlug === "servicios-cyber" ||
+            item.type === "service";
+          if (!isServiceItem) return false;
+        } else if (item.categorySlug !== selectedCategory) {
+          return false;
+        }
+      }
+
+      const catName =
+        categories.find((c) => c.slug === item.categorySlug)?.name || "";
+      const haystack = normalizeSearchText(
+        `${item.name} ${item.shortDescription || ""} ${item.description || ""} ${item.categorySlug} ${catName} ${(item.badges || []).join(" ")}`
+      );
+
+      // Permitir coincidencia por cada palabra escrita
+      const terms = cleanQuery.split(/\s+/).filter(Boolean);
+      return terms.every((term) => haystack.includes(term));
+    });
+  }, [items, categories, searchQuery, selectedCategory]);
+
+  // Si el usuario ya está en /catalogo, actualizar también el listado en vivo con debounce suave
+  const triggerLiveCatalogSync = useCallback(
+    (nextQuery: string, nextCategory: string) => {
+      if (liveFilterTimeoutRef.current) {
+        clearTimeout(liveFilterTimeoutRef.current);
+      }
+      if (pathname !== "/catalogo") return;
+
+      liveFilterTimeoutRef.current = setTimeout(() => {
+        const params = new URLSearchParams();
+        if (nextQuery.trim()) params.set("q", nextQuery.trim());
+        if (nextCategory && nextCategory !== "todas") {
+          params.set("categoria", nextCategory);
+        }
+        const qs = params.toString();
+        router.replace(`/catalogo${qs ? `?${qs}` : ""}`, { scroll: false });
+      }, 220);
+    },
+    [pathname, router]
+  );
+
+  const handleQueryInputChange = (val: string) => {
+    setSearchQuery(val);
+    setIsSearchOpen(val.trim().length > 0);
+    triggerLiveCatalogSync(val, selectedCategory);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setIsSearchOpen(false);
+    triggerLiveCatalogSync("", selectedCategory);
+  };
 
   // Desplazar con margen exacto debajo del header sticky para que nunca tape el título del bloque
   const scrollToSectionWithOffset = useCallback((hash: string) => {
@@ -139,19 +246,137 @@ export function Navbar({ business, categories, items }: NavbarProps) {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    if (liveFilterTimeoutRef.current) {
+      clearTimeout(liveFilterTimeoutRef.current);
+    }
     const params = new URLSearchParams();
     if (searchQuery.trim()) params.set("q", searchQuery.trim());
     if (selectedCategory && selectedCategory !== "todas") {
       params.set("categoria", selectedCategory);
     }
+    setIsSearchOpen(false);
     setDrawerOpen(false);
     router.push(`/catalogo?${params.toString()}`);
+  };
+
+  const renderSuggestionsDropdown = () => {
+    if (!isSearchOpen || !searchQuery.trim()) return null;
+
+    const previewItems = liveSearchResults.slice(0, 6);
+
+    return (
+      <div
+        style={{ borderRadius: "var(--radius)" }}
+        className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white text-slate-900 shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in duration-150"
+      >
+        <div className="px-3.5 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-[11px]">
+          <span className="font-semibold text-slate-600">
+            {liveSearchResults.length === 0
+              ? "Sin coincidencias"
+              : `${liveSearchResults.length} resultado${liveSearchResults.length === 1 ? "" : "s"} encontrado${liveSearchResults.length === 1 ? "" : "s"}`}
+          </span>
+          {selectedCategory !== "todas" && (
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedCategory("todas");
+                triggerLiveCatalogSync(searchQuery, "todas");
+              }}
+              className="text-blue-600 hover:underline font-semibold"
+            >
+              Buscar en todos los departamentos
+            </button>
+          )}
+        </div>
+
+        {previewItems.length > 0 ? (
+          <>
+            <ul className="divide-y divide-slate-100 max-h-80 overflow-y-auto">
+              {previewItems.map((item) => {
+                const isService =
+                  item.type === "service" ||
+                  item.categorySlug === "servicios-digitales" ||
+                  item.categorySlug === "servicios-cyber";
+                const catLabel = isService
+                  ? "Servicios"
+                  : categories.find((c) => c.slug === item.categorySlug)?.name ||
+                    item.categorySlug.replace(/-/g, " ");
+
+                return (
+                  <li key={`suggest-${item.id}`}>
+                    <Link
+                      href={`/item/${item.slug}`}
+                      onClick={() => {
+                        if (liveFilterTimeoutRef.current) {
+                          clearTimeout(liveFilterTimeoutRef.current);
+                        }
+                        setIsSearchOpen(false);
+                      }}
+                      className="flex items-center gap-3 px-3.5 py-2.5 hover:bg-slate-50 transition-colors"
+                    >
+                      <div className="w-11 h-11 rounded-lg border border-slate-200 bg-slate-50 shrink-0 overflow-hidden flex items-center justify-center p-1">
+                        <img
+                          src={item.imageUrl}
+                          alt={item.name}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 truncate">
+                          {catLabel}
+                        </div>
+                        <div className="text-xs font-bold text-slate-900 truncate">
+                          {item.name}
+                        </div>
+                        {item.shortDescription && (
+                          <div className="text-[11px] text-slate-500 truncate">
+                            {item.shortDescription}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="text-right shrink-0">
+                        <span
+                          style={{ color: "var(--primary, #1a2f85)" }}
+                          className="text-xs font-extrabold block"
+                        >
+                          {item.priceLabel}
+                        </span>
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <button
+              type="button"
+              onClick={handleSearch}
+              style={{
+                backgroundColor: "var(--muted, #f1f5f9)",
+                color: "var(--primary, #1a2f85)",
+              }}
+              className="w-full px-3.5 py-2.5 text-xs font-bold border-t border-slate-200 hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
+            >
+              <span>Ver todos los resultados ({liveSearchResults.length})</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </>
+        ) : (
+          <div className="p-4 text-center text-xs text-slate-500">
+            No encontramos productos o servicios que coincidan con{" "}
+            <strong className="text-slate-800">&quot;{searchQuery.trim()}&quot;</strong>.
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
     <header className="sticky top-0 z-50 shadow-md">
       <Suspense fallback={null}>
-        <NavbarSearchParamsSync onCategoryChange={handleCategoryParamChange} />
+        <NavbarSearchParamsSync onParamsChange={handleParamsChange} />
       </Suspense>
       {/* 1. Header Principal reactivo al tema */}
       <div
@@ -216,59 +441,84 @@ export function Navbar({ business, categories, items }: NavbarProps) {
             </div>
           </Link>
 
-          {/* Barra de Búsqueda (Desktop & Tablet) */}
-          <form
-            onSubmit={handleSearch}
-            style={{ borderRadius: "var(--radius)" }}
-            className="hidden md:flex flex-1 max-w-3xl items-center h-10 bg-white overflow-hidden shadow-inner border border-black/10 focus-within:ring-2 focus-within:ring-white/40"
-          >
-            {/* Dropdown de departamentos */}
-            <div className="relative h-full flex items-center bg-slate-50 hover:bg-slate-100 border-r border-slate-200 transition-colors shrink-0 w-[120px] lg:w-[160px] xl:w-[190px]">
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="appearance-none w-full h-full bg-transparent text-slate-800 text-xs font-medium pl-2.5 sm:pl-3 pr-6 sm:pr-7 cursor-pointer focus:outline-none truncate"
-                aria-label="Seleccionar categoría"
-              >
-                <option value="todas">Departamentos</option>
-                <option value="servicios-digitales">Servicios</option>
-                {categories
-                  .filter(
-                    (c) =>
-                      c.slug !== "servicios-digitales" &&
-                      c.slug !== "servicios-cyber"
-                  )
-                  .map((cat) => (
-                    <option key={cat.id} value={cat.slug}>
-                      {cat.name}
-                    </option>
-                  ))}
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-500 absolute right-1.5 sm:right-2 pointer-events-none shrink-0" />
-            </div>
-
-            {/* Input de texto */}
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar en Chavonauta..."
-              className="flex-1 min-w-0 h-full px-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 bg-white focus:outline-none"
-            />
-
-            {/* Botón de búsqueda */}
-            <button
-              type="submit"
-              style={{
-                backgroundColor: "var(--accent)",
-                color: "var(--accent-foreground)",
-              }}
-              className="h-full px-3.5 sm:px-4 flex items-center justify-center transition-opacity hover:opacity-90 shrink-0 font-bold"
-              aria-label="Buscar"
+          {/* Barra de Búsqueda con Filtrado en Vivo (Desktop & Tablet) */}
+          <div ref={desktopSearchRef} className="hidden md:flex flex-col flex-1 max-w-3xl relative">
+            <form
+              onSubmit={handleSearch}
+              style={{ borderRadius: "var(--radius)" }}
+              className="w-full flex items-center h-10 bg-white overflow-hidden shadow-inner border border-black/10 focus-within:ring-2 focus-within:ring-white/40"
             >
-              <Search className="w-4 h-4" />
-            </button>
-          </form>
+              {/* Dropdown de departamentos */}
+              <div className="relative h-full flex items-center bg-slate-50 hover:bg-slate-100 border-r border-slate-200 transition-colors shrink-0 w-[120px] lg:w-[160px] xl:w-[190px]">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => {
+                    const nextCat = e.target.value;
+                    setSelectedCategory(nextCat);
+                    if (searchQuery.trim()) {
+                      setIsSearchOpen(true);
+                    }
+                    triggerLiveCatalogSync(searchQuery, nextCat);
+                  }}
+                  className="appearance-none w-full h-full bg-transparent text-slate-800 text-xs font-medium pl-2.5 sm:pl-3 pr-6 sm:pr-7 cursor-pointer focus:outline-none truncate"
+                  aria-label="Seleccionar categoría"
+                >
+                  <option value="todas">Departamentos</option>
+                  <option value="servicios-digitales">Servicios</option>
+                  {categories
+                    .filter(
+                      (c) =>
+                        c.slug !== "servicios-digitales" &&
+                        c.slug !== "servicios-cyber"
+                    )
+                    .map((cat) => (
+                      <option key={cat.id} value={cat.slug}>
+                        {cat.name}
+                      </option>
+                    ))}
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-500 absolute right-1.5 sm:right-2 pointer-events-none shrink-0" />
+              </div>
+
+              {/* Input de texto */}
+              <input
+                type="text"
+                value={searchQuery}
+                onFocus={() => {
+                  if (searchQuery.trim()) setIsSearchOpen(true);
+                }}
+                onChange={(e) => handleQueryInputChange(e.target.value)}
+                placeholder="Buscar en Chavonauta..."
+                className="flex-1 min-w-0 h-full px-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 bg-white focus:outline-none"
+              />
+
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="px-2 h-full text-slate-400 hover:text-slate-600 flex items-center justify-center"
+                  aria-label="Limpiar búsqueda"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+
+              {/* Botón de búsqueda */}
+              <button
+                type="submit"
+                style={{
+                  backgroundColor: "var(--accent)",
+                  color: "var(--accent-foreground)",
+                }}
+                className="h-full px-3.5 sm:px-4 flex items-center justify-center transition-opacity hover:opacity-90 shrink-0 font-bold"
+                aria-label="Buscar"
+              >
+                <Search className="w-4 h-4" />
+              </button>
+            </form>
+
+            {renderSuggestionsDropdown()}
+          </div>
 
           {/* Accesos a la Derecha */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
@@ -314,8 +564,8 @@ export function Navbar({ business, categories, items }: NavbarProps) {
           </div>
         </div>
 
-        {/* Buscador en versión Móvil (debajo de la barra principal) */}
-        <div className="md:hidden px-3 pb-3">
+        {/* Buscador en versión Móvil con Filtrado en Vivo (debajo de la barra principal) */}
+        <div ref={mobileSearchRef} className="md:hidden px-3 pb-3 relative">
           <form
             onSubmit={handleSearch}
             style={{ borderRadius: "var(--radius)" }}
@@ -324,10 +574,23 @@ export function Navbar({ business, categories, items }: NavbarProps) {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => {
+                if (searchQuery.trim()) setIsSearchOpen(true);
+              }}
+              onChange={(e) => handleQueryInputChange(e.target.value)}
               placeholder="Buscar productos o servicios..."
               className="flex-1 min-w-0 h-full px-3 text-xs text-slate-900 placeholder-slate-400 bg-white focus:outline-none"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                className="px-2 h-full text-slate-400 hover:text-slate-600 flex items-center justify-center"
+                aria-label="Limpiar búsqueda"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
             <button
               type="submit"
               style={{
@@ -340,6 +603,8 @@ export function Navbar({ business, categories, items }: NavbarProps) {
               <Search className="w-3.5 h-3.5" />
             </button>
           </form>
+
+          {renderSuggestionsDropdown()}
         </div>
       </div>
 

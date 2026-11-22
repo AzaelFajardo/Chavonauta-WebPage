@@ -218,7 +218,53 @@ Revisa mensualmente `npm audit` y `npm outdated`. Planifica actualizaciones mayo
 
 ---
 
-## 10. Diagnóstico rápido
+## 10. Vulnerabilidades de dependencias conocidas
+
+Registro de hallazgos de `npm audit` aceptados temporalmente y su plan de resolución.
+
+### 2026-11-22 — PostCSS transitivo en Next.js
+
+`npm audit` reporta **2 vulnerabilidades (1 high, 1 moderate)**, pero corresponden a
+**una sola causa**:
+
+- `postcss` (**high**): Next.js 15.5.29 incluye su propia copia de
+  `postcss@8.4.31` en `node_modules/next/node_modules/postcss`, dentro del rango
+  vulnerable `<= 8.5.22`. CVEs: XSS al no escapar `</style>` en la salida de
+  `stringify`, y lectura arbitraria de archivos/`.map` mediante `sourceMappingURL`
+  controlado por el atacante en comentarios CSS.
+- `next` (**moderate**): no es un fallo distinto; se marca porque depende de ese
+  PostCSS vulnerable.
+
+**Evaluación de riesgo:** bajo en este proyecto. PostCSS es una herramienta de
+**build** (procesa el CSS al ejecutar `npm run build`), no procesa CSS ni source
+maps enviados por usuarios en tiempo de ejecución. El CSS proviene del repositorio
+y no hay endpoint que reciba CSS arbitrario.
+
+**Decisión:** se acepta el riesgo por ahora y se deja documentado.
+
+**No ejecutar `npm audit fix --force` en producción:** instalaría `next@16.4.6`,
+un cambio mayor que requiere pruebas de regresión. Next 15.5.29 ya es la última
+15.x; no hay parche 15.x que actualice ese PostCSS.
+
+**Plan de resolución:**
+
+1. Planificar migración a **Next 16** en una rama dedicada, con `npm test` y
+   verificación del escaparate, catálogo y `/admin`.
+2. Alternativa provisional (no aplicada): forzar `postcss@8.5.33` mediante
+   `overrides` de npm dentro de Next; es una dependencia interna fijada, por lo
+   que debe probarse el build completo antes de desplegar.
+
+Verificación del estado:
+
+```bash
+npm audit
+npm ls postcss
+cat node_modules/next/node_modules/postcss/package.json
+```
+
+---
+
+## 11. Diagnóstico rápido
 
 | Síntoma | Revisar |
 |---|---|
